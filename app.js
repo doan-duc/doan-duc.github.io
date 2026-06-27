@@ -51,8 +51,36 @@ const revealObserver = new IntersectionObserver(
   { threshold: 0.16 }
 );
 
-document.querySelectorAll(".reveal").forEach((element) => {
+const revealElements = [...document.querySelectorAll(".reveal")];
+
+function isElementInRevealRange(element) {
+  const rect = element.getBoundingClientRect();
+  return rect.top < window.innerHeight * 1.08 && rect.bottom > -window.innerHeight * 0.08;
+}
+
+function showVisibleReveals() {
+  revealElements.forEach((element) => {
+    if (!element.classList.contains("is-visible") && isElementInRevealRange(element)) {
+      element.classList.add("is-visible");
+      revealObserver.unobserve(element);
+    }
+  });
+}
+
+revealElements.forEach((element) => {
+  if (isElementInRevealRange(element)) {
+    element.classList.add("is-visible");
+    return;
+  }
+
   revealObserver.observe(element);
+});
+
+window.addEventListener("load", () => {
+  window.setTimeout(showVisibleReveals, 80);
+});
+window.addEventListener("hashchange", () => {
+  window.setTimeout(showVisibleReveals, 80);
 });
 
 const sectionObserver = new IntersectionObserver(
