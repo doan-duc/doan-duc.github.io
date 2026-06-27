@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Doan Sinh Duc - Embedded Systems and IoT student researching neuromorphic AI, biosignal reconstruction, and efficient edge AI.">
+    <meta name="description" content="Doan Sinh Duc - AI and embedded systems portfolio, with milestones in biosignal AI, edge vision, and international research experiences.">
     <meta name="theme-color" content="#f8f0df">
     <title>Doan Sinh Duc | AI Research Portfolio</title>
     <link rel="preload" href="./assets/profile.jpg" as="image">
@@ -16,18 +16,16 @@
     <div class="scroll-progress" aria-hidden="true"></div>
 
     <header class="site-header" data-header>
-      <a class="brand-mark" href="#home" aria-label="Doan Sinh Duc home">
-        <span>DSD</span>
-      </a>
+      <a class="brand-mark" href="#home" aria-label="Doan Sinh Duc home"><span>DSD</span></a>
       <button class="nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false" data-nav-toggle>
         <span></span>
         <span></span>
       </button>
       <nav class="site-nav" aria-label="Primary navigation" data-nav>
-        <a href="#profile">Profile</a>
-        <a href="#research">Research</a>
-        <a href="#projects">Projects</a>
-        <a href="#experience">Experience</a>
+        <a href="#story">Story</a>
+        <a href="#work">Work</a>
+        <a href="#focus">Focus</a>
+        <a href="#now">Now</a>
         <a href="#contact">Contact</a>
       </nav>
     </header>
@@ -35,339 +33,185 @@
     <main id="main">
       <section class="hero section" id="home" aria-labelledby="hero-title">
         <div class="hero-copy reveal">
-          <p class="kicker">HUST Embedded Systems and IoT - EDABK Laboratory</p>
+          <p class="kicker">AI systems, biosignals, edge devices</p>
           <h1 id="hero-title">Doan Sinh Duc</h1>
           <p class="hero-lead">
-            AI researcher and embedded systems student building efficient intelligence for biosignals,
-            wearable ECG reconstruction, and real-time edge vision.
+            I build compact AI systems that can move from research ideas to real devices: wearable ECG,
+            multi-camera edge vision, and tools that make machine learning useful in messy settings.
           </p>
           <div class="hero-actions" aria-label="Main actions">
-            <a class="button button-primary" href="#projects">View projects</a>
+            <a class="button button-primary" href="#story">See the journey</a>
             <a class="button button-quiet" href="./assets/duc-doan-sinh-cv.pdf" target="_blank" rel="noreferrer">Open CV</a>
           </div>
           <div class="hero-links" aria-label="Contact links">
             <a href="mailto:doansinhduc@gmail.com">doansinhduc@gmail.com</a>
-            <a href="mailto:Duc.DS234000@sis.hust.edu.vn">HUST email</a>
             <a href="https://github.com/doan-duc" target="_blank" rel="noreferrer">GitHub</a>
             <a href="https://www.linkedin.com/in/doanduc2312" target="_blank" rel="noreferrer">LinkedIn</a>
           </div>
         </div>
 
-        <div class="hero-visual reveal" aria-label="Profile snapshot">
-          <figure class="portrait-shell">
+        <div class="hero-portrait reveal" aria-label="Profile portrait">
+          <figure class="portrait-card">
             <img src="./assets/profile.jpg" alt="Portrait of Doan Sinh Duc">
-            <figcaption>Hanoi, Vietnam</figcaption>
+            <figcaption>
+              <strong>HUST, EDABK Laboratory</strong>
+              <span>Smart Embedded Systems and IoT, expected 2027</span>
+            </figcaption>
           </figure>
-          <div class="status-panel">
-            <p class="panel-label">Current trajectory</p>
-            <ul>
-              <li><span>Research</span><strong>SNN, KAN, ECG, PPG</strong></li>
-              <li><span>Deployment</span><strong>Jetson Nano, TensorRT, DeepStream</strong></li>
-              <li><span>Role</span><strong>AI intern and GCI teaching assistant</strong></li>
-            </ul>
+          <div class="hero-note">
+            <span>Current lens</span>
+            <strong>Make AI smaller, faster, and more useful outside the lab.</strong>
           </div>
         </div>
       </section>
 
-      <section class="section profile-section" id="profile" aria-labelledby="profile-title">
+      <section class="section story-section" id="story" aria-labelledby="story-title">
         <div class="section-heading reveal">
-          <p class="kicker">Profile</p>
-          <h2 id="profile-title">Research-minded builder for small, constrained machines.</h2>
+          <p class="kicker">Milestones</p>
+          <h2 id="story-title">The photos matter because they mark the work becoming real.</h2>
         </div>
-        <div class="profile-layout">
-          <article class="profile-copy reveal">
-            <p>
-              I am a Smart Embedded Systems and IoT undergraduate student at Hanoi University of
-              Science and Technology, working with EDABK Laboratory. My work connects neuromorphic
-              computing, deep learning on biomedical signals, and efficient edge AI.
-            </p>
-            <p>
-              I focus on training and deploying Spiking Neural Networks, Kolmogorov-Arnold Networks,
-              and neural architecture search for ECG and PPG signals, while also building real-time
-              computer vision systems that stay accurate under strict device limits.
-            </p>
-          </article>
-          <dl class="fact-grid reveal">
-            <div>
-              <dt>University</dt>
-              <dd>Hanoi University of Science and Technology</dd>
-            </div>
-            <div>
-              <dt>Laboratory</dt>
-              <dd>EDABK Laboratory, HUST</dd>
-            </div>
-            <div>
-              <dt>Location</dt>
-              <dd>Hanoi, Vietnam</dd>
-            </div>
-            <div>
-              <dt>CPA</dt>
-              <dd>3.16 / 4.0</dd>
-            </div>
-          </dl>
-        </div>
-      </section>
 
-      <section class="section research-section" id="research" aria-labelledby="research-title">
-        <div class="section-heading reveal">
-          <p class="kicker">Research focus</p>
-          <h2 id="research-title">Signals, models, and hardware that have to agree in real time.</h2>
-        </div>
-        <div class="research-grid">
-          <article class="research-block reveal">
-            <span class="block-index">01</span>
-            <h3>Emerging AI architectures for biosignals</h3>
-            <p>
-              Training and deploying SNNs, KANs, and MLP NAS pipelines on biological signals,
-              especially ECG and PPG, with attention to morphology, leakage-safe evaluation, and
-              patient-level adaptation.
-            </p>
+        <div class="story-grid">
+          <article class="story-card story-card-large reveal">
+            <img src="./assets/field-yasuda-auditorium.jpg" alt="Doan Sinh Duc standing in front of Yasuda Auditorium at The University of Tokyo" loading="lazy">
+            <div class="story-caption">
+              <span>Mar. 2025, Tokyo</span>
+              <h3>Short-term AI research exchange</h3>
+              <p>
+                The University of Tokyo trip widened my view of AI research: World Models, LLMs,
+                Robotics, and how a local problem can become a research question with global context.
+              </p>
+            </div>
           </article>
-          <article class="research-block reveal">
-            <span class="block-index">02</span>
-            <h3>Efficient edge AI</h3>
-            <p>
-              Developing, quantizing, and deploying real-time computer vision systems with PyTorch,
-              TensorRT, DeepStream, GStreamer, Docker, and Jetson Nano hardware.
-            </p>
+
+          <article class="story-card reveal">
+            <img src="./assets/field-matsuo-presentation.jpg" alt="Doan Sinh Duc presenting an AI healthcare concept at Matsuo-Iwasawa Laboratory" loading="lazy">
+            <div class="story-caption">
+              <span>Matsuo-Iwasawa Laboratory</span>
+              <h3>Learning to present ideas clearly</h3>
+              <p>
+                My final presentation connected Vietnam clinical needs with AI systems thinking,
+                turning a broad healthcare concern into a concrete technical proposal.
+              </p>
+            </div>
           </article>
-          <article class="research-block research-block-wide reveal">
-            <span class="block-index">03</span>
-            <h3>Applied AI systems</h3>
-            <p>
-              Building practical AI workflows across object detection, retrieval-augmented support
-              assistants, biomedical time-series reconstruction, and industrial quality control.
-            </p>
+
+          <article class="story-card story-card-accent reveal">
+            <img src="./assets/field-harvard-hackathon.jpg" alt="Award stage photo from the HSIL Hackathon 2026 Vietnam Hub" loading="lazy">
+            <div class="story-caption">
+              <span>HSIL Hackathon 2026</span>
+              <h3>2nd Place, Vietnam Hub</h3>
+              <p>
+                A health systems AI challenge by Harvard Health Systems Innovation Lab. Our team reached
+                Top 100 Global Teams from 14,700+ applications worldwide.
+              </p>
+            </div>
+          </article>
+
+          <article class="story-card story-card-wide reveal">
+            <img src="./assets/field-matsuo-dinner.jpg" alt="Dinner gathering with Prof. Matsuo and international students at Shangri-La Hotel" loading="lazy">
+            <div class="story-caption">
+              <span>Research community</span>
+              <h3>Good work grows through conversations</h3>
+              <p>
+                Dinner with Prof. Matsuo and international peers. It was a reminder that research is not
+                only models and metrics, it is also feedback, mentorship, and people generous with ideas.
+              </p>
+            </div>
           </article>
         </div>
       </section>
 
-      <section class="section projects-section" id="projects" aria-labelledby="projects-title">
+      <section class="section work-section" id="work" aria-labelledby="work-title">
         <div class="section-heading reveal">
-          <p class="kicker">Featured projects</p>
-          <h2 id="projects-title">From wearable ECG to multi-camera edge perception.</h2>
+          <p class="kicker">Selected work</p>
+          <h2 id="work-title">A few projects that show how I think, not a second CV.</h2>
         </div>
 
-        <div class="project-stack">
-          <article class="project project-featured reveal">
-            <div class="project-meta">
-              <span>AI Researcher / Project Lead</span>
-              <span>May 2026 - Present</span>
-            </div>
-            <h3>Neuromorphic Ear-to-Chest ECG Reconstruction with Perceptual Loss</h3>
+        <div class="work-showcase">
+          <article class="work-card work-card-featured reveal">
+            <span class="work-tag">Wearable biosignal AI</span>
+            <h3>Ear-to-chest ECG reconstruction</h3>
             <p>
-              Developed a quantized Spiking Neural Network autoencoder that reconstructs clinical-style
-              chest ECG from noisy ear-worn ECG using 4-bit LSQ Conv1D layers, MultiSpike activations,
-              fixed-point input quantization, and a composite medical time-series objective.
+              Built a compact SNN autoencoder to reconstruct clinical-style chest ECG from noisy ear-worn
+              signals, using perceptual loss and personalization for wearable monitoring.
             </p>
-            <ul class="project-points">
-              <li>Combined MSE, ECGFounder perceptual feature loss, Total Variation smoothing, and Pearson correlation loss.</li>
-              <li>Built subject-level train, validation, and test splits across 36,407 two-second segments from 12 paired recordings.</li>
-              <li>Reached 0.8508 Pearson correlation on an unseen patient and 0.9065 after decoder-only personalization.</li>
-              <li>Profiled 13,684 parameters and 13.44M MACs per 2-second window for ultra-low-power wearable AI.</li>
-            </ul>
+            <dl>
+              <div><dt>Best signal</dt><dd>0.9065 personalized correlation</dd></div>
+              <div><dt>Edge profile</dt><dd>13,684 parameters, 13.44M MACs</dd></div>
+            </dl>
             <a class="text-link" href="https://github.com/doan-duc/ecg_perceptual" target="_blank" rel="noreferrer">Open repository</a>
           </article>
 
-          <article class="project project-split reveal">
-            <div>
-              <div class="project-meta">
-                <span>Project Leader</span>
-                <span>Oct. 2025 - Dec. 2025</span>
-              </div>
-              <h3>Edge AI Product Recognition via 16-Stream RTSP</h3>
-              <p>
-                Built a high-throughput real-time detection pipeline on NVIDIA Jetson Nano using
-                DeepStream, GStreamer, Docker, TensorRT, and YOLOv8n.
-              </p>
-            </div>
-            <ul class="project-points">
-              <li>Processed 16 concurrent RTSP streams on constrained edge hardware.</li>
-              <li>Evaluated FP16 and INT8 quantization, knowledge distillation, and architecture tuning.</li>
-              <li>Benchmarked robust detection at target distances up to 10 meters.</li>
-            </ul>
+          <article class="work-card reveal">
+            <span class="work-tag">Edge vision</span>
+            <h3>16-stream product recognition</h3>
+            <p>
+              A Jetson Nano pipeline for real-time product detection across 16 RTSP streams with
+              DeepStream, TensorRT, Docker, and YOLOv8n.
+            </p>
             <a class="text-link" href="https://github.com/doan-duc/DeepStream-YOLOv8-Jetson-Nano-16RTSP" target="_blank" rel="noreferrer">Open repository</a>
           </article>
 
-          <article class="project project-compact reveal">
-            <div class="project-meta">
-              <span>Project Leader</span>
-              <span>Jan. 2026 - Feb. 2026</span>
-            </div>
-            <h3>Multi-tier Electronic Component Packaging AI Control System</h3>
+          <article class="work-card reveal">
+            <span class="work-tag">Industrial QA</span>
+            <h3>Electronic packaging control</h3>
             <p>
-              Deployed a YOLOv8n system for 11 component classes in a two-tier electronics packaging
-              flow, with an anchor-based mapping algorithm synchronizing state machines across four
-              camera feeds.
+              A four-camera YOLOv8 system with anchor-based mapping to track component states and catch
+              packaging mistakes in real time.
             </p>
             <a class="text-link" href="https://github.com/doan-duc/OSCO-Object-Scanning-and-Checklist-Optimization" target="_blank" rel="noreferrer">Open repository</a>
           </article>
         </div>
       </section>
 
-      <section class="section experience-section" id="experience" aria-labelledby="experience-title">
+      <section class="section focus-section" id="focus" aria-labelledby="focus-title">
         <div class="section-heading reveal">
-          <p class="kicker">Experience</p>
-          <h2 id="experience-title">Research lab, industry internships, and international teaching.</h2>
+          <p class="kicker">What I care about</p>
+          <h2 id="focus-title">Small models, difficult signals, real constraints.</h2>
         </div>
 
-        <div class="timeline reveal">
-          <article class="timeline-item">
-            <span class="timeline-date">Sep. 2024 - Present</span>
-            <h3>Lab Member, EDABK Laboratory, HUST</h3>
-            <p>
-              Researching SNN, KAN, and MLP NAS methods for ECG and PPG processing, developing
-              efficient computer vision systems, and mentoring junior lab members.
-            </p>
+        <div class="focus-grid">
+          <article class="focus-item reveal">
+            <span>01</span>
+            <h3>Biosignals with structure</h3>
+            <p>ECG and PPG are not just arrays. I care about preserving morphology, patient splits, and useful adaptation.</p>
           </article>
-          <article class="timeline-item">
-            <span class="timeline-date">Apr. 2026 - Present</span>
-            <h3>Teaching Assistant, Global Consumer Intelligence Course</h3>
-            <p>
-              Supporting Matsuo-Iwasawa Laboratory at The University of Tokyo through office hours,
-              machine learning guidance, programming assignment help, and virtual community sessions.
-            </p>
+          <article class="focus-item reveal">
+            <span>02</span>
+            <h3>AI on constrained hardware</h3>
+            <p>Quantization, inference profiling, and deployment details matter when models must run on devices, not slides.</p>
           </article>
-          <article class="timeline-item">
-            <span class="timeline-date">Apr. 2026 - Present</span>
-            <h3>Artificial Intelligence Intern, Viettel Telecom</h3>
-            <p>
-              Designing an LLM-powered support assistant with retrieval-augmented generation,
-              document chunking, retrieval pipeline design, prompt iteration, and response evaluation.
-            </p>
-          </article>
-          <article class="timeline-item">
-            <span class="timeline-date">Apr. 2026 - Present</span>
-            <h3>Artificial Intelligence Intern, HANET Technology</h3>
-            <p>
-              Optimizing YOLO-based inference pipelines for deployment, profiling latency and
-              throughput, and improving model efficiency under real-time constraints.
-            </p>
+          <article class="focus-item reveal">
+            <span>03</span>
+            <h3>Research that communicates</h3>
+            <p>A good result should be understandable to teammates, mentors, users, and the next person who builds on it.</p>
           </article>
         </div>
       </section>
 
-      <section class="section education-awards" aria-label="Education and awards">
-        <div class="education-block reveal">
-          <p class="kicker">Education</p>
-          <h2>HUST, University of Tokyo, and applied AI study.</h2>
-          <div class="education-list">
+      <section class="section now-section" id="now" aria-labelledby="now-title">
+        <div class="now-photo reveal">
+          <img src="./assets/field-harvard-hackathon.jpg" alt="Doan Sinh Duc and team receiving HSIL Hackathon award" loading="lazy">
+        </div>
+        <div class="now-copy reveal">
+          <p class="kicker">Now</p>
+          <h2 id="now-title">Currently learning by doing.</h2>
+          <div class="now-list">
             <article>
-              <h3>B.S. in Smart Embedded Systems and IoT</h3>
-              <p>Hanoi University of Science and Technology, Sep. 2023 - Present, expected 2027.</p>
-              <span>CPA 3.16 / 4.0</span>
+              <h3>EDABK Laboratory, HUST</h3>
+              <p>Researching SNN, KAN, and optimization techniques for ECG, PPG, and efficient AI systems.</p>
             </article>
             <article>
-              <h3>Short-term AI Research Exchange</h3>
-              <p>The University of Tokyo, Matsuo-Iwasawa Laboratory, Mar. 2025.</p>
-              <span>World Models, LLMs, and Robotics</span>
+              <h3>AI Internships</h3>
+              <p>Working on RAG support assistants at Viettel Telecom and YOLO inference optimization at HANET Technology.</p>
+            </article>
+            <article>
+              <h3>Teaching Assistant</h3>
+              <p>Supporting Global Consumer Intelligence students with ML concepts, assignments, and remote study sessions.</p>
             </article>
           </div>
         </div>
-
-        <div class="award-block reveal">
-          <p class="kicker">Honors</p>
-          <ul class="award-list">
-            <li>
-              <strong>2nd Place Winner, Vietnam Hub and Top 100 Global Teams</strong>
-              <span>HSIL Hackathon 2026, Harvard Health Systems Innovation Lab, selected from 14,700+ applications worldwide.</span>
-            </li>
-            <li>
-              <strong>Outstanding Student</strong>
-              <span>Global Consumer Intelligence Course 2025, Matsuo-Iwasawa Lab, University of Tokyo, Top 20 outstanding students.</span>
-            </li>
-            <li>
-              <strong>Top 30 Team</strong>
-              <span>Bosch CodeRace Challenge 2025, Bosch Global Software Technologies Vietnam.</span>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <section class="section field-notes-section" aria-labelledby="field-notes-title">
-        <div class="section-heading reveal">
-          <p class="kicker">Field notes</p>
-          <h2 id="field-notes-title">Moments behind the research path.</h2>
-        </div>
-        <div class="field-notes-grid">
-          <figure class="field-note field-note-large reveal">
-            <img src="./assets/field-yasuda-auditorium.jpg" alt="Doan Sinh Duc standing in front of Yasuda Auditorium at The University of Tokyo" loading="lazy">
-            <figcaption>
-              <strong>University of Tokyo exchange</strong>
-              <span>Short-term AI research exchange at Matsuo-Iwasawa Laboratory, focused on World Models, LLMs, and Robotics.</span>
-            </figcaption>
-          </figure>
-          <figure class="field-note reveal">
-            <img src="./assets/field-matsuo-presentation.jpg" alt="Doan Sinh Duc presenting an AI healthcare concept at Matsuo-Iwasawa Laboratory" loading="lazy">
-            <figcaption>
-              <strong>Research presentation</strong>
-              <span>Final exchange presentation connecting Vietnam clinical needs with AI systems research.</span>
-            </figcaption>
-          </figure>
-          <figure class="field-note reveal">
-            <img src="./assets/field-harvard-hackathon.jpg" alt="Award stage photo from the HSIL Hackathon 2026 Vietnam Hub" loading="lazy">
-            <figcaption>
-              <strong>HSIL Hackathon 2026</strong>
-              <span>2nd Place Winner, Vietnam Hub, and Top 100 Global Teams in Harvard Health Systems Innovation Lab's AI challenge.</span>
-            </figcaption>
-          </figure>
-          <figure class="field-note field-note-wide reveal">
-            <img src="./assets/field-matsuo-dinner.jpg" alt="Dinner gathering with Prof. Matsuo and international students at Shangri-La Hotel" loading="lazy">
-            <figcaption>
-              <strong>International research community</strong>
-              <span>Dinner with Prof. Matsuo and peers, a quiet reminder that good AI work also grows through generous conversations.</span>
-            </figcaption>
-          </figure>
-        </div>
-      </section>
-
-      <section class="section toolkit-section" aria-labelledby="toolkit-title">
-        <div class="section-heading reveal">
-          <p class="kicker">Toolkit</p>
-          <h2 id="toolkit-title">Research and engineering stack.</h2>
-        </div>
-        <div class="toolkit-grid reveal">
-          <div>
-            <h3>Programming</h3>
-            <p>Python, C, C++</p>
-          </div>
-          <div>
-            <h3>Deep learning</h3>
-            <p>PyTorch, TensorFlow, Keras, SpikingJelly, CNNs, SNNs, KANs, RAG</p>
-          </div>
-          <div>
-            <h3>Data and vision</h3>
-            <p>Scikit-learn, NumPy, Pandas, Matplotlib, Seaborn, OpenCV, Ultralytics, YOLO</p>
-          </div>
-          <div>
-            <h3>Deployment</h3>
-            <p>Linux, Docker, NVIDIA DeepStream, GStreamer, TensorRT, Jetson Nano</p>
-          </div>
-          <div>
-            <h3>Hardware</h3>
-            <p>ESP32, Arduino, embedded AI prototypes</p>
-          </div>
-          <div>
-            <h3>Languages</h3>
-            <p>English intermediate, Japanese elementary, IELTS 7.0, JLPT N4</p>
-          </div>
-        </div>
-      </section>
-
-      <section class="section certificates-section" aria-labelledby="certificates-title">
-        <div class="section-heading reveal">
-          <p class="kicker">Certificates</p>
-          <h2 id="certificates-title">Validated learning across deep learning, edge AI, and languages.</h2>
-        </div>
-        <ul class="certificate-list reveal">
-          <li><a href="https://coursera.org/verify/4FSUB59JU2GY" target="_blank" rel="noreferrer">Convolutional Neural Networks</a><span>DeepLearning.AI, Mar. 2026</span></li>
-          <li><a href="https://coursera.org/verify/FWZWOUL3ROSN" target="_blank" rel="noreferrer">Introduction to Deep Learning and Neural Networks with Keras</a><span>IBM, Sep. 2025</span></li>
-          <li><a href="https://coursera.org/verify/8ILKTYE412TX" target="_blank" rel="noreferrer">Machine Learning with Python</a><span>IBM, May. 2025</span></li>
-          <li><a href="https://learn.nvidia.com/certificates?id=oOlgh0eXTXGNpohfoGdWYw" target="_blank" rel="noreferrer">Getting Started with AI on Jetson Nano</a><span>NVIDIA, Sep. 2025</span></li>
-          <li><a href="https://coursera.org/verify/ZB6XRHFZHBNL" target="_blank" rel="noreferrer">Machine Learning at the Edge on Arm</a><span>Arm Education, Sep. 2025</span></li>
-          <li><a href="https://edu.google.accredible.com/embed/a7de5512-970e-4e77-83b5-b587989fe05d" target="_blank" rel="noreferrer">Gemini Certified University Student</a><span>Google, Dec. 2025</span></li>
-          <li><a href="https://drive.google.com/file/d/1bGffxOFaVvKa810oGW1bWsVqyWQqf99F/view?usp=sharing" target="_blank" rel="noreferrer">Global Consumer Intelligence Course 2025</a><span>Matsuo-Iwasawa Lab, Dec. 2025</span></li>
-        </ul>
       </section>
 
       <section class="section contact-section" id="contact" aria-labelledby="contact-title">
@@ -375,8 +219,8 @@
           <p class="kicker">Contact</p>
           <h2 id="contact-title">Open to research collaboration, AI internships, and edge AI systems work.</h2>
           <p>
-            I am especially interested in neuromorphic AI, wearable biosignal reconstruction,
-            efficient computer vision deployment, and AI systems that move from notebook to device.
+            I am especially interested in neuromorphic AI, wearable biosignal reconstruction, efficient
+            computer vision deployment, and research ideas that can survive contact with real hardware.
           </p>
         </div>
         <div class="contact-panel reveal">
@@ -397,4 +241,3 @@
     <script type="module" src="./app.js"></script>
   </body>
 </html>
-
