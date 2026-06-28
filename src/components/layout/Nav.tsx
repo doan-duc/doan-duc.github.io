@@ -48,7 +48,7 @@ export function Nav() {
         className={cn(
           "fixed inset-x-0 top-0 z-50 transition-colors duration-500",
           scrolled
-            ? "border-b border-line bg-base/70 backdrop-blur-xl"
+            ? "border-b border-line bg-base/90"
             : "border-b border-transparent"
         )}
       >

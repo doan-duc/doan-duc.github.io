@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { recognition, recognitionMoments } from "@/lib/content";
 import { Container } from "@/components/ui/Container";
 import { SectionHeader } from "@/components/ui/SectionHeader";
@@ -59,13 +58,15 @@ export function Recognition() {
             {recognitionMoments.map((moment) => (
               <figure key={moment.src}>
                 <div className="img-wrap">
-                  <Image
-                    src={moment.src}
-                    alt={moment.alt}
-                    width={1200}
-                    height={900}
-                    sizes="(max-width: 768px) calc(100vw - 40px), 50vw"
-                  />
+                  <picture>
+                    <source srcSet={moment.webpSrc} type="image/webp" />
+                    <img
+                      src={moment.src}
+                      alt={moment.alt}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </picture>
                 </div>
                 <figcaption>
                   <span className="moment-location">

@@ -1,8 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import { useRef } from "react";
 import { gsap } from "gsap";
-import { SplitText } from "gsap/SplitText";
 import { useIsoLayoutEffect } from "@/lib/use-iso-layout-effect";
 import { site } from "@/lib/site";
 import { Container } from "@/components/ui/Container";
@@ -10,8 +10,47 @@ import { ArrowDown } from "@/components/ui/icons";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { useSmoothScroll } from "@/components/providers/SmoothScroll";
 
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(SplitText);
+function HeroSignalPanel() {
+  return (
+    <div className="hero-stage">
+      <div className="hero-stage-grid" aria-hidden="true" />
+      <div className="hero-orbit hero-orbit-one" aria-hidden="true" />
+      <div className="hero-orbit hero-orbit-two" aria-hidden="true" />
+      <div className="hero-signal-line hero-signal-line-a" aria-hidden="true" />
+      <div className="hero-signal-line hero-signal-line-b" aria-hidden="true" />
+
+      <div className="hero-portrait-mark">
+        <Image
+          src={site.portrait.src}
+          alt={site.portrait.alt}
+          fill
+          priority
+          sizes="360px"
+          className="object-cover"
+        />
+      </div>
+
+      <div className="hero-node hero-node-a">
+        <span>ECG</span>
+      </div>
+      <div className="hero-node hero-node-b">
+        <span>SNN</span>
+      </div>
+      <div className="hero-node hero-node-c">
+        <span>EDGE</span>
+      </div>
+
+      <div className="hero-signal-card">
+        <span className="meta-label">Research vector</span>
+        <p>From noisy signals to deployable intelligence.</p>
+        <div className="hero-pipeline" aria-label="Research pipeline">
+          <span>Biosignal</span>
+          <span>Model</span>
+          <span>Edge</span>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export function Hero() {
@@ -20,26 +59,24 @@ export function Hero() {
   const kicker = useRef<HTMLParagraphElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const rest = useRef<HTMLDivElement>(null);
+  const visual = useRef<HTMLDivElement>(null);
 
   useIsoLayoutEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const ctx = gsap.context(() => {
-      // Split the heading into lines, each wrapped in an overflow-hidden mask.
-      const split = new SplitText(heading.current, {
-        type: "lines",
-        mask: "lines",
-      });
+      const headingLines = heading.current
+        ? gsap.utils.toArray<HTMLElement>(heading.current.querySelectorAll("[data-hero-line]"))
+        : [];
 
       const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
-      tl.from(kicker.current, { y: 18, opacity: 0, duration: 0.7 })
+      tl.from(kicker.current, { y: 14, opacity: 0, duration: 0.65 })
         .from(
-          split.lines,
+          headingLines,
           {
             yPercent: 110,
-            filter: "blur(8px)",
             opacity: 0,
-            duration: 1.1,
+            duration: 0.95,
             stagger: 0.08,
           },
           "-=0.3"
@@ -48,6 +85,11 @@ export function Hero() {
           rest.current ? Array.from(rest.current.children) : [],
           { y: 26, opacity: 0, duration: 0.9, stagger: 0.1 },
           "-=0.55"
+        )
+        .from(
+          visual.current,
+          { y: 24, opacity: 0, scale: 0.98, duration: 0.9 },
+          "-=0.85"
         );
     }, root);
 
@@ -57,73 +99,85 @@ export function Hero() {
   return (
     <section
       ref={root}
-      className="relative flex min-h-[100svh] flex-col justify-end pb-20 pt-28"
+      className="relative flex min-h-[100svh] flex-col justify-center overflow-hidden pb-10 pt-24 md:pt-28"
     >
-      {/* Soft, slowly-pulsing cyan glow behind the name */}
+      <div className="hero-grid-bg" aria-hidden="true" />
+
       <div
         aria-hidden
-        className="hero-glow pointer-events-none absolute bottom-[18%] left-[2%] -z-0 h-[42vw] max-h-[640px] w-[42vw] max-w-[640px] rounded-full"
+        className="hero-glow pointer-events-none absolute bottom-[20%] left-[3%] -z-0 h-[36vw] max-h-[520px] w-[36vw] max-w-[520px] rounded-full"
         style={{
           background:
-            "radial-gradient(circle, rgba(34,211,238,0.5) 0%, rgba(34,211,238,0.12) 35%, transparent 65%)",
-          filter: "blur(60px)",
+            "radial-gradient(circle, rgba(34,211,238,0.34) 0%, rgba(34,211,238,0.1) 38%, transparent 68%)",
+          filter: "blur(36px)",
         }}
       />
 
-      <Container className="relative z-10">
-        <p ref={kicker} className="kicker flex items-center gap-2.5">
-          <span className="relative flex h-2 w-2" aria-hidden="true">
-            <span className="hero-eyebrow-dot inline-flex h-2 w-2 rounded-full bg-accent" />
-          </span>
-          {site.available} · {site.location}
-        </p>
+      <Container className="relative z-10 w-full">
+        <div className="grid items-end gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(360px,0.72fr)] lg:gap-10">
+          <div>
+            <p ref={kicker} className="kicker flex items-center gap-2.5">
+              <span className="relative flex h-2 w-2" aria-hidden="true">
+                <span className="hero-eyebrow-dot inline-flex h-2 w-2 rounded-full bg-accent" />
+              </span>
+              {site.available} - {site.location}
+            </p>
 
-        {/* Giant name — full white, no gradient. Glow lives behind it. */}
-        <h1
-          ref={heading}
-          className="mt-7 text-[clamp(3rem,12vw,11rem)] font-semibold leading-[0.88] tracking-display"
-        >
-          <span className="block">Duc Doan</span>
-          <span className="block">Sinh.</span>
-        </h1>
-
-        <div ref={rest}>
-          <p className="hero-subtitle mt-8">
-            {site.summary}
-          </p>
-
-          <div className="mt-10 flex flex-wrap items-center gap-4">
-            <Magnetic>
-              <button
-                onClick={() => scrollTo("#work")}
-                className="group inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-[#0a0a0a] transition-transform hover:scale-[1.02]"
-              >
-                Selected work
-                <ArrowDown className="h-4 w-4 transition-transform group-hover:translate-y-0.5" />
-              </button>
-            </Magnetic>
-            <a
-              href={`mailto:${site.email}`}
-              className="rounded-full border border-line px-6 py-3 text-sm text-ink transition-colors hover:border-accent hover:bg-accent/10"
+            <h1
+              ref={heading}
+              className="mt-7 max-w-[860px] text-[clamp(3.2rem,8.6vw,8rem)] font-semibold leading-[0.88] tracking-display"
             >
-              Get in touch
-            </a>
+              <span className="block overflow-hidden">
+                <span data-hero-line className="block">Duc Doan</span>
+              </span>
+              <span className="block overflow-hidden">
+                <span data-hero-line className="block">Sinh.</span>
+              </span>
+            </h1>
+
+            <div ref={rest}>
+              <p className="hero-subtitle mt-8">
+                {site.summary}
+              </p>
+
+              <div className="mt-10 flex flex-wrap items-center gap-4">
+                <Magnetic>
+                  <button
+                    onClick={() => scrollTo("#work")}
+                    className="group inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-[#0a0a0a] transition-transform hover:scale-[1.02]"
+                  >
+                    Selected work
+                    <ArrowDown className="h-4 w-4 transition-transform group-hover:translate-y-0.5" />
+                  </button>
+                </Magnetic>
+                <a
+                  href={`mailto:${site.email}`}
+                  className="rounded-full border border-line px-6 py-3 text-sm text-ink transition-colors hover:border-accent hover:bg-accent/10"
+                >
+                  Get in touch
+                </a>
+              </div>
+
+              <div className="mt-14 grid max-w-3xl grid-cols-1 gap-3 sm:grid-cols-3">
+                {site.heroStats.map((s) => (
+                  <div key={s.label} className="hero-stat-card">
+                    <div className="font-display text-[17px] text-ink">{s.value}</div>
+                    <div className="mt-2 text-[12px] uppercase tracking-[0.1em] text-muted">
+                      {s.label}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
 
-          <div className="mt-16 grid max-w-2xl grid-cols-1 gap-3 sm:grid-cols-3">
-            {site.heroStats.map((s) => (
-              <div key={s.label} className="hero-stat-card">
-                <div className="font-display text-[17px] text-ink">{s.value}</div>
-                <div className="mt-2 text-[12px] uppercase tracking-[0.1em] text-muted">
-                  {s.label}
-                </div>
-              </div>
-            ))}
+          <div ref={visual} className="hidden lg:block">
+            <HeroSignalPanel />
           </div>
         </div>
       </Container>
 
-      <div className="pointer-events-none absolute bottom-8 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 text-muted md:flex">
+      <div className="pointer-events-none absolute bottom-7 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 text-muted xl:flex">
         <span className="text-[10px] uppercase tracking-[0.3em]">Scroll</span>
         <ArrowDown className="h-4 w-4 animate-bounce" />
       </div>

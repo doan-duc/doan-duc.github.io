@@ -25,18 +25,28 @@ type LenisContextValue = {
 const LenisContext = createContext<LenisContextValue>({ scrollTo: () => {} });
 export const useSmoothScroll = () => useContext(LenisContext);
 
-/** Lenis smooth scroll wired into GSAP's ticker so ScrollTrigger stays synced. */
+/** Lenis is kept for desktop wheel polish, while touch/mobile use native scroll. */
 export default function SmoothScroll({ children }: { children: ReactNode }) {
   const lenisRef = useRef<Lenis | null>(null);
 
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const coarsePointer = window.matchMedia("(pointer: coarse)").matches;
+    const compactViewport = window.matchMedia("(max-width: 899px)").matches;
+    const saveData =
+      "connection" in navigator &&
+      Boolean((navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData);
+
+    if (reduceMotion || coarsePointer || compactViewport || saveData) {
+      ScrollTrigger.refresh();
+      return;
+    }
 
     const lenis = new Lenis({
-      lerp: 0.1,
+      lerp: 0.08,
       smoothWheel: true,
-      wheelMultiplier: 1,
-      touchMultiplier: 1.6,
+      wheelMultiplier: 0.85,
+      touchMultiplier: 1,
     });
     lenisRef.current = lenis;
 
@@ -44,7 +54,6 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
 
     const update = (time: number) => lenis.raf(time * 1000);
     gsap.ticker.add(update);
-    gsap.ticker.lagSmoothing(0);
 
     const refresh = () => ScrollTrigger.refresh();
     window.addEventListener("load", refresh);

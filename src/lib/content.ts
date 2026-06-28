@@ -195,6 +195,7 @@ export const experience: Engagement[] = [
    Exact, case-sensitive filenames matter on GitHub Pages. */
 export type RecognitionMoment = {
   src: string;
+  webpSrc: string;
   alt: string;
   caption: string;
   location: string;
@@ -241,6 +242,7 @@ export const recognitionMoments: RecognitionMoment[] = [
   // VN: "Yasuda Auditorium, Đại học Tokyo"
   {
     src: "/images/Yasuda_Auditorium.png",
+    webpSrc: "/images/Yasuda_Auditorium.webp",
     alt: "Yasuda Auditorium, University of Tokyo",
     caption: "Yasuda Auditorium, University of Tokyo",
     location: "University of Tokyo, Tokyo",
@@ -248,6 +250,7 @@ export const recognitionMoments: RecognitionMoment[] = [
   // VN: "Thuyết trình tại Matsuo-Iwasawa Lab"
   {
     src: "/images/presentation_with_Matsuolab.JPG",
+    webpSrc: "/images/presentation_with_Matsuolab.webp",
     alt: "Presenting work at Matsuo-Iwasawa Laboratory",
     caption: "Presenting my work at the Matsuo-Iwasawa Lab",
     location: "Matsuo-Iwasawa Laboratory, UTokyo",
@@ -255,6 +258,7 @@ export const recognitionMoments: RecognitionMoment[] = [
   // VN: "Bữa tối thân mật với giáo sư Matsuo tại Shangri-La Hotel"
   {
     src: "/images/dinner_in_Shangrila_hotel.JPG",
+    webpSrc: "/images/dinner_in_Shangrila_hotel.webp",
     alt: "Dinner at Shangri-La Hotel with Professor Matsuo and the lab",
     caption: "An evening with Professor Matsuo and the lab",
     location: "Shangri-La Hotel, Tokyo",
@@ -262,6 +266,7 @@ export const recognitionMoments: RecognitionMoment[] = [
   // VN: "Lễ trao giải — Giải Nhì, Vietnam Hub"
   {
     src: "/images/Harvard_Hackathon.jpg",
+    webpSrc: "/images/Harvard_Hackathon.webp",
     alt: "Harvard HSIL Hackathon award ceremony, Vietnam Hub",
     caption: "Award ceremony — 2nd place, Vietnam Hub",
     location: "Phenikaa University, Hanoi",
