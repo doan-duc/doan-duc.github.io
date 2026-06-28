@@ -25,7 +25,7 @@ export function SiteHeader() {
         style={{ scaleX }}
         aria-hidden="true"
       />
-      <header className="fixed left-3 right-3 top-4 z-40 mx-auto max-w-[1180px] rounded-lg border border-[var(--line)] bg-[rgba(7,9,15,0.78)] p-2 shadow-[0_18px_60px_rgba(0,0,0,0.32)] backdrop-blur-xl">
+      <header className="fixed left-3 right-3 top-4 z-40 mx-auto max-w-[1180px] rounded-lg border border-[var(--line)] bg-[rgba(7,9,15,0.62)] p-2 shadow-[0_18px_60px_rgba(0,0,0,0.32)] backdrop-blur-xl">
         <div className="flex items-center justify-between gap-3">
           <a
             href="#home"
@@ -40,7 +40,7 @@ export function SiteHeader() {
               <a
                 key={item.href}
                 href={item.href}
-                className="rounded-lg px-3 py-2 text-sm font-bold text-[var(--text-soft)] transition duration-200 hover:bg-[rgba(231,188,92,0.1)] hover:text-[var(--gold)]"
+                className="nav-link-motion rounded-lg px-3 py-2 text-sm font-bold text-[var(--text-soft)] transition duration-200 hover:bg-[rgba(231,188,92,0.1)] hover:text-[var(--gold)]"
               >
                 {item.label}
               </a>

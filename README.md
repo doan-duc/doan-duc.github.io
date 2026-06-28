@@ -11,10 +11,10 @@ The site is designed as a narrative portfolio, not a second CV. The structure mo
 3. Featured Highlights: major credibility signals as concise text/icon cards.
 4. Projects / Research: story-driven cards using Problem -> Built -> Learned -> Matters, with custom system visuals instead of unrelated personal photos.
 5. Awards: timeline-style recognitions with context.
-6. Experience and Photo Journey: curated milestone photos where every image keeps the event described by its file name.
+6. International Milestones: curated exchange, lab, mentorship, and health innovation moments.
 8. Now / Contact: current work, future direction, and links.
 
-Photos are intentionally not used as generic decoration. The presentation image is tied to the UTokyo exchange and Matsuo Lab presentation; project cards use interface-style visuals until real screenshots, posters, or diagrams are available.
+Photos are intentionally tied to the milestone they document. The presentation image is part of the UTokyo exchange and Matsuo Lab presentation story; project cards use interface-style visuals until real screenshots, posters, or diagrams are available.
 
 ## Color Palette
 

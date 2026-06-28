@@ -10,8 +10,8 @@ export function PhotoJourneySection() {
     <section id="journey" className="section-wrap py-20 md:py-28">
       <SectionHeading
         eyebrow="Photo journey"
-        title="A curated visual timeline with a reason for every image."
-        description="Each photo is attached to a stage in the story: entering a research environment, presenting work, learning through community, and testing impact."
+        title="A visual timeline of research environments and public milestones."
+        description="The journey moves through exchange, presentation, mentorship, and health innovation moments."
       />
 
       <div className="grid gap-6">

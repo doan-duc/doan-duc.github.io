@@ -110,7 +110,7 @@ export const highlights: Highlight[] = [
     eyebrow: "Research communication",
     title: "Presentation with Matsuo Lab",
     description:
-      "The presentation photo belongs here: UTokyo exchange, presenting and receiving feedback from Matsuo-Iwasawa Laboratory members.",
+      "Presented during the UTokyo exchange and received feedback from Matsuo-Iwasawa Laboratory members on problem framing and evidence.",
     icon: Presentation
   },
   {
@@ -219,7 +219,7 @@ export const experiences: Experience[] = [
     date: "March 2025",
     place: "The University of Tokyo, Japan",
     story:
-      "This image is used only for the UTokyo exchange milestone: standing at Yasuda Auditorium and seeing the scale of the research environment more clearly.",
+      "Standing at Yasuda Auditorium made the scale of international research culture feel concrete and sharpened how I think about academic ambition.",
     image: {
       src: "/images/yasuda-auditorium.jpg",
       alt: "Duc Doan Sinh at Yasuda Auditorium"
@@ -230,7 +230,7 @@ export const experiences: Experience[] = [
     date: "March 2025",
     place: "Matsuo-Iwasawa Laboratory, UTokyo exchange",
     story:
-      "This photo belongs to the UTokyo exchange story: presenting with Matsuo Lab members and turning engineering decisions into a clear research narrative.",
+      "Presenting with Matsuo Lab members helped me turn implementation details into a clear research narrative: what problem matters, what evidence is enough, and what should be tested next.",
     image: {
       src: "/images/matsuo-presentation.jpg",
       alt: "Duc Doan Sinh presenting with Matsuo Lab"

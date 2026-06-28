@@ -10,9 +10,9 @@ export function ExperiencesSection() {
   return (
     <section id="experience" className="section-wide py-20 md:py-28">
       <SectionHeading
-        eyebrow="Experience and photo journey"
-        title="Each photo is used once, in the milestone it actually belongs to."
-        description="No random gallery: Yasuda Auditorium, Matsuo Lab presentation, dinner with Prof. Matsuo, and Harvard HSIL each keep their original context."
+        eyebrow="International milestones"
+        title="Research exchange, lab feedback, and health innovation moments."
+        description="From the University of Tokyo and Matsuo-Iwasawa Laboratory to Harvard HSIL, these moments shaped how I present work, learn from research communities, and connect technical ideas with impact."
       />
 
       <div className="grid gap-5 md:grid-cols-2">

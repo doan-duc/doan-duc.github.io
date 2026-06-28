@@ -25,7 +25,7 @@ export function LinkButton({
       rel={external ? "noreferrer" : undefined}
       download={download}
       className={clsx(
-        "inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border px-4 py-3 text-sm font-bold transition duration-200 ease-out hover:-translate-y-1 focus-visible:-translate-y-1",
+        "magnetic-button group relative inline-flex min-h-12 items-center justify-center gap-2 overflow-hidden rounded-lg border px-4 py-3 text-sm font-bold transition duration-300 ease-out hover:-translate-y-1 focus-visible:-translate-y-1",
         variant === "primary" &&
           "border-[var(--gold)] bg-[var(--gold)] text-[var(--ink)] shadow-[0_18px_46px_rgba(231,188,92,0.22)] hover:shadow-[0_22px_58px_rgba(231,188,92,0.34)]",
         variant === "secondary" &&
@@ -34,8 +34,16 @@ export function LinkButton({
           "border-[var(--line)] bg-transparent text-[var(--text-soft)] hover:border-[var(--gold)] hover:text-[var(--gold)]"
       )}
     >
-      {Icon ? <Icon aria-hidden="true" size={18} strokeWidth={2.2} /> : null}
-      <span>{label}</span>
+      <span className="button-fill" aria-hidden="true" />
+      {Icon ? (
+        <Icon
+          aria-hidden="true"
+          size={18}
+          strokeWidth={2.2}
+          className="relative z-10 transition duration-300 group-hover:scale-110"
+        />
+      ) : null}
+      <span className="relative z-10">{label}</span>
     </a>
   );
 }
