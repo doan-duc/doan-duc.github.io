@@ -10,7 +10,7 @@ export function HeroSection() {
   return (
     <section
       id="home"
-      className="hero-cinematic relative min-h-screen overflow-hidden pb-16 pt-28 md:pt-32"
+      className="scroll-chapter hero-cinematic relative min-h-screen overflow-hidden pb-16 pt-28 md:pt-32"
     >
       <div className="hero-sweep" aria-hidden="true" />
       <motion.div

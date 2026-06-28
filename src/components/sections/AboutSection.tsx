@@ -4,7 +4,7 @@ import { about, profile } from "@/data/profile";
 
 export function AboutSection() {
   return (
-    <section id="about" className="section-wrap py-20 md:py-28">
+    <section id="about" className="scroll-chapter section-wrap py-20 md:py-28">
       <SectionHeading
         eyebrow="About me"
         title="I build from signals, constraints, and the people a system should serve."

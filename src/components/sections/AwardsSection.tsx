@@ -6,7 +6,7 @@ import { awards } from "@/data/profile";
 
 export function AwardsSection() {
   return (
-    <section id="awards" className="section-wrap py-20 md:py-28">
+    <section id="awards" className="scroll-chapter section-wrap py-20 md:py-28">
       <SectionHeading
         eyebrow="Awards and achievements"
         title="Recognition with context, not trophy stacking."

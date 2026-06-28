@@ -16,7 +16,7 @@ const storyLabels = [
 
 export function ProjectsSection() {
   return (
-    <section id="projects" className="section-wide py-20 md:py-28">
+    <section id="projects" className="scroll-chapter section-wide py-20 md:py-28">
       <SectionHeading
         eyebrow="Projects and research"
         title="Selected work presented as engineering stories, not resume rows."

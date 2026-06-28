@@ -8,7 +8,7 @@ import { experiences } from "@/data/profile";
 
 export function ExperiencesSection() {
   return (
-    <section id="experience" className="section-wide py-20 md:py-28">
+    <section id="experience" className="scroll-chapter section-wide py-20 md:py-28">
       <SectionHeading
         eyebrow="International milestones"
         title="Research exchange, lab feedback, and health innovation moments."

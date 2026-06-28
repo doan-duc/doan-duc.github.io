@@ -6,7 +6,7 @@ import { currentWork } from "@/data/profile";
 
 export function NowSection() {
   return (
-    <section id="now" className="section-wide py-20 md:py-28">
+    <section id="now" className="scroll-chapter section-wide py-20 md:py-28">
       <SectionHeading
         eyebrow="Now and next"
         title="Current work that points toward the next version of the profile."

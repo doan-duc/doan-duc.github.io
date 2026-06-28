@@ -7,7 +7,7 @@ import { highlights } from "@/data/profile";
 
 export function HighlightsSection() {
   return (
-    <section id="highlights" className="section-wide py-20 md:py-28">
+    <section id="highlights" className="scroll-chapter section-wide py-20 md:py-28">
       <SectionHeading
         eyebrow="Featured highlights"
         title="Milestones that explain credibility, direction, and taste."

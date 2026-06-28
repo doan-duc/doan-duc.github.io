@@ -6,7 +6,7 @@ import { profile } from "@/data/profile";
 
 export function ContactSection() {
   return (
-    <section id="contact" className="section-wrap py-20 md:py-28">
+    <section id="contact" className="scroll-chapter section-wrap py-20 md:py-28">
       <div className="grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(320px,0.62fr)] lg:items-start">
         <SectionHeading
           eyebrow="Contact"
