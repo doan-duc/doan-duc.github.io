@@ -20,7 +20,7 @@ export function HighlightsSection() {
           return (
             <motion.article
               key={item.title}
-              className="group glass-panel overflow-hidden p-5 md:p-6"
+              className="premium-card group glass-panel overflow-hidden p-5 md:p-6"
               initial={{ opacity: 0, y: 28 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.22 }}

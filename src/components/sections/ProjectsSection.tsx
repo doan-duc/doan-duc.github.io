@@ -28,7 +28,7 @@ export function ProjectsSection() {
           <motion.article
             key={project.title}
             className={clsx(
-              "group glass-panel overflow-hidden",
+              "premium-card group glass-panel overflow-hidden",
               index === 0 && "lg:col-span-2 lg:grid lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1fr)]"
             )}
             initial={{ opacity: 0, y: 30 }}
@@ -94,7 +94,7 @@ function ProjectVisual({
   return (
     <div
       className={clsx(
-        "relative overflow-hidden border-b border-[var(--line)] bg-[rgba(7,9,15,0.55)] p-5",
+        "project-visual relative overflow-hidden border-b border-[var(--line)] bg-[rgba(7,9,15,0.55)] p-5",
         featured ? "min-h-[360px] lg:min-h-full lg:border-b-0 lg:border-r" : "min-h-[250px]"
       )}
       aria-label="Project system visual"
@@ -132,6 +132,7 @@ function EcgVisual() {
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth="4"
+            className="ecg-line-main"
           />
           <path
             d="M0 70 H44 L56 70 L68 46 L82 92 L96 70 H140 L154 70 L168 56 L182 80 L198 70 H252 L264 70 L278 36 L292 100 L308 70 H350 L366 70 L380 54 L396 84 L420 70"
@@ -140,6 +141,7 @@ function EcgVisual() {
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth="3"
+            className="ecg-line-ghost"
           />
         </svg>
       </div>
@@ -173,7 +175,8 @@ function StreamVisual() {
         {Array.from({ length: 16 }, (_, index) => (
           <div
             key={index}
-            className="aspect-square rounded-lg border border-[rgba(126,207,143,0.24)] bg-[rgba(126,207,143,0.07)] p-2"
+            className="stream-tile aspect-square rounded-lg border border-[rgba(126,207,143,0.24)] bg-[rgba(126,207,143,0.07)] p-2"
+            style={{ transitionDelay: `${index * 14}ms` }}
           >
             <div className="mb-2 h-1.5 rounded-sm bg-[var(--green)] opacity-70" />
             <div className="h-8 rounded-md border border-[rgba(247,243,232,0.1)] bg-[rgba(247,243,232,0.04)]" />
@@ -203,7 +206,7 @@ function QaVisual() {
                 <span
                   key={index}
                   className={clsx(
-                    "h-10 rounded-md border",
+                    "qa-block h-10 rounded-md border",
                     index === 3 && lane === 1
                       ? "border-[rgba(236,119,99,0.5)] bg-[rgba(236,119,99,0.15)]"
                       : "border-[rgba(231,188,92,0.22)] bg-[rgba(231,188,92,0.1)]"

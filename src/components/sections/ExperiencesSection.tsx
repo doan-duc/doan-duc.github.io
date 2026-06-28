@@ -19,7 +19,7 @@ export function ExperiencesSection() {
         {experiences.map((experience, index) => (
           <motion.article
             key={experience.title}
-            className="group glass-panel overflow-hidden"
+            className="premium-card group glass-panel overflow-hidden"
             initial={{ opacity: 0, y: 28 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.18 }}
@@ -31,7 +31,11 @@ export function ExperiencesSection() {
               ratio="aspect-[16/10]"
               className="rounded-none"
               sizes="(min-width: 768px) 50vw, 100vw"
-            />
+            >
+              <div className="milestone-image-label absolute bottom-4 left-4 right-4 rounded-lg border border-[var(--line)] bg-[rgba(7,9,15,0.74)] px-4 py-3 text-sm font-black text-[var(--text)] backdrop-blur-md">
+                {experience.title}
+              </div>
+            </ImageFrame>
             <div className="p-5 md:p-6">
               <div className="mb-4 flex flex-wrap gap-3 text-xs font-bold text-[var(--muted)]">
                 <span className="inline-flex items-center gap-2">

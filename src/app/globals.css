@@ -272,6 +272,36 @@ main,
   box-shadow: 0 30px 92px rgba(0, 0, 0, 0.44);
 }
 
+.premium-card {
+  position: relative;
+}
+
+.premium-card::before {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  content: "";
+  background:
+    linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.055) 42%, transparent 58%),
+    radial-gradient(circle at var(--card-x, 78%) var(--card-y, 12%), rgba(231, 188, 92, 0.08), transparent 18rem);
+  opacity: 0;
+  transform: translateX(-18%);
+  transition:
+    opacity 260ms ease,
+    transform 740ms cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.premium-card:hover::before {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.premium-card > * {
+  position: relative;
+  z-index: 2;
+}
+
 .media-overlay {
   position: absolute;
   inset: 0;
@@ -303,6 +333,86 @@ main,
 .group:hover .image-sheen::after {
   opacity: 1;
   transform: translateX(32%);
+}
+
+.group\/image:hover .image-sheen::after {
+  opacity: 1;
+  transform: translateX(32%);
+}
+
+.milestone-image-label {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 300ms ease,
+    transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.group:hover .milestone-image-label,
+.group\/image:hover .milestone-image-label {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.project-visual::after {
+  position: absolute;
+  inset: auto 8% 12% 8%;
+  height: 1px;
+  content: "";
+  background: linear-gradient(90deg, transparent, rgba(70, 199, 216, 0.46), rgba(231, 188, 92, 0.34), transparent);
+  transform: scaleX(0.28);
+  transform-origin: left;
+  transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.premium-card:hover .project-visual::after {
+  transform: scaleX(1);
+}
+
+.ecg-line-main,
+.ecg-line-ghost {
+  stroke-dasharray: 640;
+  stroke-dashoffset: 0;
+}
+
+.premium-card:hover .ecg-line-main {
+  animation: ecg-trace 1.6s ease-in-out infinite;
+}
+
+.premium-card:hover .ecg-line-ghost {
+  animation: ecg-trace 1.9s ease-in-out infinite reverse;
+}
+
+.stream-tile,
+.qa-block {
+  transition:
+    transform 360ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 240ms ease,
+    background-color 240ms ease;
+}
+
+.premium-card:hover .stream-tile {
+  transform: translateY(-4px);
+  border-color: rgba(126, 207, 143, 0.48);
+  background-color: rgba(126, 207, 143, 0.12);
+}
+
+.premium-card:hover .qa-block {
+  transform: translateY(-3px);
+  border-color: rgba(231, 188, 92, 0.44);
+  background-color: rgba(231, 188, 92, 0.14);
+}
+
+@keyframes ecg-trace {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dashoffset: -92;
+  }
+  100% {
+    stroke-dashoffset: -184;
+  }
 }
 
 .text-display {

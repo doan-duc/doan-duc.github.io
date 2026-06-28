@@ -22,7 +22,7 @@ export function ImageFrame({
   children
 }: ImageFrameProps) {
   return (
-    <div className={clsx("group relative overflow-hidden rounded-lg", className)}>
+    <div className={clsx("group/image relative overflow-hidden rounded-lg", className)}>
       <div className={clsx("image-sheen relative overflow-hidden", ratio)}>
         <Image
           src={image.src}
@@ -31,7 +31,7 @@ export function ImageFrame({
           priority={priority}
           sizes={sizes}
           className={clsx(
-            "object-cover transition duration-700 ease-out group-hover:scale-[1.035]",
+            "object-cover transition duration-700 ease-out group-hover/image:scale-[1.045]",
             imageClassName
           )}
         />
