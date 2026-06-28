@@ -1,80 +1,98 @@
-# Duc Doan Sinh Profile Website
+# Duc Doan Sinh — Portfolio
 
-Professional personal profile website for an AI / Embedded Systems student, built with Next.js, Tailwind CSS, and Framer Motion.
+An award-style, editorial dark portfolio for an AI / Embedded Systems student.
+Built to feel closer to linear.app / Awwwards "Site of the Day" than a CV or a
+default AI-portfolio template.
 
-## UI / UX Concept
+**Stack:** Next.js 16 (App Router) · Tailwind CSS v4 · GSAP + ScrollTrigger ·
+Lenis · Framer Motion · TypeScript.
 
-The site is designed as a narrative portfolio, not a second CV. The structure moves from identity to proof:
+---
 
-1. Hero: name, positioning, portrait, primary links.
-2. About: personal direction and research identity.
-3. Featured Highlights: major credibility signals as concise text/icon cards.
-4. Projects / Research: story-driven cards using Problem -> Built -> Learned -> Matters, with custom system visuals instead of unrelated personal photos.
-5. Awards: timeline-style recognitions with context.
-6. International Milestones: curated exchange, lab, mentorship, and health innovation moments.
-8. Now / Contact: current work, future direction, and links.
+## Quick start
 
-Photos are intentionally tied to the milestone they document. The presentation image is part of the UTokyo exchange and Matsuo-Iwasawa Laboratory presentation story; project cards use interface-style visuals until real screenshots, posters, or diagrams are available.
-
-Hover motion is used as a design layer: cards lift with a soft sheen, project visuals animate their signals or grid elements, and milestone photos reveal compact captions without obscuring the story.
-
-## Color Palette
-
-- Deep ink: `#07090f`
-- Soft panel: `rgba(17, 23, 31, 0.82)`
-- Warm text: `#f7f3e8`
-- Research gold: `#e7bc5c`
-- Signal cyan: `#46c7d8`
-- Systems green: `#7ecf8f`
-- Human coral: `#ec7763`
-- Accent violet: `#a98bdc`
-
-The palette avoids generic neon-AI styling by mixing warm academic contrast with precise technical accents.
-
-## Component Breakdown
-
-- `src/components/PortfolioPage.tsx`: page composition.
-- `src/components/SiteHeader.tsx`: fixed navigation and scroll progress.
-- `src/components/SiteFooter.tsx`: footer and back-to-top link.
-- `src/components/ThreeBackground.tsx`: subtle full-bleed Three.js wireframe background.
-- `src/components/ui/Reveal.tsx`: reusable Framer Motion reveal.
-- `src/components/ui/ImageFrame.tsx`: responsive image container with overlay and hover treatment.
-- `src/components/ui/LinkButton.tsx`: reusable CTA/link button.
-- `src/components/ui/SectionHeading.tsx`: consistent section intro.
-- `src/components/sections/*`: each portfolio section as an isolated module.
-- `src/data/profile.ts`: all editable personal content, project copy, links, and image references.
-
-## Replace Content
-
-Most updates should happen in `src/data/profile.ts`.
-
-Replace images in:
-
-- `public/images/profile.jpg`
-- `public/images/yasuda-auditorium.jpg`
-- `public/images/matsuo-presentation.jpg`
-- `public/images/matsuo-dinner.jpg`
-- `public/images/harvard-hackathon.jpg`
-
-Replace the CV at:
-
-- `public/files/duc-doan-sinh-cv.pdf`
-
-Project cards currently use custom non-photo visuals. Add real diagrams, screenshots, or paper posters only when the image directly represents that project.
-
-## Run Locally
-
-```powershell
+```bash
 npm install
-npm run dev
+npm run dev      # http://localhost:3000
+npm run build    # production build
+npm run typecheck
 ```
 
-Open `http://127.0.0.1:3000`.
+---
 
-## Build
+## File structure
 
-```powershell
-npm run build
+```
+portfolio/
+├─ src/
+│  ├─ app/
+│  │  ├─ layout.tsx          # fonts, metadata, providers, background, nav, footer
+│  │  ├─ page.tsx            # composes the 8 sections (order documented inline)
+│  │  └─ globals.css         # design tokens (@theme), aurora/grain CSS, Lenis CSS
+│  ├─ lib/
+│  │  ├─ site.ts             # 👉 identity, contact, socials, nav (single source)
+│  │  ├─ content.ts          # 👉 all section copy: about/projects/highlight/etc.
+│  │  ├─ utils.ts            # cn(), prefersReducedMotion()
+│  │  └─ use-iso-layout-effect.ts
+│  └─ components/
+│     ├─ providers/SmoothScroll.tsx   # Lenis ↔ GSAP ScrollTrigger sync + context
+│     ├─ background/
+│     │  ├─ Background.tsx             # composes the ambient layers (fixed, -z-10)
+│     │  ├─ AuroraField.tsx           # drifting mesh-gradient blobs
+│     │  └─ ParticleField.tsx         # mouse-reactive canvas constellation
+│     ├─ motion/
+│     │  ├─ Reveal.tsx                # GSAP reveal-on-scroll (stagger optional)
+│     │  ├─ Parallax.tsx              # scrubbed scroll parallax
+│     │  ├─ TiltCard.tsx              # 3D hover tilt (Framer)
+│     │  ├─ Magnetic.tsx              # magnetic hover (Framer)
+│     │  └─ ScrollProgress.tsx        # top progress bar (Framer useScroll)
+│     ├─ layout/
+│     │  ├─ Nav.tsx                   # floating nav + mobile overlay
+│     │  └─ Footer.tsx
+│     ├─ ui/
+│     │  ├─ Container.tsx · SectionHeader.tsx · Tag.tsx · icons.tsx
+│     └─ sections/
+│        ├─ Hero.tsx · About.tsx · Work.tsx · Highlight.tsx
+│        └─ Capabilities.tsx · Experience.tsx · Recognition.tsx · Contact.tsx
+└─ public/
+   ├─ images/profile.jpg              # 👉 swap portrait
+   └─ files/duc-doan-sinh-cv.pdf      # 👉 swap CV
 ```
 
-The project is configured with static export support through `next.config.mjs`, so the production build is suitable for static hosting.
+## Where to edit content
+
+- **Identity / links:** `src/lib/site.ts`
+- **All section copy:** `src/lib/content.ts`
+- **Accent color (one place):** `src/app/globals.css` → `@theme { --color-accent }`
+  (violet `#7c3aed` · cyan `#06b6d4` · lime `#84cc16`)
+- **Portrait / CV:** replace the files in `public/`
+
+---
+
+## Design rationale
+
+- **Restraint over decoration.** Near-black `#0a0a0a`, one accent used sparingly,
+  huge type, lots of negative space. What reads as "premium" is the restraint and
+  the grain — not a louder hue. The accent is a single token so it's trivial to swap.
+- **Depth from layers, not boxes.** A drifting aurora mesh + a ~3.5% film grain over
+  everything + a vignette give the page atmosphere without the generic card-grid look.
+  Work is presented as full-width editorial rows, capabilities as a bordered matrix.
+- **Motion with a clear division of labor.** Lenis drives smooth scroll; GSAP +
+  ScrollTrigger own all scroll-driven choreography (reveals, parallax, the pinned
+  horizontal highlight); Framer Motion is limited to component micro-interactions
+  (tilt, magnetic, hero load stagger, progress bar). Lenis and GSAP share one RAF
+  ticker so they never fight — the key to staying at 60fps.
+- **Accessible by default.** `prefers-reduced-motion` disables smooth scroll, aurora
+  drift, grain shimmer, and all reveal/parallax animations; content renders fully via
+  SSR so nothing depends on JS to be readable.
+- **Performance choices.** The particle field is a lightweight 2D canvas (~64 nodes),
+  deliberately chosen over React Three Fiber to avoid a 3D bundle while keeping the
+  mouse-reactive feel. Reveals run in a layout effect so there's no first-paint flash.
+
+---
+
+## Deploy
+
+- **Vercel (recommended):** import the repo, no config needed.
+- **GitHub Pages (static export):** uncomment `output: "export"` + `images.unoptimized`
+  in `next.config.mjs`, then `npm run build` and publish `out/`.
