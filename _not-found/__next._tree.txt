@@ -1,3 +1,3 @@
-:HL["/_next/static/chunks/3vck0p61qi4ko.css","style"]
+:HL["/_next/static/chunks/1iepzub3xap8n.css","style"]
 :HL["https://api.fontshare.com/v2/css?f[]=clash-display@600,500,700,400&display=swap","style"]
-0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"/_not-found","param":null,"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}},"staleTime":300,"buildId":"c3_thGKs1vhycB5rOcKqs"}
+0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"/_not-found","param":null,"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}},"staleTime":300,"buildId":"urOdDCcqK5Cm9QKz2APuF"}

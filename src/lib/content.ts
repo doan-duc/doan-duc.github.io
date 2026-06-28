@@ -190,17 +190,15 @@ export const experience: Engagement[] = [
   },
 ];
 
-/* -------- RECOGNITION (photo-backed timeline) ---------------------------
-   `images` holds 0–2 scene photos. The UTokyo item carries a two-photo
-   cluster (Yasuda + Shangri-La dinner). 👉 EXACT, case-sensitive filenames —
-   GitHub Pages is case-sensitive. Files live in /public/images/. */
-export type AwardImage = { src: string; alt: string; caption: string };
+/* -------- RECOGNITION ----------------------------------------------------
+   Awards stay text-only. Journey photos live in `recognitionMoments` below.
+   Exact, case-sensitive filenames matter on GitHub Pages. */
+export type RecognitionMoment = { src: string; alt: string; caption: string };
 export type Award = {
   year: string;
   title: string;
   place: string;
   description: string;
-  images: AwardImage[];
 };
 
 export const recognition: Award[] = [
@@ -210,15 +208,6 @@ export const recognition: Award[] = [
     place: "Vietnam Hub · Global",
     description:
       "2nd Place at the Vietnam Hub and Top 100 Global Teams — selected from 14,700+ applications worldwide.",
-    images: [
-      // 👉 /images/Harvard_Hackathon.jpg
-      // VN: "Lễ trao giải — Giải Nhì, Vietnam Hub"
-      {
-        src: "/images/Harvard_Hackathon.jpg",
-        alt: "Harvard HSIL Hackathon, Vietnam Hub",
-        caption: "Award ceremony — 2nd place, Vietnam Hub",
-      },
-    ],
   },
   {
     year: "2026",
@@ -226,22 +215,6 @@ export const recognition: Award[] = [
     place: "Matsuo-Iwasawa Laboratory",
     description:
       "Short-term AI research exchange in Japan — presenting work, receiving feedback, and stepping into an international research culture.",
-    images: [
-      // 👉 /images/Yasuda_Auditorium.png  (primary)
-      // VN: "Check-in tại Yasuda Auditorium, Đại học Tokyo"
-      {
-        src: "/images/Yasuda_Auditorium.png",
-        alt: "Yasuda Auditorium, University of Tokyo",
-        caption: "Yasuda Auditorium, University of Tokyo",
-      },
-      // 👉 /images/dinner_in_Shangrila_hotel.JPG  (cluster — small second photo)
-      // VN: "Bữa tối thân mật với giáo sư Matsuo, Tokyo"
-      {
-        src: "/images/dinner_in_Shangrila_hotel.JPG",
-        alt: "Dinner at Shangri-La Hotel, Tokyo",
-        caption: "An evening with Professor Matsuo and the lab, Tokyo",
-      },
-    ],
   },
   {
     year: "2025",
@@ -249,14 +222,6 @@ export const recognition: Award[] = [
     place: "Matsuo-Iwasawa Laboratory, UTokyo",
     description:
       "Top 20 most outstanding students in the Global Consumer Intelligence course 2025.",
-    images: [
-      // 👉 /images/presentation_with_Matsuolab.JPG
-      {
-        src: "/images/presentation_with_Matsuolab.JPG",
-        alt: "Presentation with Matsuo Laboratory members",
-        caption: "Presentation with Matsuo-Iwasawa Laboratory",
-      },
-    ],
   },
   {
     year: "2025",
@@ -264,6 +229,32 @@ export const recognition: Award[] = [
     place: "Bosch Global Software Technologies VN",
     description:
       "Top 30 team in a national challenge testing practical engineering, software thinking, and teamwork.",
-    images: [], // text-only milestone
+  },
+];
+
+export const recognitionMoments: RecognitionMoment[] = [
+  // VN: "Yasuda Auditorium, Đại học Tokyo"
+  {
+    src: "/images/Yasuda_Auditorium.png",
+    alt: "Yasuda Auditorium, University of Tokyo",
+    caption: "Yasuda Auditorium, University of Tokyo",
+  },
+  // VN: "Thuyết trình tại Matsuo-Iwasawa Lab"
+  {
+    src: "/images/presentation_with_Matsuolab.JPG",
+    alt: "Presenting work at Matsuo-Iwasawa Laboratory",
+    caption: "Presenting my work at the Matsuo-Iwasawa Lab",
+  },
+  // VN: "Bữa tối thân mật với giáo sư Matsuo"
+  {
+    src: "/images/dinner_in_Shangrila_hotel.JPG",
+    alt: "Dinner with Professor Matsuo and the lab",
+    caption: "An evening with Professor Matsuo and the lab",
+  },
+  // VN: "Lễ trao giải — Giải Nhì, Vietnam Hub"
+  {
+    src: "/images/Harvard_Hackathon.jpg",
+    alt: "Harvard HSIL Hackathon award ceremony, Vietnam Hub",
+    caption: "Award ceremony — 2nd place, Vietnam Hub",
   },
 ];
