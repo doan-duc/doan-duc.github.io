@@ -8,10 +8,11 @@
 @theme {
   --color-base: #0a0a0a;
   --color-surface: #141414;
-  --color-ink: #fafafa;
-  --color-muted: #8a8a8a;
+  --color-ink: #f5f5f5;
+  --color-body: #d6d6d6;
+  --color-muted: #9aa0a6;
   --color-accent: #22d3ee; /* signal cyan */
-  --color-line: rgba(255, 255, 255, 0.08);
+  --color-line: rgba(255, 255, 255, 0.10);
 
   /* Atmosphere gradient stops (cyan → blue → violet) — used ONLY for the
      background aurora, the hero glow, the section numerals, the progress bar. */
@@ -43,6 +44,7 @@
     line-height: 1.6;
     font-size: 16px;
     overflow-x: hidden;
+    color: var(--color-ink);
   }
 
   h1, h2, h3, h4 {
@@ -148,6 +150,50 @@ html.lenis, html.lenis body { height: auto; }
   color: var(--color-accent);
 }
 
+.meta-label {
+  color: var(--color-muted);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.body-copy {
+  color: var(--color-body);
+  font-size: clamp(17px, 1.4vw, 18px);
+  line-height: 1.7;
+}
+
+.hero-subtitle {
+  max-width: 620px;
+  color: var(--color-body);
+  font-size: clamp(17px, 2vw, 20px);
+  line-height: 1.55;
+}
+
+.hero-stat-card {
+  border: 1px solid var(--color-line);
+  border-radius: 12px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.02);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+}
+
+.hero-stat-card:hover {
+  border-color: rgba(34,211,238,0.5);
+  box-shadow: 0 0 34px rgba(34,211,238,0.16);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.hero-eyebrow-dot {
+  animation: heroEyebrowPulse 2s ease-in-out infinite;
+}
+
+@keyframes heroEyebrowPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
 /* Oversized section numerals: cyan→violet with alpha baked low (~0.18) so they
    sit BEHIND white body text but read as deliberate decoration. The blurred
    glow copy is rendered separately in the component. */
@@ -192,13 +238,28 @@ html.lenis, html.lenis body { height: auto; }
   to { transform: translateX(-50%); }
 }
 
-/* ===========================================================================
-   CUSTOM CURSOR — hide native pointer only on fine-pointer, motion-OK devices.
-   The .cursor-active class is toggled by <CustomCursor> at runtime.
-   =========================================================================== */
-@media (pointer: fine) {
-  html.cursor-active,
-  html.cursor-active * { cursor: none !important; }
+#aurora{
+  position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;
+}
+#aurora::after{
+  content:""; position:absolute; inset:-40%;
+  background:
+    radial-gradient(38% 38% at 22% 28%, rgba(34,211,238,0.20), transparent 70%),
+    radial-gradient(42% 42% at 78% 32%, rgba(59,130,246,0.16), transparent 70%),
+    radial-gradient(46% 46% at 60% 82%, rgba(139,92,246,0.18), transparent 70%);
+  filter: blur(90px) saturate(1.1);
+  animation: auroraDrift 38s ease-in-out infinite alternate;
+  will-change: transform;
+}
+@keyframes auroraDrift{
+  from{ transform: translate3d(0,0,0) scale(1) rotate(0deg); }
+  to  { transform: translate3d(0,-4%,0) scale(1.15) rotate(7deg); }
+}
+
+#grain{
+  position:fixed; inset:0; z-index:9999; pointer-events:none; opacity:0.045;
+  mix-blend-mode: overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
 }
 
 /* ===========================================================================
@@ -210,6 +271,7 @@ html.lenis, html.lenis body { height: auto; }
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
+  #aurora::after,
   .grain::after,
   .aurora-1, .aurora-2, .aurora-3,
   .hero-glow { animation: none; }

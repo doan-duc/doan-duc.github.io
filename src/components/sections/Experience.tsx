@@ -28,7 +28,7 @@ export function Experience() {
                   <span className="text-sm text-accent">{e.org}</span>
                   <span className="text-xs text-muted/70">· {e.place}</span>
                 </div>
-                <p className="mt-3 max-w-2xl text-muted">{e.body}</p>
+                <p className="body-copy mt-3 max-w-2xl">{e.body}</p>
               </div>
             </div>
           ))}

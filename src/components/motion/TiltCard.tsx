@@ -4,7 +4,7 @@ import { useRef, type ReactNode } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { cn } from "@/lib/utils";
 
-/** 3D tilt toward the cursor (Framer micro-interaction). Keep `max` low. */
+/** 3D tilt toward the pointer (Framer micro-interaction). Keep `max` low. */
 export function TiltCard({
   children,
   className,

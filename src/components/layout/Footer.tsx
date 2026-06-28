@@ -4,7 +4,7 @@ import { Github, Linkedin, Mail } from "@/components/ui/icons";
 
 export function Footer() {
   return (
-    <footer className="relative border-t border-line py-14">
+    <footer className="relative z-[1] border-t border-line py-14">
       <Container className="flex flex-col gap-10 md:flex-row md:items-end md:justify-between">
         <div>
           <div className="font-display text-2xl tracking-tight">

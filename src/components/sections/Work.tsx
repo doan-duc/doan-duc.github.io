@@ -10,10 +10,10 @@ import { ArrowUpRight } from "@/components/ui/icons";
 function Phase({ label, children }: { label: string; children: string }) {
   return (
     <div>
-      <div className="text-xs font-medium uppercase tracking-[0.18em] text-accent">
+      <div className="meta-label">
         {label}
       </div>
-      <p className="mt-2 text-sm leading-relaxed text-muted">{children}</p>
+      <p className="body-copy mt-2">{children}</p>
     </div>
   );
 }

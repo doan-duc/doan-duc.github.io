@@ -11,27 +11,29 @@ import { cn } from "@/lib/utils";
 function ScenePhoto({
   image,
   className,
+  frameClassName,
   sizes,
 }: {
   image: AwardImage;
   className?: string;
+  frameClassName: string;
   sizes: string;
 }) {
   return (
-    <div
-      className={cn(
-        "group/photo relative overflow-hidden rounded-md border border-line",
-        className
-      )}
-    >
-      <Image
-        src={image.src}
-        alt={image.alt}
-        fill
-        sizes={sizes}
-        className="object-cover brightness-[0.96] contrast-[1.06] saturate-[0.82] transition-transform duration-700 ease-out group-hover/photo:scale-[1.04]"
-      />
-    </div>
+    <figure className={cn("group/photo", className)}>
+      <div className={cn("relative overflow-hidden rounded-md border border-line", frameClassName)}>
+        <Image
+          src={image.src}
+          alt={image.alt}
+          fill
+          sizes={sizes}
+          className="object-cover brightness-[0.96] contrast-[1.06] saturate-[0.82] transition-transform duration-700 ease-out group-hover/photo:scale-[1.04]"
+        />
+      </div>
+      <figcaption className="mt-[10px] block max-w-full text-left text-[14px] tracking-[0.01em] text-muted">
+        {image.caption}
+      </figcaption>
+    </figure>
   );
 }
 
@@ -60,7 +62,7 @@ export function Recognition() {
                   {a.title}
                 </h3>
                 <div className="mt-2 text-sm text-accent">{a.place}</div>
-                <p className="mt-4 max-w-md leading-relaxed text-muted">
+                <p className="body-copy mt-4 max-w-md">
                   {a.description}
                 </p>
               </Parallax>
@@ -72,21 +74,22 @@ export function Recognition() {
                     // Single scene photo
                     <ScenePhoto
                       image={a.images[0]}
-                      className="aspect-[16/10]"
+                      frameClassName="aspect-[16/10]"
                       sizes="(max-width: 768px) 90vw, 600px"
                     />
                   ) : (
                     // Two-photo cluster (UTokyo / Japan story)
-                    <div className="relative pb-10 pr-6">
+                    <div className="grid gap-5 sm:grid-cols-[minmax(0,1fr)_minmax(150px,0.42fr)] sm:items-end">
                       <ScenePhoto
                         image={a.images[0]}
-                        className="aspect-[16/10]"
+                        frameClassName="aspect-[16/10]"
                         sizes="(max-width: 768px) 90vw, 560px"
                       />
                       <ScenePhoto
                         image={a.images[1]}
-                        className="absolute -bottom-2 right-0 aspect-[4/3] w-[42%] shadow-2xl shadow-black/50"
-                        sizes="(max-width: 768px) 40vw, 240px"
+                        className="sm:translate-y-8"
+                        frameClassName="aspect-[4/3]"
+                        sizes="(max-width: 768px) 90vw, 240px"
                       />
                     </div>
                   )}

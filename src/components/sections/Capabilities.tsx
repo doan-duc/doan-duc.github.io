@@ -25,7 +25,7 @@ export function Capabilities() {
               ].join(" ")}
             >
               <h3 className="text-2xl tracking-tight md:text-3xl">{c.title}</h3>
-              <p className="mt-3 text-sm text-muted">{c.blurb}</p>
+              <p className="body-copy mt-3">{c.blurb}</p>
               <div className="mt-6 flex flex-wrap gap-2">
                 {c.skills.map((s) => (
                   <Tag key={s}>{s}</Tag>

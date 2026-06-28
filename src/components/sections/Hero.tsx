@@ -72,9 +72,8 @@ export function Hero() {
 
       <Container className="relative z-10">
         <p ref={kicker} className="kicker flex items-center gap-2.5">
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
+          <span className="relative flex h-2 w-2" aria-hidden="true">
+            <span className="hero-eyebrow-dot inline-flex h-2 w-2 rounded-full bg-accent" />
           </span>
           {site.available} · {site.location}
         </p>
@@ -89,7 +88,7 @@ export function Hero() {
         </h1>
 
         <div ref={rest}>
-          <p className="mt-8 max-w-2xl text-lg leading-relaxed text-muted md:text-xl">
+          <p className="hero-subtitle mt-8">
             {site.summary}
           </p>
 
@@ -111,11 +110,11 @@ export function Hero() {
             </a>
           </div>
 
-          <div className="mt-16 grid max-w-2xl grid-cols-1 gap-px overflow-hidden rounded-2xl border border-line sm:grid-cols-3">
+          <div className="mt-16 grid max-w-2xl grid-cols-1 gap-3 sm:grid-cols-3">
             {site.heroStats.map((s) => (
-              <div key={s.label} className="bg-white/[0.02] px-5 py-4">
-                <div className="font-display text-xl text-ink">{s.value}</div>
-                <div className="mt-1 text-xs uppercase tracking-wider text-muted">
+              <div key={s.label} className="hero-stat-card">
+                <div className="font-display text-[17px] text-ink">{s.value}</div>
+                <div className="mt-2 text-[12px] uppercase tracking-[0.1em] text-muted">
                   {s.label}
                 </div>
               </div>

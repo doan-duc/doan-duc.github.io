@@ -96,7 +96,7 @@ export function Highlight() {
           <h2 className="mt-6 text-[clamp(2.25rem,5vw,4rem)] leading-[0.95] tracking-display">
             {highlight.title}
           </h2>
-          <p className="mt-6 max-w-md text-base leading-relaxed text-muted">
+          <p className="body-copy mt-6 max-w-md">
             {highlight.subtitle}
           </p>
           <div className="mt-6 flex flex-wrap gap-2">
@@ -177,7 +177,7 @@ export function Highlight() {
                 {/* Foreground copy (white, always on top) */}
                 <div className="relative">
                   <div className="kicker">{p.label}</div>
-                  <p className="mt-5 max-w-lg text-2xl leading-[1.3] tracking-tight text-ink/90 md:text-[1.7rem]">
+                  <p className="body-copy mt-5 max-w-lg">
                     {p.body}
                   </p>
                 </div>

@@ -15,7 +15,7 @@ export function About() {
           </Reveal>
           <Reveal>
             <p className="mt-8 text-balance text-3xl leading-[1.15] tracking-tight md:text-[2.8rem]">
-              {about.lead} <span className="text-muted">{about.leadAccent}</span>
+              {about.lead} <span className="text-[var(--color-body)]">{about.leadAccent}</span>
             </p>
           </Reveal>
         </div>
@@ -59,9 +59,9 @@ export function About() {
             </div>
           </Reveal>
 
-          <Reveal stagger className="mt-8 space-y-5 text-muted">
+          <Reveal stagger className="mt-8 space-y-5">
             {about.body.map((p, i) => (
-              <p key={i} className="leading-relaxed">
+              <p key={i} className="body-copy">
                 {p}
               </p>
             ))}

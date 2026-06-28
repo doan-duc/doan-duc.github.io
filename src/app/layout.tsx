@@ -3,9 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 
 import SmoothScroll from "@/components/providers/SmoothScroll";
-import { Background } from "@/components/background/Background";
 import { ScrollProgress } from "@/components/motion/ScrollProgress";
-import { CustomCursor } from "@/components/motion/CustomCursor";
 import { Nav } from "@/components/layout/Nav";
 import { Footer } from "@/components/layout/Footer";
 import { site } from "@/lib/site";
@@ -37,7 +35,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={inter.variable}>
-      <body className="grain min-h-screen bg-base text-ink antialiased">
+      <body className="min-h-screen bg-base text-ink antialiased">
         {/* Display typeface — Clash Display (Fontshare), hoisted to <head>. */}
         <link
           rel="stylesheet"
@@ -46,12 +44,12 @@ export default function RootLayout({
         />
 
         <SmoothScroll>
-          <Background />
-          <CustomCursor />
+          <div id="aurora" aria-hidden="true" />
           <ScrollProgress />
           <Nav />
-          <main className="relative">{children}</main>
+          <main className="relative z-[1]">{children}</main>
           <Footer />
+          <div id="grain" aria-hidden="true" />
         </SmoothScroll>
       </body>
     </html>

@@ -3,7 +3,7 @@
 import { useRef, type ReactNode } from "react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 
-/** Magnetic pull — element drifts toward the cursor on hover, springs back. */
+/** Magnetic pull — element drifts toward the pointer on hover, springs back. */
 export function Magnetic({
   children,
   strength = 0.35,

@@ -194,7 +194,7 @@ export const experience: Engagement[] = [
    `images` holds 0–2 scene photos. The UTokyo item carries a two-photo
    cluster (Yasuda + Shangri-La dinner). 👉 EXACT, case-sensitive filenames —
    GitHub Pages is case-sensitive. Files live in /public/images/. */
-export type AwardImage = { src: string; alt: string };
+export type AwardImage = { src: string; alt: string; caption: string };
 export type Award = {
   year: string;
   title: string;
@@ -212,20 +212,35 @@ export const recognition: Award[] = [
       "2nd Place at the Vietnam Hub and Top 100 Global Teams — selected from 14,700+ applications worldwide.",
     images: [
       // 👉 /images/Harvard_Hackathon.jpg
-      { src: "/images/Harvard_Hackathon.jpg", alt: "Harvard HSIL Hackathon, Vietnam Hub" },
+      // VN: "Lễ trao giải — Giải Nhì, Vietnam Hub"
+      {
+        src: "/images/Harvard_Hackathon.jpg",
+        alt: "Harvard HSIL Hackathon, Vietnam Hub",
+        caption: "Award ceremony — 2nd place, Vietnam Hub",
+      },
     ],
   },
   {
-    year: "2025",
+    year: "2026",
     title: "University of Tokyo research exchange",
     place: "Matsuo-Iwasawa Laboratory",
     description:
       "Short-term AI research exchange in Japan — presenting work, receiving feedback, and stepping into an international research culture.",
     images: [
       // 👉 /images/Yasuda_Auditorium.png  (primary)
-      { src: "/images/Yasuda_Auditorium.png", alt: "Yasuda Auditorium, University of Tokyo" },
+      // VN: "Check-in tại Yasuda Auditorium, Đại học Tokyo"
+      {
+        src: "/images/Yasuda_Auditorium.png",
+        alt: "Yasuda Auditorium, University of Tokyo",
+        caption: "Yasuda Auditorium, University of Tokyo",
+      },
       // 👉 /images/dinner_in_Shangrila_hotel.JPG  (cluster — small second photo)
-      { src: "/images/dinner_in_Shangrila_hotel.JPG", alt: "Dinner at Shangri-La Hotel, Tokyo" },
+      // VN: "Bữa tối thân mật với giáo sư Matsuo, Tokyo"
+      {
+        src: "/images/dinner_in_Shangrila_hotel.JPG",
+        alt: "Dinner at Shangri-La Hotel, Tokyo",
+        caption: "An evening with Professor Matsuo and the lab, Tokyo",
+      },
     ],
   },
   {
@@ -236,7 +251,11 @@ export const recognition: Award[] = [
       "Top 20 most outstanding students in the Global Consumer Intelligence course 2025.",
     images: [
       // 👉 /images/presentation_with_Matsuolab.JPG
-      { src: "/images/presentation_with_Matsuolab.JPG", alt: "Presentation with Matsuo Laboratory members" },
+      {
+        src: "/images/presentation_with_Matsuolab.JPG",
+        alt: "Presentation with Matsuo Laboratory members",
+        caption: "Presentation with Matsuo-Iwasawa Laboratory",
+      },
     ],
   },
   {

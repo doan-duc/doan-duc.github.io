@@ -35,7 +35,7 @@ export function SectionHeader({
       </div>
       {index && (
         <Reveal>
-          <span className="font-display text-sm text-muted">{index}</span>
+          <span className="meta-label">{index}</span>
         </Reveal>
       )}
     </div>
