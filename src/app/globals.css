@@ -153,70 +153,14 @@ html.lenis, html.lenis body { height: auto; }
 .hero-stage {
   position: relative;
   width: min(100%, 520px);
-  min-height: 560px;
+  min-height: 520px;
   margin-left: auto;
   isolation: isolate;
 }
 
-.hero-stage-grid {
+.hero-portrait-panel {
   position: absolute;
-  inset: 22px;
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  border-radius: 28px;
-  background:
-    linear-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.055) 1px, transparent 1px),
-    radial-gradient(circle at 30% 22%, rgba(34, 211, 238, 0.12), transparent 42%),
-    radial-gradient(circle at 78% 80%, rgba(246, 193, 119, 0.10), transparent 34%);
-  background-size: 36px 36px, 36px 36px, auto, auto;
-}
-
-.hero-orbit {
-  position: absolute;
-  border: 1px solid rgba(34, 211, 238, 0.22);
-  border-radius: 999px;
-  transform-origin: center;
-  animation: heroOrbit 34s linear infinite;
-}
-
-.hero-orbit-one {
-  inset: 84px 42px 118px 48px;
-}
-
-.hero-orbit-two {
-  inset: 128px 88px 164px 92px;
-  border-color: rgba(246, 193, 119, 0.20);
-  animation-duration: 46s;
-  animation-direction: reverse;
-}
-
-.hero-signal-line {
-  position: absolute;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.8), transparent);
-  transform-origin: left center;
-}
-
-.hero-signal-line-a {
-  left: 72px;
-  right: 88px;
-  top: 242px;
-  transform: rotate(-16deg);
-}
-
-.hero-signal-line-b {
-  left: 120px;
-  right: 44px;
-  top: 326px;
-  background: linear-gradient(90deg, transparent, rgba(246, 193, 119, 0.75), transparent);
-  transform: rotate(14deg);
-}
-
-.hero-portrait-mark {
-  position: absolute;
-  top: 70px;
-  right: 58px;
-  width: 238px;
+  inset: 28px 46px 34px 46px;
   aspect-ratio: 4 / 5;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.16);
@@ -225,85 +169,23 @@ html.lenis, html.lenis body { height: auto; }
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
 }
 
-.hero-portrait-mark img {
+.hero-portrait-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(to bottom, rgba(10, 10, 10, 0.06), transparent 26%, transparent 72%, rgba(10, 10, 10, 0.22)),
+    radial-gradient(80% 90% at 50% 35%, transparent 0%, transparent 48%, rgba(10, 10, 10, 0.28) 100%);
+}
+
+.hero-portrait-panel img {
   filter: saturate(0.92) contrast(1.04);
   transition: transform 0.7s var(--ease-out-expo);
 }
 
-.hero-stage:hover .hero-portrait-mark img {
+.hero-stage:hover .hero-portrait-panel img {
   transform: scale(1.035);
-}
-
-.hero-node {
-  position: absolute;
-  display: grid;
-  width: 72px;
-  height: 72px;
-  place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 999px;
-  background: rgba(10, 10, 10, 0.72);
-  color: var(--color-ink);
-  transition: border-color 0.35s ease, transform 0.35s ease, background-color 0.35s ease;
-}
-
-.hero-node span {
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-}
-
-.hero-node-a { left: 48px; top: 158px; color: #22d3ee; }
-.hero-node-b { right: 42px; top: 324px; color: #f6c177; }
-.hero-node-c { left: 118px; bottom: 104px; color: #a7f3d0; }
-
-.hero-stage:hover .hero-node {
-  transform: translateY(-3px);
-  border-color: rgba(34, 211, 238, 0.34);
-  background: rgba(17, 19, 24, 0.86);
-}
-
-.hero-signal-card {
-  position: absolute;
-  right: 34px;
-  bottom: 46px;
-  width: min(330px, calc(100% - 68px));
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 18px;
-  background: rgba(12, 13, 16, 0.88);
-  padding: 18px;
-  box-shadow: 0 20px 54px rgba(0, 0, 0, 0.26);
-}
-
-.hero-signal-card p {
-  margin-top: 8px;
-  color: var(--color-body);
-  font-size: 16px;
-  line-height: 1.45;
-}
-
-.hero-pipeline {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-top: 16px;
-}
-
-.hero-pipeline span {
-  min-width: 0;
-  border: 1px solid rgba(34, 211, 238, 0.18);
-  border-radius: 999px;
-  padding: 7px 9px;
-  color: var(--color-muted);
-  font-size: 11px;
-  font-weight: 700;
-  text-align: center;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-@keyframes heroOrbit {
-  to { transform: rotate(360deg); }
 }
 
 /* ===========================================================================
@@ -508,6 +390,5 @@ html.lenis, html.lenis body { height: auto; }
   #aurora::after,
   .grain::after,
   .aurora-1, .aurora-2, .aurora-3,
-  .hero-glow,
-  .hero-orbit { animation: none; }
+  .hero-glow { animation: none; }
 }

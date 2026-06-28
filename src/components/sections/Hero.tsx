@@ -13,13 +13,7 @@ import { useSmoothScroll } from "@/components/providers/SmoothScroll";
 function HeroSignalPanel() {
   return (
     <div className="hero-stage">
-      <div className="hero-stage-grid" aria-hidden="true" />
-      <div className="hero-orbit hero-orbit-one" aria-hidden="true" />
-      <div className="hero-orbit hero-orbit-two" aria-hidden="true" />
-      <div className="hero-signal-line hero-signal-line-a" aria-hidden="true" />
-      <div className="hero-signal-line hero-signal-line-b" aria-hidden="true" />
-
-      <div className="hero-portrait-mark">
+      <div className="hero-portrait-panel">
         <Image
           src={site.portrait.src}
           alt={site.portrait.alt}
@@ -28,26 +22,6 @@ function HeroSignalPanel() {
           sizes="360px"
           className="object-cover"
         />
-      </div>
-
-      <div className="hero-node hero-node-a">
-        <span>ECG</span>
-      </div>
-      <div className="hero-node hero-node-b">
-        <span>SNN</span>
-      </div>
-      <div className="hero-node hero-node-c">
-        <span>EDGE</span>
-      </div>
-
-      <div className="hero-signal-card">
-        <span className="meta-label">Research vector</span>
-        <p>From noisy signals to deployable intelligence.</p>
-        <div className="hero-pipeline" aria-label="Research pipeline">
-          <span>Biosignal</span>
-          <span>Model</span>
-          <span>Edge</span>
-        </div>
       </div>
     </div>
   );

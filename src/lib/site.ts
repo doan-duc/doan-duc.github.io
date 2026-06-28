@@ -10,7 +10,7 @@ export const site = {
     "AI / Embedded Systems student building efficient, deployable intelligence — from wearable biosignals to multi-stream edge vision.",
   location: "Hanoi, Vietnam",
   education: "B.S. Smart Embedded Systems & IoT · HUST · expected 2027",
-  available: "Open to research & internships",
+  available: "AI / Embedded Systems student",
 
   // 👉 Portrait — full natural color anchor. Swap at /public/images/profile.jpg
   portrait: { src: "/images/profile.jpg", alt: "Portrait of Duc Doan Sinh" },
@@ -23,9 +23,9 @@ export const site = {
   cv: "/files/duc-doan-sinh-cv.pdf",
   focusAreas: ["Neuromorphic AI", "Biomedical signals", "Edge vision", "RAG systems"],
   heroStats: [
-    { label: "Research home", value: "EDABK Lab" },
+    { label: "University", value: "HUST" },
     { label: "Exchange", value: "UTokyo" },
-    { label: "Harvard HSIL", value: "Top 100 Global" },
+    { label: "Harvard HSIL", value: "2nd Place" },
   ],
 } as const;
 
