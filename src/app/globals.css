@@ -270,6 +270,28 @@ html.lenis, html.lenis body { height: auto; }
   letter-spacing: 0.01em;
 }
 
+.moment-location {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #22d3ee;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.moment-location svg {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+}
+
+.moment-caption-text {
+  display: block;
+  margin-top: 4px;
+}
+
 .tracking-display { letter-spacing: -0.04em; }
 
 /* Infinite marquee row (skill pills). */

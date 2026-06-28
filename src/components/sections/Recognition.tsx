@@ -4,6 +4,23 @@ import { Container } from "@/components/ui/Container";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Reveal } from "@/components/motion/Reveal";
 
+function LocationPin() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 21s7-5.2 7-11a7 7 0 1 0-14 0c0 5.8 7 11 7 11Z" />
+      <circle cx="12" cy="10" r="2.4" />
+    </svg>
+  );
+}
+
 export function Recognition() {
   return (
     <section id="recognition" className="relative py-24 md:py-36">
@@ -50,7 +67,13 @@ export function Recognition() {
                     sizes="(max-width: 768px) calc(100vw - 40px), 50vw"
                   />
                 </div>
-                <figcaption>{moment.caption}</figcaption>
+                <figcaption>
+                  <span className="moment-location">
+                    <LocationPin />
+                    {moment.location}
+                  </span>
+                  <span className="moment-caption-text">{moment.caption}</span>
+                </figcaption>
               </figure>
             ))}
           </Reveal>

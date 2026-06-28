@@ -193,7 +193,12 @@ export const experience: Engagement[] = [
 /* -------- RECOGNITION ----------------------------------------------------
    Awards stay text-only. Journey photos live in `recognitionMoments` below.
    Exact, case-sensitive filenames matter on GitHub Pages. */
-export type RecognitionMoment = { src: string; alt: string; caption: string };
+export type RecognitionMoment = {
+  src: string;
+  alt: string;
+  caption: string;
+  location: string;
+};
 export type Award = {
   year: string;
   title: string;
@@ -238,23 +243,27 @@ export const recognitionMoments: RecognitionMoment[] = [
     src: "/images/Yasuda_Auditorium.png",
     alt: "Yasuda Auditorium, University of Tokyo",
     caption: "Yasuda Auditorium, University of Tokyo",
+    location: "University of Tokyo, Tokyo",
   },
   // VN: "Thuyết trình tại Matsuo-Iwasawa Lab"
   {
     src: "/images/presentation_with_Matsuolab.JPG",
     alt: "Presenting work at Matsuo-Iwasawa Laboratory",
     caption: "Presenting my work at the Matsuo-Iwasawa Lab",
+    location: "Matsuo-Iwasawa Laboratory, UTokyo",
   },
-  // VN: "Bữa tối thân mật với giáo sư Matsuo"
+  // VN: "Bữa tối thân mật với giáo sư Matsuo tại Shangri-La Hotel"
   {
     src: "/images/dinner_in_Shangrila_hotel.JPG",
-    alt: "Dinner with Professor Matsuo and the lab",
+    alt: "Dinner at Shangri-La Hotel with Professor Matsuo and the lab",
     caption: "An evening with Professor Matsuo and the lab",
+    location: "Shangri-La Hotel, Tokyo",
   },
   // VN: "Lễ trao giải — Giải Nhì, Vietnam Hub"
   {
     src: "/images/Harvard_Hackathon.jpg",
     alt: "Harvard HSIL Hackathon award ceremony, Vietnam Hub",
     caption: "Award ceremony — 2nd place, Vietnam Hub",
+    location: "Phenikaa University, Hanoi",
   },
 ];
