@@ -5,8 +5,8 @@ import {
   Cpu,
   GraduationCap,
   HeartPulse,
+  Lightbulb,
   MapPinned,
-  Microscope,
   Presentation,
   Rocket,
   Trophy
@@ -26,14 +26,13 @@ export type Highlight = {
   title: string;
   eyebrow: string;
   description: string;
-  image: Visual;
   icon: LucideIcon;
 };
 
 export type Project = {
   title: string;
   eyebrow: string;
-  image: Visual;
+  visual: "ecg" | "streams" | "qa";
   problem: string;
   built: string;
   learned: string;
@@ -96,34 +95,29 @@ export const about = {
   intro:
     "I am an Embedded Systems and IoT student at Hanoi University of Science and Technology, working at the intersection of signal processing, efficient AI, and deployable systems. My direction is simple: build models that are not only accurate in notebooks, but also meaningful when data is noisy, hardware is constrained, and the result has to serve people.",
   note:
-    "The thread across my work is translation: from wearable biosignals to clinical insight, from vision models to edge devices, and from research ideas to prototypes that can be tested in the real world.",
-  image: {
-    src: "/images/matsuo-presentation.jpg",
-    alt: "Duc Doan Sinh presenting during Matsuo Lab exchange"
-  }
+    "The thread across my work is translation: from wearable biosignals to clinical insight, from vision models to edge devices, and from research ideas to prototypes that can be tested in the real world."
 };
 
 export const highlights: Highlight[] = [
   {
     eyebrow: "Research exchange",
-    title: "University of Tokyo, Matsuo-Iwasawa Laboratory",
+    title: "University of Tokyo exchange",
     description:
-      "Joined a short-term AI research exchange, presented work, and learned how a world-class lab frames applied machine learning problems.",
-    image: {
-      src: "/images/yasuda-auditorium.jpg",
-      alt: "Duc Doan Sinh at Yasuda Auditorium, The University of Tokyo"
-    },
+      "A short-term AI research exchange that connected my HUST direction with a stronger international research frame.",
     icon: GraduationCap
+  },
+  {
+    eyebrow: "Research communication",
+    title: "Presentation with Matsuo Lab",
+    description:
+      "The presentation photo belongs here: UTokyo exchange, presenting and receiving feedback from Matsuo-Iwasawa Laboratory members.",
+    icon: Presentation
   },
   {
     eyebrow: "Health innovation",
     title: "Harvard HSIL Hackathon 2026",
     description:
       "2nd Place Winner at the Vietnam Hub and selected among the Top 100 Global Teams from 14,700+ applications.",
-    image: {
-      src: "/images/harvard-hackathon.jpg",
-      alt: "Harvard Health Systems Innovation Lab Hackathon award ceremony"
-    },
     icon: Trophy
   },
   {
@@ -131,11 +125,7 @@ export const highlights: Highlight[] = [
     title: "EDABK Laboratory, HUST",
     description:
       "Researching SNN, KAN, NAS, ECG, PPG, and efficient computer vision systems with a focus on deployable AI.",
-    image: {
-      src: "/images/matsuo-presentation.jpg",
-      alt: "Duc Doan Sinh presenting research work"
-    },
-    icon: Microscope
+    icon: Lightbulb
   }
 ];
 
@@ -143,11 +133,7 @@ export const projects: Project[] = [
   {
     eyebrow: "Wearable biosignal AI",
     title: "Ear-to-chest ECG reconstruction",
-    // Replace this contextual photo with a model diagram, paper poster, or demo screenshot when available.
-    image: {
-      src: "/images/matsuo-presentation.jpg",
-      alt: "Research presentation for biosignal AI work"
-    },
+    visual: "ecg",
     problem:
       "Ear-worn ECG is convenient, but the signal is noisy and shaped differently from chest ECG, making clinical interpretation harder.",
     built:
@@ -165,10 +151,7 @@ export const projects: Project[] = [
   {
     eyebrow: "Edge computer vision",
     title: "16-stream product recognition on Jetson Nano",
-    image: {
-      src: "/images/yasuda-auditorium.jpg",
-      alt: "International research context photo used as project placeholder"
-    },
+    visual: "streams",
     problem:
       "Multi-camera retail or industrial systems need practical detection speed without relying on expensive server hardware.",
     built:
@@ -186,10 +169,7 @@ export const projects: Project[] = [
   {
     eyebrow: "Industrial QA",
     title: "Electronic packaging control system",
-    image: {
-      src: "/images/harvard-hackathon.jpg",
-      alt: "Award context photo used as project placeholder"
-    },
+    visual: "qa",
     problem:
       "Manual packaging checks are easy to miss when small electronic components move through multi-step production lines.",
     built:
@@ -213,10 +193,6 @@ export const awards: TimelineItem[] = [
     place: "Vietnam Hub / Global",
     description:
       "2nd Place Winner at Vietnam Hub and Top 100 Global Teams, selected from 14,700+ applications worldwide.",
-    image: {
-      src: "/images/harvard-hackathon.jpg",
-      alt: "Harvard HSIL Hackathon award photo"
-    },
     icon: Award
   },
   {
@@ -225,10 +201,6 @@ export const awards: TimelineItem[] = [
     place: "Matsuo-Iwasawa Laboratory",
     description:
       "Selected as one of the Top 20 most outstanding students in Global Consumer Intelligence Course 2025.",
-    image: {
-      src: "/images/matsuo-presentation.jpg",
-      alt: "Presentation with Matsuo Lab"
-    },
     icon: Presentation
   },
   {
@@ -237,32 +209,28 @@ export const awards: TimelineItem[] = [
     place: "Bosch Global Software Technologies Vietnam",
     description:
       "Top 30 team in a national challenge that tested practical engineering, software thinking, and teamwork.",
-    image: {
-      src: "/images/profile.jpg",
-      alt: "Profile image placeholder for Bosch CodeRace achievement"
-    },
     icon: Cpu
   }
 ];
 
 export const experiences: Experience[] = [
   {
-    title: "Short-term AI research exchange",
+    title: "Photo in Yasuda Auditorium",
     date: "March 2025",
     place: "The University of Tokyo, Japan",
     story:
-      "A turning point that sharpened how I think about research: not as a list of techniques, but as a disciplined way to ask better questions and defend design choices.",
+      "This image is used only for the UTokyo exchange milestone: standing at Yasuda Auditorium and seeing the scale of the research environment more clearly.",
     image: {
       src: "/images/yasuda-auditorium.jpg",
       alt: "Duc Doan Sinh at Yasuda Auditorium"
     }
   },
   {
-    title: "Research presentation with Matsuo Lab",
+    title: "Presentation with Matsuo Lab",
     date: "March 2025",
-    place: "Matsuo-Iwasawa Laboratory",
+    place: "Matsuo-Iwasawa Laboratory, UTokyo exchange",
     story:
-      "Presenting to lab members helped me connect implementation details with research storytelling: what problem matters, what evidence is enough, and what should be tested next.",
+      "This photo belongs to the UTokyo exchange story: presenting with Matsuo Lab members and turning engineering decisions into a clear research narrative.",
     image: {
       src: "/images/matsuo-presentation.jpg",
       alt: "Duc Doan Sinh presenting with Matsuo Lab"

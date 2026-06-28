@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ImageFrame } from "@/components/ui/ImageFrame";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { awards } from "@/data/profile";
 
@@ -23,7 +22,7 @@ export function AwardsSection() {
             return (
               <motion.article
                 key={award.title}
-                className="glass-panel grid gap-5 p-5 md:ml-14 md:grid-cols-[150px_minmax(0,1fr)_220px] md:items-center md:p-6"
+                className="glass-panel grid gap-5 p-5 md:ml-14 md:grid-cols-[150px_minmax(0,1fr)] md:items-center md:p-6"
                 initial={{ opacity: 0, x: -26 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, amount: 0.22 }}
@@ -47,14 +46,6 @@ export function AwardsSection() {
                   </p>
                 </div>
 
-                {award.image ? (
-                  <ImageFrame
-                    image={award.image}
-                    ratio="aspect-[4/3]"
-                    className="border border-[var(--line)]"
-                    sizes="(min-width: 768px) 220px, 100vw"
-                  />
-                ) : null}
               </motion.article>
             );
           })}

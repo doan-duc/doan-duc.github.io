@@ -8,12 +8,13 @@ The site is designed as a narrative portfolio, not a second CV. The structure mo
 
 1. Hero: name, positioning, portrait, primary links.
 2. About: personal direction and research identity.
-3. Featured Highlights: major credibility signals with photos.
-4. Projects / Research: story-driven project cards using Problem -> Built -> Learned -> Matters.
+3. Featured Highlights: major credibility signals as concise text/icon cards.
+4. Projects / Research: story-driven cards using Problem -> Built -> Learned -> Matters, with custom system visuals instead of unrelated personal photos.
 5. Awards: timeline-style recognitions with context.
-6. Experiences: international, lab, conference, and competition milestones.
-7. Photo Journey: curated visual timeline where every image has a reason.
+6. Experience and Photo Journey: curated milestone photos where every image keeps the event described by its file name.
 8. Now / Contact: current work, future direction, and links.
+
+Photos are intentionally not used as generic decoration. The presentation image is tied to the UTokyo exchange and Matsuo Lab presentation; project cards use interface-style visuals until real screenshots, posters, or diagrams are available.
 
 ## Color Palette
 
@@ -33,6 +34,7 @@ The palette avoids generic neon-AI styling by mixing warm academic contrast with
 - `src/components/PortfolioPage.tsx`: page composition.
 - `src/components/SiteHeader.tsx`: fixed navigation and scroll progress.
 - `src/components/SiteFooter.tsx`: footer and back-to-top link.
+- `src/components/ThreeBackground.tsx`: subtle full-bleed Three.js wireframe background.
 - `src/components/ui/Reveal.tsx`: reusable Framer Motion reveal.
 - `src/components/ui/ImageFrame.tsx`: responsive image container with overlay and hover treatment.
 - `src/components/ui/LinkButton.tsx`: reusable CTA/link button.
@@ -56,7 +58,7 @@ Replace the CV at:
 
 - `public/files/duc-doan-sinh-cv.pdf`
 
-Project cards currently use contextual photos where project posters/screenshots are not available. Replace those image paths in `projects` when you have actual diagrams, screenshots, or paper posters.
+Project cards currently use custom non-photo visuals. Add real diagrams, screenshots, or paper posters only when the image directly represents that project.
 
 ## Run Locally
 

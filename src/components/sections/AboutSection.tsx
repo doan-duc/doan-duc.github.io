@@ -1,4 +1,3 @@
-import { ImageFrame } from "@/components/ui/ImageFrame";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { about, profile } from "@/data/profile";
@@ -32,20 +31,32 @@ export function AboutSection() {
           </div>
         </Reveal>
 
-        <Reveal delay={0.08}>
-          <ImageFrame
-            image={about.image}
-            ratio="aspect-[4/5]"
-            className="glass-panel h-full"
-            sizes="(min-width: 1024px) 34vw, 100vw"
-          >
-            <div className="absolute bottom-0 left-0 right-0 p-5">
-              <p className="rounded-lg border border-[var(--line)] bg-[rgba(7,9,15,0.82)] p-4 text-sm font-bold text-[var(--text-soft)] backdrop-blur-md">
-                Presentation moments are used as evidence of research communication, not as a
-                random gallery.
-              </p>
-            </div>
-          </ImageFrame>
+        <Reveal delay={0.08} className="glass-panel grid content-between overflow-hidden p-6 md:p-8">
+          <div>
+            <p className="mb-3 text-sm font-bold text-[var(--gold)]">Research compass</p>
+            <h3 className="max-w-sm text-2xl font-black leading-tight text-[var(--text)]">
+              From noisy signals to systems that can be tested outside a notebook.
+            </h3>
+          </div>
+
+          <div className="mt-10 grid gap-3">
+            {["Sense", "Compress", "Deploy", "Learn"].map((step, index) => (
+              <div
+                key={step}
+                className="grid grid-cols-[54px_minmax(0,1fr)] items-center gap-4 rounded-lg border border-[var(--line)] bg-[rgba(247,243,232,0.04)] p-4"
+              >
+                <span className="grid size-11 place-items-center rounded-lg border border-[rgba(70,199,216,0.28)] bg-[rgba(70,199,216,0.1)] text-sm font-black text-[var(--cyan)]">
+                  0{index + 1}
+                </span>
+                <div>
+                  <p className="text-base font-black text-[var(--text)]">{step}</p>
+                  <p className="text-sm font-medium text-[var(--muted)]">
+                    A design checkpoint before a model becomes a real embedded AI system.
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
         </Reveal>
       </div>
     </section>

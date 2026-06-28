@@ -9,12 +9,13 @@ import { ExperiencesSection } from "@/components/sections/ExperiencesSection";
 import { HighlightsSection } from "@/components/sections/HighlightsSection";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { NowSection } from "@/components/sections/NowSection";
-import { PhotoJourneySection } from "@/components/sections/PhotoJourneySection";
 import { ProjectsSection } from "@/components/sections/ProjectsSection";
+import { ThreeBackground } from "@/components/ThreeBackground";
 
 export function PortfolioPage() {
   return (
     <div className="site-shell">
+      <ThreeBackground />
       <SiteHeader />
       <main>
         <HeroSection />
@@ -23,7 +24,6 @@ export function PortfolioPage() {
         <ProjectsSection />
         <AwardsSection />
         <ExperiencesSection />
-        <PhotoJourneySection />
         <NowSection />
         <ContactSection />
       </main>
