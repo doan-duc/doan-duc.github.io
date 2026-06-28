@@ -108,7 +108,7 @@ export const highlights: Highlight[] = [
   },
   {
     eyebrow: "Research communication",
-    title: "Presentation with Matsuo Lab",
+    title: "Presentation with Matsuo-Iwasawa Laboratory",
     description:
       "Presented during the UTokyo exchange and received feedback from Matsuo-Iwasawa Laboratory members on problem framing and evidence.",
     icon: Presentation
@@ -226,14 +226,14 @@ export const experiences: Experience[] = [
     }
   },
   {
-    title: "Presentation with Matsuo Lab",
+    title: "Presentation with Matsuo-Iwasawa Laboratory",
     date: "March 2025",
     place: "Matsuo-Iwasawa Laboratory, UTokyo exchange",
     story:
-      "Presenting with Matsuo Lab members helped me turn implementation details into a clear research narrative: what problem matters, what evidence is enough, and what should be tested next.",
+      "Presenting with Matsuo-Iwasawa Laboratory members helped me turn implementation details into a clear research narrative: what problem matters, what evidence is enough, and what should be tested next.",
     image: {
       src: "/images/matsuo-presentation.jpg",
-      alt: "Duc Doan Sinh presenting with Matsuo Lab"
+      alt: "Duc Doan Sinh presenting with Matsuo-Iwasawa Laboratory"
     }
   },
   {
@@ -278,7 +278,7 @@ export const photoJourney: JourneyPhoto[] = [
       "The presentation photo is not decoration; it marks the moment where engineering decisions had to become a clear argument.",
     image: {
       src: "/images/matsuo-presentation.jpg",
-      alt: "Presentation with Matsuo Lab members"
+      alt: "Presentation with Matsuo-Iwasawa Laboratory members"
     }
   },
   {

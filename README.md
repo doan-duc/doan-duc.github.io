@@ -14,7 +14,7 @@ The site is designed as a narrative portfolio, not a second CV. The structure mo
 6. International Milestones: curated exchange, lab, mentorship, and health innovation moments.
 8. Now / Contact: current work, future direction, and links.
 
-Photos are intentionally tied to the milestone they document. The presentation image is part of the UTokyo exchange and Matsuo Lab presentation story; project cards use interface-style visuals until real screenshots, posters, or diagrams are available.
+Photos are intentionally tied to the milestone they document. The presentation image is part of the UTokyo exchange and Matsuo-Iwasawa Laboratory presentation story; project cards use interface-style visuals until real screenshots, posters, or diagrams are available.
 
 Hover motion is used as a design layer: cards lift with a soft sheen, project visuals animate their signals or grid elements, and milestone photos reveal compact captions without obscuring the story.
 
