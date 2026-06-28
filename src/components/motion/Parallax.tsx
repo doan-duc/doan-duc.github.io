@@ -10,10 +10,7 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-/**
- * Subtle scroll parallax. Travels from +amount to -amount across the time the
- * element is on screen (scrubbed). Keep `amount` small so cards drift, not jump.
- */
+/** Scrubbed scroll parallax. Larger `amount` = moves more (slower-feeling). */
 export function Parallax({
   children,
   amount = 36,

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-/** Small pill used for tech tags / chips. */
+/** Accent-tinted pill (one of the few approved accent spots). */
 export function Tag({
   children,
   className,
@@ -12,7 +12,7 @@ export function Tag({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full border border-line bg-white/[0.03] px-3 py-1 text-xs text-muted transition-colors hover:border-white/20 hover:text-ink",
+        "inline-flex items-center whitespace-nowrap rounded-full border border-accent/20 bg-accent/[0.06] px-3 py-1 text-xs text-accent/90 transition-colors hover:border-accent/40 hover:bg-accent/10 hover:text-accent",
         className
       )}
     >

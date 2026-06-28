@@ -4,15 +4,11 @@ import { useRef, type ReactNode } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { cn } from "@/lib/utils";
 
-/**
- * 3D tilt on hover (Framer Motion micro-interaction). Tracks the pointer over
- * the card and maps it to a small rotateX/rotateY with spring. Keep `max` low
- * (6–8deg) for a premium feel, not a gimmick.
- */
+/** 3D tilt toward the cursor (Framer micro-interaction). Keep `max` low. */
 export function TiltCard({
   children,
   className,
-  max = 7,
+  max = 6,
 }: {
   children: ReactNode;
   className?: string;
@@ -32,7 +28,6 @@ export function TiltCard({
     px.set((e.clientX - r.left) / r.width - 0.5);
     py.set((e.clientY - r.top) / r.height - 0.5);
   }
-
   function reset() {
     px.set(0);
     py.set(0);

@@ -1,7 +1,39 @@
-import { recognition } from "@/lib/content";
+import Image from "next/image";
+import { recognition, type AwardImage } from "@/lib/content";
 import { Container } from "@/components/ui/Container";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Reveal } from "@/components/motion/Reveal";
+import { Parallax } from "@/components/motion/Parallax";
+import { cn } from "@/lib/utils";
+
+/* Scene-photo treatment ONLY (never the About portrait): light desaturation +
+   slight contrast, thin border, minimal rounding, gentle zoom on hover. */
+function ScenePhoto({
+  image,
+  className,
+  sizes,
+}: {
+  image: AwardImage;
+  className?: string;
+  sizes: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "group/photo relative overflow-hidden rounded-md border border-line",
+        className
+      )}
+    >
+      <Image
+        src={image.src}
+        alt={image.alt}
+        fill
+        sizes={sizes}
+        className="object-cover brightness-[0.96] contrast-[1.06] saturate-[0.82] transition-transform duration-700 ease-out group-hover/photo:scale-[1.04]"
+      />
+    </div>
+  );
+}
 
 export function Recognition() {
   return (
@@ -10,36 +42,59 @@ export function Recognition() {
         <SectionHeader
           index="04 — Recognition"
           kicker="Signals"
-          title={
-            <>
-              Selected <span className="text-gradient">recognition</span>.
-            </>
-          }
+          title={<>Moments worth marking.</>}
         />
 
-        <Reveal stagger className="mt-8">
+        <div className="mt-10">
           {recognition.map((a) => (
-            <div
+            <Reveal
               key={a.title}
-              className="grid gap-3 border-b border-line py-8 md:grid-cols-12 md:gap-6 md:py-9"
+              className="grid items-center gap-8 border-t border-line py-12 md:grid-cols-12 md:gap-12 md:py-16"
             >
-              <div className="md:col-span-2">
-                <span className="font-display text-3xl text-white/25 md:text-4xl">
+              {/* Text block — parallax slower than the image */}
+              <Parallax amount={12} className="md:col-span-5">
+                <span className="block font-display text-5xl leading-none text-ink/15 md:text-6xl">
                   {a.year}
                 </span>
-              </div>
-              <div className="md:col-span-7">
-                <h3 className="text-xl tracking-tight md:text-2xl">{a.title}</h3>
-                <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted">
+                <h3 className="mt-5 text-2xl tracking-tight md:text-3xl">
+                  {a.title}
+                </h3>
+                <div className="mt-2 text-sm text-accent">{a.place}</div>
+                <p className="mt-4 max-w-md leading-relaxed text-muted">
                   {a.description}
                 </p>
-              </div>
-              <div className="md:col-span-3 md:text-right">
-                <span className="text-sm text-muted">{a.place}</span>
-              </div>
-            </div>
+              </Parallax>
+
+              {/* Image block — parallax faster (moves more) than the text */}
+              {a.images.length > 0 && (
+                <Parallax amount={44} className="md:col-span-7">
+                  {a.images.length === 1 ? (
+                    // Single scene photo
+                    <ScenePhoto
+                      image={a.images[0]}
+                      className="aspect-[16/10]"
+                      sizes="(max-width: 768px) 90vw, 600px"
+                    />
+                  ) : (
+                    // Two-photo cluster (UTokyo / Japan story)
+                    <div className="relative pb-10 pr-6">
+                      <ScenePhoto
+                        image={a.images[0]}
+                        className="aspect-[16/10]"
+                        sizes="(max-width: 768px) 90vw, 560px"
+                      />
+                      <ScenePhoto
+                        image={a.images[1]}
+                        className="absolute -bottom-2 right-0 aspect-[4/3] w-[42%] shadow-2xl shadow-black/50"
+                        sizes="(max-width: 768px) 40vw, 240px"
+                      />
+                    </div>
+                  )}
+                </Parallax>
+              )}
+            </Reveal>
           ))}
-        </Reveal>
+        </div>
       </Container>
     </section>
   );

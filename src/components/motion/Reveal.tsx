@@ -13,20 +13,13 @@ type RevealProps = {
   children: ReactNode;
   as?: ElementType;
   className?: string;
-  /** Animate direct children one-by-one (staggered). */
   stagger?: boolean;
-  /** Vertical travel distance in px. */
   y?: number;
   delay?: number;
-  /** ScrollTrigger start position. */
   start?: string;
 };
 
-/**
- * GSAP + ScrollTrigger reveal-on-scroll. Runs in a layout effect so the
- * "from" state is applied before paint (no flash). Reduced-motion = no-op,
- * content stays visible. This is the workhorse for "every section reveals".
- */
+/** GSAP reveal-on-scroll (opacity + translateY), optional staggered children. */
 export function Reveal({
   children,
   as,

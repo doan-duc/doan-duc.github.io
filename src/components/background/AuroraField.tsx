@@ -1,50 +1,48 @@
 /**
- * Aurora / mesh-gradient blobs. Heavy blur + screen blend on the near-black
- * base reads as a premium light field. Drift animation lives in globals.css
- * (.aurora-1/2/3). Tune colors/positions here.
- *
- * 👉 The first blob uses the accent. Change the accent in globals.css (@theme).
+ * Aurora / mesh-gradient blobs: cyan → blue → violet, heavily blurred, low
+ * opacity, drifting very slowly (60s+, see globals.css). Sits behind everything
+ * and must never compete with text.
  */
 export function AuroraField() {
   return (
     <div className="absolute inset-0 overflow-hidden" aria-hidden>
-      {/* Accent glow — sits behind the hero headline */}
+      {/* Cyan — upper left, behind the hero */}
       <div
         className="aurora-blob aurora-1"
         style={{
-          top: "-12%",
-          left: "-6%",
-          width: "52vw",
-          height: "52vw",
+          top: "-14%",
+          left: "-8%",
+          width: "54vw",
+          height: "54vw",
           background:
-            "radial-gradient(circle at center, var(--color-accent) 0%, transparent 68%)",
-          opacity: 0.5,
+            "radial-gradient(circle at center, var(--grad-cyan) 0%, transparent 68%)",
+          opacity: 0.4,
         }}
       />
-      {/* Cool indigo counter-glow */}
+      {/* Blue — upper right */}
       <div
         className="aurora-blob aurora-2"
         style={{
-          top: "-4%",
-          right: "-10%",
-          width: "46vw",
-          height: "46vw",
+          top: "-2%",
+          right: "-12%",
+          width: "48vw",
+          height: "48vw",
           background:
-            "radial-gradient(circle at center, #4f46e5 0%, transparent 70%)",
-          opacity: 0.42,
+            "radial-gradient(circle at center, var(--grad-blue) 0%, transparent 70%)",
+          opacity: 0.34,
         }}
       />
-      {/* Deep magenta, lower — keeps the field from feeling symmetrical */}
+      {/* Violet — lower center, keeps the field asymmetric */}
       <div
         className="aurora-blob aurora-3"
         style={{
-          top: "32%",
-          left: "30%",
-          width: "40vw",
-          height: "40vw",
+          top: "34%",
+          left: "28%",
+          width: "44vw",
+          height: "44vw",
           background:
-            "radial-gradient(circle at center, #be185d 0%, transparent 72%)",
-          opacity: 0.3,
+            "radial-gradient(circle at center, var(--grad-violet) 0%, transparent 72%)",
+          opacity: 0.28,
         }}
       />
     </div>

@@ -18,7 +18,7 @@ export function Contact() {
           <h2 className="mt-7 text-[clamp(2.75rem,9vw,8rem)] leading-[0.9] tracking-display">
             Let&apos;s build
             <br />
-            something <span className="text-gradient">useful.</span>
+            something useful.
           </h2>
         </Reveal>
 
@@ -42,37 +42,17 @@ export function Contact() {
           </a>
         </Reveal>
 
-        {/* Channels */}
         <Reveal stagger className="mt-16 grid gap-px overflow-hidden rounded-2xl border border-line sm:grid-cols-3">
-          <a
-            href={site.github}
-            target="_blank"
-            rel="noreferrer"
-            className="group flex items-center justify-between bg-white/[0.02] px-6 py-5 transition-colors hover:bg-white/[0.04]"
-          >
-            <span className="flex items-center gap-3 text-ink">
-              <Github className="h-5 w-5" /> GitHub
-            </span>
+          <a href={site.github} target="_blank" rel="noreferrer" className="group flex items-center justify-between bg-white/[0.02] px-6 py-5 transition-colors hover:bg-white/[0.04]">
+            <span className="flex items-center gap-3 text-ink"><Github className="h-5 w-5" /> GitHub</span>
             <ArrowUpRight className="h-4 w-4 text-muted transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </a>
-          <a
-            href={site.linkedin}
-            target="_blank"
-            rel="noreferrer"
-            className="group flex items-center justify-between bg-white/[0.02] px-6 py-5 transition-colors hover:bg-white/[0.04]"
-          >
-            <span className="flex items-center gap-3 text-ink">
-              <Linkedin className="h-5 w-5" /> LinkedIn
-            </span>
+          <a href={site.linkedin} target="_blank" rel="noreferrer" className="group flex items-center justify-between bg-white/[0.02] px-6 py-5 transition-colors hover:bg-white/[0.04]">
+            <span className="flex items-center gap-3 text-ink"><Linkedin className="h-5 w-5" /> LinkedIn</span>
             <ArrowUpRight className="h-4 w-4 text-muted transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </a>
-          <a
-            href={`mailto:${site.universityEmail}`}
-            className="group flex items-center justify-between bg-white/[0.02] px-6 py-5 transition-colors hover:bg-white/[0.04]"
-          >
-            <span className="flex items-center gap-3 text-ink">
-              <Mail className="h-5 w-5" /> University
-            </span>
+          <a href={`mailto:${site.universityEmail}`} className="group flex items-center justify-between bg-white/[0.02] px-6 py-5 transition-colors hover:bg-white/[0.04]">
+            <span className="flex items-center gap-3 text-ink"><Mail className="h-5 w-5" /> University</span>
             <ArrowUpRight className="h-4 w-4 text-muted transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </a>
         </Reveal>

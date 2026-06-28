@@ -10,11 +10,7 @@ export function Experience() {
         <SectionHeader
           index="03 — Now"
           kicker="Where I am"
-          title={
-            <>
-              What I&apos;m <span className="text-gradient">building</span> now.
-            </>
-          }
+          title={<>What I&apos;m building now.</>}
         />
 
         <Reveal stagger className="mt-8">
@@ -28,9 +24,7 @@ export function Experience() {
               </div>
               <div className="md:col-span-9">
                 <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                  <h3 className="text-xl tracking-tight md:text-2xl">
-                    {e.role}
-                  </h3>
+                  <h3 className="text-xl tracking-tight md:text-2xl">{e.role}</h3>
                   <span className="text-sm text-accent">{e.org}</span>
                   <span className="text-xs text-muted/70">· {e.place}</span>
                 </div>

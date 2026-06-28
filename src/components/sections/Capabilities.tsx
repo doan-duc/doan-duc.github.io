@@ -3,6 +3,7 @@ import { Container } from "@/components/ui/Container";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Reveal } from "@/components/motion/Reveal";
 import { Tag } from "@/components/ui/Tag";
+import { Marquee } from "@/components/motion/Marquee";
 
 export function Capabilities() {
   return (
@@ -11,21 +12,15 @@ export function Capabilities() {
         <SectionHeader
           index="02 — Capabilities"
           kicker="What I work with"
-          title={
-            <>
-              The <span className="text-gradient">stack</span> behind the work.
-            </>
-          }
+          title={<>The stack behind the work.</>}
         />
 
-        {/* Editorial matrix (borders, not boxed cards) */}
         <Reveal stagger className="mt-6 grid md:grid-cols-2">
           {capabilities.map((c, i) => (
             <div
               key={c.title}
               className={[
                 "border-b border-line py-10 md:py-12",
-                // vertical divider between the two columns on desktop
                 i % 2 === 0 ? "md:border-r md:pr-12" : "md:pl-12",
               ].join(" ")}
             >
@@ -40,6 +35,11 @@ export function Capabilities() {
           ))}
         </Reveal>
       </Container>
+
+      {/* One slow infinite marquee of skill pills */}
+      <div className="mt-14">
+        <Marquee />
+      </div>
     </section>
   );
 }

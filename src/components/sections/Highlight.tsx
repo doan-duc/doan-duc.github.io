@@ -1,75 +1,105 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useIsoLayoutEffect } from "@/lib/use-iso-layout-effect";
 import { highlight } from "@/lib/content";
+import { Container } from "@/components/ui/Container";
 import { Tag } from "@/components/ui/Tag";
 import { ArrowUpRight } from "@/components/ui/icons";
+import { cn } from "@/lib/utils";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-/**
- * The flagship project, pinned. On desktop the section pins and the panels
- * scroll horizontally (Awwwards-style). On mobile it gracefully degrades to a
- * normal vertical stack. Driven by gsap.matchMedia so the pin only exists where
- * it should.
- */
 export function Highlight() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
+  const section = useRef<HTMLElement>(null);
+  const stage = useRef<HTMLDivElement>(null);
+  const [animate, setAnimate] = useState(false);
+  const [active, setActive] = useState(0);
 
+  // Decide (before paint) whether to enable the pinned/scrubbed treatment.
   useIsoLayoutEffect(() => {
-    const section = sectionRef.current;
-    const track = trackRef.current;
-    if (!section || !track) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    setAnimate(!window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  }, []);
+
+  // Pin + scrub crossfade through the four phases (desktop only).
+  useIsoLayoutEffect(() => {
+    if (!animate) return;
+    const sec = section.current;
+    const st = stage.current;
+    if (!sec || !st) return;
 
     const mm = gsap.matchMedia();
-
     mm.add("(min-width: 768px)", () => {
-      const distance = () => track.scrollWidth - window.innerWidth;
-      gsap.to(track, {
-        x: () => -distance(),
-        ease: "none",
+      const panels = gsap.utils.toArray<HTMLElement>(st.querySelectorAll("[data-phase]"));
+      const n = panels.length;
+      gsap.set(panels, { autoAlpha: 0, yPercent: 8 });
+      gsap.set(panels[0], { autoAlpha: 1, yPercent: 0 });
+
+      let last = 0;
+      const tl = gsap.timeline({
+        defaults: { ease: "power1.inOut" },
         scrollTrigger: {
-          trigger: section,
+          trigger: sec,
           start: "top top",
-          end: () => "+=" + distance(),
+          end: () => "+=" + window.innerHeight * (n - 0.5),
           pin: true,
           scrub: 1,
           anticipatePin: 1,
           invalidateOnRefresh: true,
+          onUpdate: (self) => {
+            const idx = Math.min(n - 1, Math.floor(self.progress * n));
+            if (idx !== last) {
+              last = idx;
+              setActive(idx);
+            }
+          },
         },
       });
+
+      for (let i = 1; i < n; i++) {
+        tl.to(panels[i - 1], { autoAlpha: 0, yPercent: -8, duration: 0.5 }, i - 0.25)
+          .fromTo(
+            panels[i],
+            { autoAlpha: 0, yPercent: 8 },
+            { autoAlpha: 1, yPercent: 0, duration: 0.5 },
+            i - 0.05
+          );
+      }
+      tl.to({}, { duration: 0.5 }); // let the final phase linger
     });
 
-    return () => mm.revert();
-  }, []);
+    return () => {
+      mm.revert();
+      setActive(0);
+    };
+  }, [animate]);
 
   return (
     <section
       id="highlight"
-      ref={sectionRef}
-      className="relative md:h-screen md:overflow-hidden"
+      ref={section}
+      className={cn("relative", animate && "md:h-screen md:overflow-hidden")}
     >
-      <div
-        ref={trackRef}
-        className="flex flex-col md:h-screen md:flex-row md:flex-nowrap"
+      <Container
+        className={cn(
+          "flex h-full flex-col justify-center py-24 md:grid md:grid-cols-12 md:items-center md:gap-12",
+          animate ? "md:py-0" : "md:py-32"
+        )}
       >
-        {/* Intro panel */}
-        <div className="flex min-h-[88vh] w-full shrink-0 flex-col justify-center px-6 py-20 md:h-screen md:w-[62vw] md:px-16 md:py-0">
+        {/* Identity column */}
+        <div className="md:col-span-5">
           <span className="kicker">{highlight.eyebrow}</span>
-          <h2 className="mt-6 max-w-3xl text-[clamp(2.5rem,7vw,6rem)] leading-[0.92] tracking-display">
+          <h2 className="mt-6 text-[clamp(2.25rem,5vw,4rem)] leading-[0.95] tracking-display">
             {highlight.title}
           </h2>
-          <p className="mt-8 max-w-xl text-lg leading-relaxed text-muted">
+          <p className="mt-6 max-w-md text-base leading-relaxed text-muted">
             {highlight.subtitle}
           </p>
-          <div className="mt-8 flex flex-wrap gap-2">
+          <div className="mt-6 flex flex-wrap gap-2">
             {highlight.chips.map((c) => (
               <Tag key={c}>{c}</Tag>
             ))}
@@ -78,44 +108,84 @@ export function Highlight() {
             href={highlight.link.href}
             target="_blank"
             rel="noreferrer"
-            className="group mt-9 inline-flex w-fit items-center gap-2 rounded-full border border-line px-5 py-2.5 text-sm text-ink transition-colors hover:border-accent hover:bg-accent/10"
+            className="group mt-7 inline-flex w-fit items-center gap-2 rounded-full border border-line px-5 py-2.5 text-sm text-ink transition-colors hover:border-accent hover:bg-accent/10"
           >
             {highlight.link.label}
             <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </a>
 
-          {/* Desktop-only scroll hint */}
-          <div className="mt-14 hidden items-center gap-3 text-muted md:flex">
-            <span className="text-[10px] uppercase tracking-[0.3em]">
-              Scroll to explore
-            </span>
-            <span className="h-px w-16 bg-gradient-to-r from-accent to-transparent" />
-          </div>
+          {/* Step indicator (active step turns cyan as you scrub) */}
+          <ol className="mt-10 hidden space-y-3 md:block">
+            {highlight.phases.map((p, i) => (
+              <li
+                key={p.key}
+                className={cn(
+                  "flex items-center gap-3 transition-colors duration-300",
+                  active === i ? "text-ink" : "text-muted/45"
+                )}
+              >
+                <span
+                  className={cn(
+                    "font-display text-sm transition-colors duration-300",
+                    active === i ? "text-accent" : "text-muted/40"
+                  )}
+                >
+                  {p.key}
+                </span>
+                <span
+                  className={cn(
+                    "h-px transition-all duration-300",
+                    active === i ? "w-10 bg-accent" : "w-5 bg-line"
+                  )}
+                />
+                <span className="text-sm">{p.label}</span>
+              </li>
+            ))}
+          </ol>
         </div>
 
-        {/* Phase panels: Problem → Built → Learned → Why */}
-        {highlight.phases.map((phase) => (
-          <article
-            key={phase.key}
-            className="relative flex min-h-[70vh] w-full shrink-0 flex-col justify-center border-t border-line px-6 py-16 md:h-screen md:w-[44vw] md:border-l md:border-t-0 md:px-14 md:py-0"
-          >
-            {/* Oversized outline index */}
-            <span
-              aria-hidden
-              className="font-display text-[7rem] leading-none text-transparent md:text-[10rem]"
-              style={{ WebkitTextStroke: "1px rgba(255,255,255,0.12)" }}
+        {/* Phase stage — panels crossfade while pinned */}
+        <div
+          ref={stage}
+          className={cn("relative md:col-span-7", animate && "md:h-[58vh]")}
+        >
+          {highlight.phases.map((p, i) => (
+            <article
+              key={p.key}
+              data-phase
+              className={cn(
+                "flex flex-col justify-center",
+                animate ? "md:absolute md:inset-0" : "md:relative",
+                i > 0 && "mt-16 md:mt-0"
+              )}
             >
-              {phase.key}
-            </span>
-            <div className="mt-4 text-xs font-medium uppercase tracking-[0.22em] text-accent">
-              {phase.label}
-            </div>
-            <p className="mt-5 max-w-md text-2xl leading-[1.3] tracking-tight text-ink/90 md:text-[1.7rem]">
-              {phase.body}
-            </p>
-          </article>
-        ))}
-      </div>
+              <div className="relative">
+                {/* Blurred glow copy of the numeral */}
+                <span
+                  aria-hidden
+                  className="num-gradient-solid pointer-events-none absolute -left-1 -top-20 select-none font-display text-[9rem] leading-none opacity-40 blur-2xl md:-top-28 md:text-[17rem]"
+                >
+                  {p.key}
+                </span>
+                {/* Visible low-alpha gradient numeral, sits behind the text */}
+                <span
+                  aria-hidden
+                  className="num-gradient pointer-events-none absolute -left-1 -top-20 select-none font-display text-[9rem] leading-none md:-top-28 md:text-[17rem]"
+                >
+                  {p.key}
+                </span>
+                {/* Foreground copy (white, always on top) */}
+                <div className="relative">
+                  <div className="kicker">{p.label}</div>
+                  <p className="mt-5 max-w-lg text-2xl leading-[1.3] tracking-tight text-ink/90 md:text-[1.7rem]">
+                    {p.body}
+                  </p>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </Container>
     </section>
   );
 }

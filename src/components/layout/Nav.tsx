@@ -11,12 +11,30 @@ export function Nav() {
   const { scrollTo } = useSmoothScroll();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [active, setActive] = useState<string>("");
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Scroll-spy: highlight the active section in the nav.
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) setActive(e.target.id);
+        });
+      },
+      { rootMargin: "-45% 0px -50% 0px", threshold: 0 }
+    );
+    navLinks.forEach((l) => {
+      const el = document.getElementById(l.id);
+      if (el) obs.observe(el);
+    });
+    return () => obs.disconnect();
   }, []);
 
   function go(id: string) {
@@ -35,7 +53,6 @@ export function Nav() {
         )}
       >
         <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6 md:px-10">
-          {/* Wordmark */}
           <button
             onClick={() => scrollTo(0)}
             className="font-display text-lg tracking-tight text-ink"
@@ -45,16 +62,23 @@ export function Nav() {
             <span className="text-accent">.</span>
           </button>
 
-          {/* Desktop links */}
           <div className="hidden items-center gap-8 md:flex">
             {navLinks.map((l) => (
               <button
                 key={l.id}
                 onClick={() => go(l.id)}
-                className="group relative text-sm text-muted transition-colors hover:text-ink"
+                className={cn(
+                  "group relative text-sm transition-colors",
+                  active === l.id ? "text-accent" : "text-muted hover:text-ink"
+                )}
               >
                 {l.label}
-                <span className="absolute -bottom-1 left-0 h-px w-0 bg-accent transition-all duration-300 group-hover:w-full" />
+                <span
+                  className={cn(
+                    "absolute -bottom-1 left-0 h-px bg-accent transition-all duration-300",
+                    active === l.id ? "w-full" : "w-0 group-hover:w-full"
+                  )}
+                />
               </button>
             ))}
             <Magnetic>
@@ -67,7 +91,6 @@ export function Nav() {
             </Magnetic>
           </div>
 
-          {/* Mobile toggle */}
           <button
             onClick={() => setOpen((v) => !v)}
             className="flex h-10 w-10 items-center justify-center md:hidden"
@@ -75,30 +98,14 @@ export function Nav() {
             aria-expanded={open}
           >
             <div className="space-y-1.5">
-              <span
-                className={cn(
-                  "block h-px w-6 bg-ink transition-transform duration-300",
-                  open && "translate-y-[7px] rotate-45"
-                )}
-              />
-              <span
-                className={cn(
-                  "block h-px w-6 bg-ink transition-opacity duration-300",
-                  open && "opacity-0"
-                )}
-              />
-              <span
-                className={cn(
-                  "block h-px w-6 bg-ink transition-transform duration-300",
-                  open && "-translate-y-[7px] -rotate-45"
-                )}
-              />
+              <span className={cn("block h-px w-6 bg-ink transition-transform duration-300", open && "translate-y-[7px] rotate-45")} />
+              <span className={cn("block h-px w-6 bg-ink transition-opacity duration-300", open && "opacity-0")} />
+              <span className={cn("block h-px w-6 bg-ink transition-transform duration-300", open && "-translate-y-[7px] -rotate-45")} />
             </div>
           </button>
         </nav>
       </header>
 
-      {/* Mobile fullscreen menu */}
       <AnimatePresence>
         {open && (
           <motion.div
@@ -120,10 +127,7 @@ export function Nav() {
                 {l.label}
               </motion.button>
             ))}
-            <a
-              href={`mailto:${site.email}`}
-              className="mt-6 text-sm text-muted"
-            >
+            <a href={`mailto:${site.email}`} className="mt-6 text-sm text-muted">
               {site.email}
             </a>
           </motion.div>

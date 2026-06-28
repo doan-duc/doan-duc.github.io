@@ -1,25 +1,26 @@
 @import "tailwindcss";
 
 /* ===========================================================================
-   DESIGN TOKENS  (Tailwind v4 `@theme` — these generate utilities like
-   bg-base, text-ink, text-muted, border-line, bg-accent, font-display ...)
-
-   👉 SWAP THE ACCENT HERE (one place). Options from the brief:
-      violet #7c3aed  ·  cyan #06b6d4  ·  lime #84cc16
+   DESIGN TOKENS
+   👉 Accent is signal cyan. Used SPARINGLY: section labels, active nav, link
+      hover, tag pills, scroll progress bar. Never on buttons or body text.
    =========================================================================== */
 @theme {
-  --color-base: #0a0a0a; /* page background */
-  --color-surface: #141414; /* cards / raised panels */
-  --color-ink: #fafafa; /* primary text */
-  --color-muted: #8a8a8a; /* secondary text */
-  --color-accent: #7c3aed; /* ← single accent swap point */
-  --color-line: rgba(255, 255, 255, 0.08); /* hairline borders */
+  --color-base: #0a0a0a;
+  --color-surface: #141414;
+  --color-ink: #fafafa;
+  --color-muted: #8a8a8a;
+  --color-accent: #22d3ee; /* signal cyan */
+  --color-line: rgba(255, 255, 255, 0.08);
 
-  /* Type scale helpers (display is loaded from Fontshare in layout.tsx) */
+  /* Atmosphere gradient stops (cyan → blue → violet) — used ONLY for the
+     background aurora, the hero glow, the section numerals, the progress bar. */
+  --grad-cyan: #22d3ee;
+  --grad-blue: #3b82f6;
+  --grad-violet: #8b5cf6;
+
   --font-display: "Clash Display", "Geist", ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-inter), "Geist", ui-sans-serif, system-ui, sans-serif;
-
-  /* Long, slow easing used across the site */
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -27,16 +28,14 @@
    BASE
    =========================================================================== */
 @layer base {
-  * {
-    border-color: var(--color-line);
-  }
+  * { border-color: var(--color-line); }
 
   html {
     background-color: var(--color-base);
     color: var(--color-ink);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
-    scroll-behavior: smooth; /* fallback if JS/Lenis is off */
+    scroll-behavior: smooth;
   }
 
   body {
@@ -48,17 +47,16 @@
 
   h1, h2, h3, h4 {
     font-family: var(--font-display);
-    letter-spacing: -0.03em; /* tight tracking on display */
+    letter-spacing: -0.03em;
     line-height: 0.95;
     font-weight: 600;
   }
 
   ::selection {
-    background: color-mix(in srgb, var(--color-accent) 38%, transparent);
+    background: color-mix(in srgb, var(--color-accent) 35%, transparent);
     color: #fff;
   }
 
-  /* Subtle, premium scrollbar */
   ::-webkit-scrollbar { width: 10px; }
   ::-webkit-scrollbar-track { background: var(--color-base); }
   ::-webkit-scrollbar-thumb {
@@ -70,10 +68,9 @@
 }
 
 /* ===========================================================================
-   LENIS smooth-scroll (required styles)
+   LENIS
    =========================================================================== */
-html.lenis,
-html.lenis body { height: auto; }
+html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
 .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
 .lenis.lenis-stopped { overflow: hidden; }
@@ -82,21 +79,18 @@ html.lenis body { height: auto; }
    BACKGROUND LAYERS
    =========================================================================== */
 
-/* Fine film grain over EVERYTHING (~3.5% opacity). The detail that separates
-   a pro site from a student site. Pure CSS — no image asset needed. */
+/* Film grain over EVERYTHING (~2.5%). */
 .grain::after {
   content: "";
   position: fixed;
   inset: 0;
   z-index: 50;
   pointer-events: none;
-  opacity: 0.035;
+  opacity: 0.025;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-repeat: repeat;
-  /* very slow shimmer so the grain feels alive, not static */
   animation: grain-shift 8s steps(6) infinite;
 }
-
 @keyframes grain-shift {
   0%, 100% { transform: translate(0, 0); }
   20% { transform: translate(-4%, 3%); }
@@ -105,18 +99,18 @@ html.lenis body { height: auto; }
   80% { transform: translate(2%, 4%); }
 }
 
-/* Aurora / mesh-gradient blobs — slow drift. Heavy blur + screen blend on the
-   near-black base reads as a premium light field, not a "blob". */
+/* Aurora mesh blobs — VERY slow drift (60s+), heavy blur, low opacity.
+   Sits behind everything and must never compete with text. */
 .aurora-blob {
   position: absolute;
   border-radius: 9999px;
-  filter: blur(110px);
+  filter: blur(120px);
   mix-blend-mode: screen;
   will-change: transform;
 }
-.aurora-1 { animation: aurora-1 26s var(--ease-out-expo) infinite; }
-.aurora-2 { animation: aurora-2 32s var(--ease-out-expo) infinite; }
-.aurora-3 { animation: aurora-3 38s var(--ease-out-expo) infinite; }
+.aurora-1 { animation: aurora-1 64s var(--ease-out-expo) infinite; }
+.aurora-2 { animation: aurora-2 72s var(--ease-out-expo) infinite; }
+.aurora-3 { animation: aurora-3 80s var(--ease-out-expo) infinite; }
 
 @keyframes aurora-1 {
   0%, 100% { transform: translate3d(-8%, -6%, 0) scale(1); }
@@ -131,57 +125,92 @@ html.lenis body { height: auto; }
   50% { transform: translate3d(-6%, -10%, 0) scale(1.25); }
 }
 
+/* Soft, slowly-pulsing cyan glow behind the hero name. */
+.hero-glow {
+  animation: hero-pulse 7s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+@keyframes hero-pulse {
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.08); }
+}
+
 /* ===========================================================================
-   SMALL UTILITIES
+   TYPOGRAPHIC DECORATION
    =========================================================================== */
 
-/* Accent-tinted gradient text for the few words that should "pop" */
-.text-gradient {
-  background: linear-gradient(
-    100deg,
-    var(--color-ink) 0%,
-    var(--color-ink) 55%,
-    color-mix(in srgb, var(--color-accent) 80%, #fff) 100%
+/* Section labels / kickers carry the accent (one of the few accent spots). */
+.kicker {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+/* Oversized section numerals: cyan→violet with alpha baked low (~0.18) so they
+   sit BEHIND white body text but read as deliberate decoration. The blurred
+   glow copy is rendered separately in the component. */
+.num-gradient {
+  background-image: linear-gradient(
+    135deg,
+    rgba(34, 211, 238, 0.2) 0%,
+    rgba(59, 130, 246, 0.18) 50%,
+    rgba(139, 92, 246, 0.18) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.num-gradient-solid {
+  /* full-strength version used (blurred) as the glow behind the numeral */
+  background-image: linear-gradient(
+    135deg,
+    var(--grad-cyan) 0%,
+    var(--grad-blue) 50%,
+    var(--grad-violet) 100%
   );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
-/* Hairline + faint surface used on editorial cards */
+/* Faint surface used on editorial cards. */
 .glass {
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.04),
-    rgba(255, 255, 255, 0.01)
-  );
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
   border: 1px solid var(--color-line);
   backdrop-filter: blur(8px);
 }
 
-/* Display tracking helper for huge headings */
 .tracking-display { letter-spacing: -0.04em; }
 
-/* Reusable eyebrow / kicker */
-.kicker {
-  font-family: var(--font-sans);
-  font-size: 0.75rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--color-muted);
+/* Infinite marquee row (skill pills). */
+.marquee-track { animation: marquee 38s linear infinite; }
+.marquee-track:hover { animation-play-state: paused; }
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }
 
 /* ===========================================================================
-   ACCESSIBILITY — respect reduced motion
+   CUSTOM CURSOR — hide native pointer only on fine-pointer, motion-OK devices.
+   The .cursor-active class is toggled by <CustomCursor> at runtime.
+   =========================================================================== */
+@media (pointer: fine) {
+  html.cursor-active,
+  html.cursor-active * { cursor: none !important; }
+}
+
+/* ===========================================================================
+   REDUCED MOTION
    =========================================================================== */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
-  .grain::after { animation: none; }
-  .aurora-1, .aurora-2, .aurora-3 { animation: none; }
+  .grain::after,
+  .aurora-1, .aurora-2, .aurora-3,
+  .hero-glow { animation: none; }
 }

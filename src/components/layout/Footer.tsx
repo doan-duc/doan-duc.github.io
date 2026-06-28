@@ -17,23 +17,19 @@ export function Footer() {
         <div className="flex flex-col gap-6">
           <div className="flex flex-wrap gap-x-6 gap-y-2">
             {navLinks.map((l) => (
-              <a
-                key={l.id}
-                href={`#${l.id}`}
-                className="text-sm text-muted transition-colors hover:text-ink"
-              >
+              <a key={l.id} href={`#${l.id}`} className="text-sm text-muted transition-colors hover:text-accent">
                 {l.label}
               </a>
             ))}
           </div>
           <div className="flex items-center gap-4">
-            <a href={site.github} target="_blank" rel="noreferrer" aria-label="GitHub" className="text-muted transition-colors hover:text-ink">
+            <a href={site.github} target="_blank" rel="noreferrer" aria-label="GitHub" className="text-muted transition-colors hover:text-accent">
               <Github className="h-5 w-5" />
             </a>
-            <a href={site.linkedin} target="_blank" rel="noreferrer" aria-label="LinkedIn" className="text-muted transition-colors hover:text-ink">
+            <a href={site.linkedin} target="_blank" rel="noreferrer" aria-label="LinkedIn" className="text-muted transition-colors hover:text-accent">
               <Linkedin className="h-5 w-5" />
             </a>
-            <a href={`mailto:${site.email}`} aria-label="Email" className="text-muted transition-colors hover:text-ink">
+            <a href={`mailto:${site.email}`} aria-label="Email" className="text-muted transition-colors hover:text-accent">
               <Mail className="h-5 w-5" />
             </a>
           </div>

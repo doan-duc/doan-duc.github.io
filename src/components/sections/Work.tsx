@@ -7,7 +7,6 @@ import { TiltCard } from "@/components/motion/TiltCard";
 import { Tag } from "@/components/ui/Tag";
 import { ArrowUpRight } from "@/components/ui/icons";
 
-// One labelled block of the Problem → Built → Learned → Why narrative.
 function Phase({ label, children }: { label: string; children: string }) {
   return (
     <div>
@@ -21,13 +20,13 @@ function Phase({ label, children }: { label: string; children: string }) {
 
 function ProjectRow({ project }: { project: Project }) {
   return (
-    <Parallax amount={28}>
+    <Parallax amount={26}>
       <TiltCard max={5} className="[transform-style:preserve-3d]">
-        <div className="glass rounded-3xl p-7 md:p-12">
+        {/* Faint accent border glow on hover (solid, never a gradient border) */}
+        <div className="glass rounded-3xl p-7 transition-[border-color,box-shadow] duration-500 hover:border-accent/30 hover:shadow-[0_0_60px_-16px_rgba(34,211,238,0.35)] md:p-12">
           <div className="grid gap-10 md:grid-cols-12 md:gap-8">
-            {/* Identity column */}
             <div className="md:col-span-4">
-              <div className="font-display text-6xl leading-none text-white/10">
+              <div className="num-gradient-solid font-display text-6xl leading-none opacity-25">
                 {project.index}
               </div>
               <div className="mt-6 flex items-center gap-3">
@@ -55,7 +54,7 @@ function ProjectRow({ project }: { project: Project }) {
               )}
             </div>
 
-            {/* Narrative column — Problem → Built → Learned → Why */}
+            {/* Problem → Built → Learned → Why */}
             <div className="grid gap-7 sm:grid-cols-2 md:col-span-8">
               <Phase label="Problem">{project.problem}</Phase>
               <Phase label="What I built">{project.built}</Phase>
@@ -76,13 +75,8 @@ export function Work() {
         <SectionHeader
           index="01 — Work"
           kicker="Selected work"
-          title={
-            <>
-              Things I&apos;ve <span className="text-gradient">shipped</span>.
-            </>
-          }
+          title={<>Things I&apos;ve shipped.</>}
         />
-
         <div className="mt-14 space-y-8 md:space-y-10">
           {projects.map((p) => (
             <Reveal key={p.index} y={48}>

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-/** Shared editorial max-width wrapper. Generous side gutters. */
+/** Shared editorial max-width wrapper. */
 export function Container({
   children,
   className,

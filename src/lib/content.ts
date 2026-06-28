@@ -1,21 +1,19 @@
 /* ===========================================================================
-   SITE CONTENT
-   Every section reads from here. Edit copy in this one file and the whole site
-   updates. Each block is commented with where it renders.
+   SITE CONTENT — edit copy here; every section reads from this file.
    =========================================================================== */
 
-/* -------- ABOUT / MANIFESTO (renders in About.tsx) ----------------------- */
+/* -------- ABOUT / MANIFESTO --------------------------------------------- */
 export const about = {
   lead: "I build models that stay honest outside the notebook —",
-  leadAccent: "when data is noisy, hardware is tiny, and the result has to serve a person.",
+  leadAccent:
+    "when data is noisy, hardware is tiny, and the result has to serve a person.",
   body: [
     "I'm an Embedded Systems & IoT student at Hanoi University of Science and Technology, working where signal processing, efficient AI, and deployable systems overlap.",
     "The thread across everything I do is translation: from wearable biosignals to clinical insight, from heavy vision models to edge devices, and from research ideas to prototypes you can actually put in front of people.",
   ],
 };
 
-/* -------- SELECTED WORK (renders in Work.tsx) ----------------------------
-   Per the brief, every project follows: Problem → Built → Learned → Why. */
+/* -------- SELECTED WORK (Problem → Built → Learned → Why) ---------------- */
 export type Project = {
   index: string;
   eyebrow: string;
@@ -85,20 +83,14 @@ export const projects: Project[] = [
   },
 ];
 
-/* -------- FEATURED / PINNED DEEP-DIVE (renders in Highlight.tsx) ----------
-   This is the one flagship project that gets the pinned, horizontal-scroll
-   treatment. Swap to a different project by editing this object. */
+/* -------- FEATURED / PINNED DEEP-DIVE ----------------------------------- */
 export const highlight = {
   eyebrow: "Featured research",
   title: "Ear-to-chest ECG reconstruction",
   subtitle:
     "A quantized spiking-neural-network autoencoder that rebuilds chest-style ECG from a noisy ear-worn sensor — small enough to live on the edge.",
   chips: ["Spiking NN", "ECG · biosignals", "Quantized", "Edge-ready"],
-  link: {
-    label: "View repository",
-    href: "https://github.com/doan-duc/ecg_perceptual",
-  },
-  // The four required panels: Problem → Built → Learned → Why it matters.
+  link: { label: "View repository", href: "https://github.com/doan-duc/ecg_perceptual" },
   phases: [
     {
       key: "01",
@@ -127,7 +119,7 @@ export const highlight = {
   ],
 };
 
-/* -------- CAPABILITIES / STACK (renders in Capabilities.tsx) -------------- */
+/* -------- CAPABILITIES --------------------------------------------------- */
 export const capabilities = [
   {
     title: "Efficient AI & models",
@@ -151,7 +143,14 @@ export const capabilities = [
   },
 ];
 
-/* -------- NOW / EXPERIENCE (renders in Experience.tsx) -------------------- */
+// Flat list for the infinite marquee row.
+export const skillMarquee = [
+  "Spiking NN", "KAN", "NAS", "Quantization", "ECG / PPG", "Autoencoders",
+  "TensorRT", "Jetson", "DeepStream", "YOLOv8", "PyTorch", "RAG", "Docker",
+  "Edge AI", "Computer vision",
+];
+
+/* -------- NOW / EXPERIENCE ---------------------------------------------- */
 export type Engagement = {
   period: string;
   role: string;
@@ -191,12 +190,17 @@ export const experience: Engagement[] = [
   },
 ];
 
-/* -------- RECOGNITION (renders in Recognition.tsx) ------------------------ */
+/* -------- RECOGNITION (photo-backed timeline) ---------------------------
+   `images` holds 0–2 scene photos. The UTokyo item carries a two-photo
+   cluster (Yasuda + Shangri-La dinner). 👉 EXACT, case-sensitive filenames —
+   GitHub Pages is case-sensitive. Files live in /public/images/. */
+export type AwardImage = { src: string; alt: string };
 export type Award = {
   year: string;
   title: string;
   place: string;
   description: string;
+  images: AwardImage[];
 };
 
 export const recognition: Award[] = [
@@ -206,6 +210,23 @@ export const recognition: Award[] = [
     place: "Vietnam Hub · Global",
     description:
       "2nd Place at the Vietnam Hub and Top 100 Global Teams — selected from 14,700+ applications worldwide.",
+    images: [
+      // 👉 /images/Harvard_Hackathon.jpg
+      { src: "/images/Harvard_Hackathon.jpg", alt: "Harvard HSIL Hackathon, Vietnam Hub" },
+    ],
+  },
+  {
+    year: "2025",
+    title: "University of Tokyo research exchange",
+    place: "Matsuo-Iwasawa Laboratory",
+    description:
+      "Short-term AI research exchange in Japan — presenting work, receiving feedback, and stepping into an international research culture.",
+    images: [
+      // 👉 /images/Yasuda_Auditorium.png  (primary)
+      { src: "/images/Yasuda_Auditorium.png", alt: "Yasuda Auditorium, University of Tokyo" },
+      // 👉 /images/dinner_in_Shangrila_hotel.JPG  (cluster — small second photo)
+      { src: "/images/dinner_in_Shangrila_hotel.JPG", alt: "Dinner at Shangri-La Hotel, Tokyo" },
+    ],
   },
   {
     year: "2025",
@@ -213,6 +234,10 @@ export const recognition: Award[] = [
     place: "Matsuo-Iwasawa Laboratory, UTokyo",
     description:
       "Top 20 most outstanding students in the Global Consumer Intelligence course 2025.",
+    images: [
+      // 👉 /images/presentation_with_Matsuolab.JPG
+      { src: "/images/presentation_with_Matsuolab.JPG", alt: "Presentation with Matsuo Laboratory members" },
+    ],
   },
   {
     year: "2025",
@@ -220,12 +245,6 @@ export const recognition: Award[] = [
     place: "Bosch Global Software Technologies VN",
     description:
       "Top 30 team in a national challenge testing practical engineering, software thinking, and teamwork.",
-  },
-  {
-    year: "2025",
-    title: "UTokyo research exchange",
-    place: "Matsuo-Iwasawa Laboratory",
-    description:
-      "Short-term AI research exchange — presented work and received feedback on problem framing and evidence.",
+    images: [], // text-only milestone
   },
 ];

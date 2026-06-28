@@ -3,10 +3,7 @@
 import { useRef, type ReactNode } from "react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 
-/**
- * Magnetic pull micro-interaction — element drifts toward the cursor while
- * hovered, then springs back. Wrap buttons / key links with it.
- */
+/** Magnetic pull — element drifts toward the cursor on hover, springs back. */
 export function Magnetic({
   children,
   strength = 0.35,
@@ -27,7 +24,6 @@ export function Magnetic({
     x.set((e.clientX - (r.left + r.width / 2)) * strength);
     y.set((e.clientY - (r.top + r.height / 2)) * strength);
   }
-
   function reset() {
     x.set(0);
     y.set(0);

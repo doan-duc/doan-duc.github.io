@@ -2,22 +2,16 @@
 
 import { useEffect, useRef } from "react";
 
-/** "#7c3aed" -> "rgba(124,58,237,a)". Falls back to accent violet. */
 function hexToRgba(hex: string, alpha: number) {
   let h = hex.replace("#", "").trim();
   if (h.length === 3) h = h.split("").map((c) => c + c).join("");
-  const int = parseInt(h || "7c3aed", 16);
-  const r = (int >> 16) & 255;
-  const g = (int >> 8) & 255;
-  const b = int & 255;
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  const int = parseInt(h || "22d3ee", 16);
+  return `rgba(${(int >> 16) & 255}, ${(int >> 8) & 255}, ${int & 255}, ${alpha})`;
 }
 
 /**
- * Lightweight 2D-canvas constellation that reacts to the mouse. Chosen over
- * React Three Fiber on purpose: ~64 particles + O(n²) links stay well under
- * 16ms/frame with zero 3D bundle cost. (Swap-in note: this is the place to drop
- * an R3F <Canvas> particle system if you want the heavier upgrade.)
+ * Faint, mouse-reactive constellation (2D canvas). Deliberately subtle so it
+ * reads as atmosphere, not spectacle. Disabled under reduced motion.
  */
 export function ParticleField() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -31,11 +25,11 @@ export function ParticleField() {
     const accent =
       getComputedStyle(document.documentElement)
         .getPropertyValue("--color-accent")
-        .trim() || "#7c3aed";
+        .trim() || "#22d3ee";
 
-    const COUNT = 64; // keep modest for a steady 60fps
-    const LINK = 120; // particle-to-particle link radius
-    const CURSOR = 180; // accent link radius to the cursor
+    const COUNT = 52;
+    const LINK = 120;
+    const CURSOR = 180;
     const mouse = { x: -9999, y: -9999 };
 
     type P = { x: number; y: number; vx: number; vy: number };
@@ -56,8 +50,8 @@ export function ParticleField() {
         pts = Array.from({ length: COUNT }, () => ({
           x: Math.random() * w,
           y: Math.random() * h,
-          vx: (Math.random() - 0.5) * 0.22,
-          vy: (Math.random() - 0.5) * 0.22,
+          vx: (Math.random() - 0.5) * 0.2,
+          vy: (Math.random() - 0.5) * 0.2,
         }));
       }
     }
@@ -69,18 +63,16 @@ export function ParticleField() {
       for (const p of pts) {
         p.x += p.vx;
         p.y += p.vy;
-        // wrap around edges
         if (p.x < 0) p.x += w;
         else if (p.x > w) p.x -= w;
         if (p.y < 0) p.y += h;
         else if (p.y > h) p.y -= h;
 
-        // gentle pull toward the cursor
         const dx = mouse.x - p.x;
         const dy = mouse.y - p.y;
         const dist = Math.hypot(dx, dy);
         if (dist < CURSOR) {
-          const f = (1 - dist / CURSOR) * 0.02;
+          const f = (1 - dist / CURSOR) * 0.018;
           p.x += dx * f;
           p.y += dy * f;
         }
@@ -88,17 +80,16 @@ export function ParticleField() {
 
       for (let i = 0; i < pts.length; i++) {
         const a = pts[i];
-
         ctx!.beginPath();
-        ctx!.arc(a.x, a.y, 1.2, 0, Math.PI * 2);
-        ctx!.fillStyle = "rgba(255,255,255,0.32)";
+        ctx!.arc(a.x, a.y, 1.1, 0, Math.PI * 2);
+        ctx!.fillStyle = "rgba(255,255,255,0.28)";
         ctx!.fill();
 
         for (let j = i + 1; j < pts.length; j++) {
           const b = pts[j];
           const d = Math.hypot(a.x - b.x, a.y - b.y);
           if (d < LINK) {
-            ctx!.strokeStyle = `rgba(255,255,255,${(1 - d / LINK) * 0.16})`;
+            ctx!.strokeStyle = `rgba(255,255,255,${(1 - d / LINK) * 0.12})`;
             ctx!.lineWidth = 0.6;
             ctx!.beginPath();
             ctx!.moveTo(a.x, a.y);
@@ -109,7 +100,7 @@ export function ParticleField() {
 
         const md = Math.hypot(a.x - mouse.x, a.y - mouse.y);
         if (md < CURSOR) {
-          ctx!.strokeStyle = hexToRgba(accent, (1 - md / CURSOR) * 0.5);
+          ctx!.strokeStyle = hexToRgba(accent, (1 - md / CURSOR) * 0.45);
           ctx!.lineWidth = 0.7;
           ctx!.beginPath();
           ctx!.moveTo(a.x, a.y);
@@ -154,7 +145,7 @@ export function ParticleField() {
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 h-full w-full opacity-70"
+      className="absolute inset-0 h-full w-full opacity-50"
       aria-hidden
     />
   );
