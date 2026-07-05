@@ -247,22 +247,6 @@ export const recognitionMoments: RecognitionMoment[] = [
     caption: "Yasuda Auditorium, University of Tokyo",
     location: "University of Tokyo, Tokyo",
   },
-  // VN: "Thuyết trình tại Matsuo-Iwasawa Lab"
-  {
-    src: "/images/presentation_with_Matsuolab.JPG",
-    webpSrc: "/images/presentation_with_Matsuolab.webp",
-    alt: "Presenting work at Matsuo-Iwasawa Laboratory",
-    caption: "Presenting my work at the Matsuo-Iwasawa Lab",
-    location: "Matsuo-Iwasawa Laboratory, UTokyo",
-  },
-  // VN: "Bữa tối thân mật với giáo sư Matsuo tại Shangri-La Hotel"
-  {
-    src: "/images/dinner_in_Shangrila_hotel.JPG",
-    webpSrc: "/images/dinner_in_Shangrila_hotel.webp",
-    alt: "Dinner at Shangri-La Hotel with Professor Matsuo and the lab",
-    caption: "An evening with Professor Matsuo and the lab",
-    location: "Shangri-La Hotel, Tokyo",
-  },
   // VN: "Lễ trao giải — Giải Nhì, Vietnam Hub"
   {
     src: "/images/Harvard_Hackathon.jpg",
