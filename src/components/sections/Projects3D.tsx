@@ -26,6 +26,18 @@ function Phase({ label, children }: { label: string; children: string }) {
 }
 
 /* ── Project card ────────────────────────────────────────────────────── */
+function ProjectVisualSlot({ project }: { project: Project }) {
+  return (
+    <div
+      className="project-visual-slot mt-7"
+      aria-label={project.visualHint}
+      role="img"
+    >
+      <span className="sr-only">{project.visualHint}</span>
+    </div>
+  );
+}
+
 function ProjectCard({ project }: { project: Project }) {
   return (
     <TiltCard max={5} className="[transform-style:preserve-3d]">
@@ -36,11 +48,13 @@ function ProjectCard({ project }: { project: Project }) {
             <div className="num-gradient-solid font-display text-6xl leading-none opacity-25">
               {project.index}
             </div>
-            <div className="mt-6 flex items-center gap-3">
-              <span className="kicker">{project.eyebrow}</span>
+            <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1">
+              <span className="text-sm font-medium text-accent/90">
+                {project.eyebrow}
+              </span>
               <span className="text-xs text-muted/60">{project.year}</span>
             </div>
-            <h3 className="mt-3 text-2xl tracking-tight md:text-[2rem] md:leading-[1.05]">
+            <h3 className="mt-3 text-2xl tracking-normal md:text-[2rem] md:leading-[1.05] md:tracking-tight">
               {project.title}
             </h3>
             <div className="mt-5 flex flex-wrap gap-2">
@@ -48,6 +62,7 @@ function ProjectCard({ project }: { project: Project }) {
                 <Tag key={t}>{t}</Tag>
               ))}
             </div>
+            <ProjectVisualSlot project={project} />
             {project.link && (
               <a
                 href={project.link.href}
@@ -74,7 +89,7 @@ function ProjectCard({ project }: { project: Project }) {
   );
 }
 
-/* ── Projects3D — individual 3D reveals (no pin) ─────────────────── */
+/* Projects3D: individual 3D reveals, no pin. */
 export function Projects3D() {
   const sectionRef = useRef<HTMLElement>(null);
   const stackRef = useRef<HTMLDivElement>(null);
@@ -138,7 +153,6 @@ export function Projects3D() {
       <div className="perspective-scene">
         <Container className="preserve-3d">
           <SectionHeader
-            index="01 — Work"
             kicker="Selected work"
             title={<>Things I&apos;ve shipped.</>}
           />

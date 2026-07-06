@@ -13,7 +13,7 @@ if (typeof window !== "undefined") {
 }
 
 /**
- * About section — NO pin.  Individual scroll-triggered 3D reveals
+ * About section: no pin. Individual scroll-triggered 3D reveals
  * for lead text, body, and experience.  Continuous ECG parallax.
  */
 export function About3D() {
@@ -27,7 +27,7 @@ export function About3D() {
 
       /* ── Desktop: individual 3D reveals (no pin) ─────────────────── */
       mm.add("(min-width: 1024px)", () => {
-        // Lead text — reveal from depth
+        // Lead text reveal from depth.
         gsap.from("[data-about-lead]", {
           z: -150,
           opacity: 0,
@@ -42,7 +42,7 @@ export function About3D() {
           },
         });
 
-        // Body paragraphs — deeper, staggered
+        // Body paragraphs reveal deeper, staggered.
         gsap.from(gsap.utils.toArray("[data-about-body]"), {
           z: -200,
           opacity: 0,
@@ -165,7 +165,7 @@ export function About3D() {
             <div className="preserve-3d md:col-span-8">
               <p
                 data-about-lead
-                className="max-w-4xl text-balance text-3xl leading-[1.12] tracking-tight md:text-[3.1rem]"
+                className="max-w-4xl text-balance text-3xl leading-[1.12] tracking-normal md:text-[3.1rem] md:tracking-tight"
                 style={{ willChange: "transform, opacity" }}
               >
                 {about.lead}{" "}
@@ -195,13 +195,15 @@ export function About3D() {
             </div>
           </div>
 
-          {/* Experience / Current Focus — clearly visible block */}
+          {/* Experience / Current Focus: clearly visible block */}
           <div
             data-about-exp
             className="mt-12 preserve-3d"
             style={{ willChange: "transform, opacity" }}
           >
-            <h3 className="kicker mb-8">Current focus</h3>
+            <h3 className="mb-8 text-sm font-medium text-accent">
+              Current focus
+            </h3>
             <div className="grid gap-px overflow-hidden rounded-2xl border border-line md:grid-cols-2">
               {experience.map((e) => (
                 <div
@@ -209,12 +211,12 @@ export function About3D() {
                   className="group bg-white/[0.02] p-6 transition-colors hover:bg-white/[0.04] md:p-8"
                 >
                   <div className="flex items-baseline gap-3">
-                    <span className="text-xs font-semibold uppercase tracking-widest text-accent">
+                    <span className="text-xs font-semibold text-accent">
                       {e.period}
                     </span>
-                    <span className="text-xs text-muted/60">· {e.place}</span>
+                    <span className="text-xs text-muted/60">{e.place}</span>
                   </div>
-                  <h4 className="mt-2 text-lg tracking-tight md:text-xl">
+                  <h4 className="mt-2 text-lg tracking-normal md:text-xl md:tracking-tight">
                     {e.role}
                   </h4>
                   <div className="mt-1 text-sm text-accent/80">{e.org}</div>

@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { Reveal } from "@/components/motion/Reveal";
 import { MaskReveal } from "@/components/motion/MaskReveal";
 
-/** Editorial section heading: accent kicker + clip-path-revealed title + index. */
+/** Editorial section heading: accent kicker + clip-path-revealed title. */
 export function SectionHeader({
   index,
   kicker,
@@ -28,7 +28,7 @@ export function SectionHeader({
         </Reveal>
         <MaskReveal
           as="h2"
-          className="mt-5 text-4xl tracking-display sm:text-5xl md:text-6xl"
+          className="mt-5 text-balance text-[clamp(2.35rem,9vw,4rem)] leading-[0.98] tracking-display md:text-6xl"
         >
           {title}
         </MaskReveal>

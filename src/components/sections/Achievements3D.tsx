@@ -114,8 +114,7 @@ export function Achievements3D() {
       <div className="perspective-scene">
         <Container className="preserve-3d">
           <SectionHeader
-            index="03 — Recognition"
-            kicker="Signals"
+            kicker="Recognition"
             title={<>Moments worth marking.</>}
           />
 
@@ -138,7 +137,7 @@ export function Achievements3D() {
                     </span>
                     <span className="text-sm text-accent">{a.place}</span>
                   </div>
-                  <h3 className="mt-3 text-xl tracking-tight md:text-2xl">
+                  <h3 className="mt-3 text-xl tracking-normal md:text-2xl md:tracking-tight">
                     {a.title}
                   </h3>
                   <p className="body-copy mt-3 max-w-lg text-[15px]">

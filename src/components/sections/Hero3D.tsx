@@ -12,7 +12,7 @@ import { useSmoothScroll } from "@/components/providers/SmoothScroll";
 import { EcgWaveform } from "@/components/ui/EcgWaveform";
 
 /**
- * Hero section — clean entrance animation only, no pin / no 3D scroll-out.
+ * Hero section: clean entrance animation only, no pin / no 3D scroll-out.
  */
 export function Hero3D() {
   const { scrollTo } = useSmoothScroll();
@@ -97,17 +97,17 @@ export function Hero3D() {
           <div>
             <p
               data-hero-kicker
-              className="kicker flex items-center gap-2.5"
+              className="kicker flex max-w-full flex-wrap items-center gap-x-2.5 gap-y-1"
             >
               <span className="relative flex h-2 w-2" aria-hidden="true">
                 <span className="hero-eyebrow-dot inline-flex h-2 w-2 rounded-full bg-accent" />
               </span>
-              {site.available} — {site.location}
+              {site.available} in {site.location}
             </p>
 
             <h1
               data-hero-heading
-              className="mt-7 max-w-[860px] text-[clamp(3.2rem,8.6vw,8rem)] font-semibold leading-[0.88] tracking-display"
+              className="mt-7 max-w-[860px] text-[clamp(3.2rem,8.6vw,8rem)] font-semibold leading-[0.9] tracking-display md:leading-[0.88]"
             >
               <span className="block overflow-hidden">
                 <span data-hero-line className="block">

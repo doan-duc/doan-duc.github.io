@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import {
+  AnimatePresence,
+  motion,
+  useMotionValueEvent,
+  useScroll,
+} from "framer-motion";
 import { site, navLinks } from "@/lib/site";
 import { useSmoothScroll } from "@/components/providers/SmoothScroll";
 import { Magnetic } from "@/components/motion/Magnetic";
@@ -9,16 +14,14 @@ import { cn } from "@/lib/utils";
 
 export function Nav() {
   const { scrollTo } = useSmoothScroll();
+  const { scrollY } = useScroll();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState<string>("");
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    setScrolled(latest > 24);
+  });
 
   // Scroll-spy: highlight the active section in the nav.
   useEffect(() => {

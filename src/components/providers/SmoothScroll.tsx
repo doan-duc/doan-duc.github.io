@@ -75,6 +75,10 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
       lenis.scrollTo(target, { offset: -80, duration: 1.2, ...opts });
     } else if (typeof target === "string") {
       document.querySelector(target)?.scrollIntoView({ behavior: "smooth" });
+    } else if (typeof target === "number") {
+      window.scrollTo({ top: target, behavior: "smooth" });
+    } else {
+      target.scrollIntoView({ behavior: "smooth" });
     }
   };
 

@@ -14,14 +14,14 @@
   --color-accent: #22d3ee; /* signal cyan */
   --color-line: rgba(255, 255, 255, 0.10);
 
-  /* Atmosphere gradient stops (cyan → blue → violet) — used ONLY for the
+  /* Atmosphere gradient stops: cyan to blue to violet. Used only for the
      background aurora, the hero glow, the section numerals, the progress bar. */
   --grad-cyan: #22d3ee;
   --grad-blue: #3b82f6;
   --grad-violet: #8b5cf6;
 
   --font-display: "Clash Display", "Geist", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: var(--font-inter), "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Geist", "Aptos", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -49,9 +49,17 @@
 
   h1, h2, h3, h4 {
     font-family: var(--font-display);
-    letter-spacing: -0.03em;
+    letter-spacing: -0.015em;
+    word-spacing: 0.02em;
     line-height: 0.95;
     font-weight: 600;
+  }
+
+  @media (min-width: 768px) {
+    h1, h2, h3, h4 {
+      letter-spacing: -0.024em;
+      word-spacing: 0.01em;
+    }
   }
 
   ::selection {
@@ -101,7 +109,7 @@ html.lenis, html.lenis body { height: auto; }
   80% { transform: translate(2%, 4%); }
 }
 
-/* Aurora mesh blobs — VERY slow drift (60s+), heavy blur, low opacity.
+/* Aurora mesh blobs: very slow drift (60s+), heavy blur, low opacity.
    Sits behind everything and must never compete with text. */
 .aurora-blob {
   position: absolute;
@@ -197,8 +205,18 @@ html.lenis, html.lenis body { height: auto; }
   font-family: var(--font-sans);
   font-size: 0.75rem;
   letter-spacing: 0.22em;
+  line-height: 1.5;
+  max-width: 100%;
+  overflow-wrap: anywhere;
   text-transform: uppercase;
   color: var(--color-accent);
+}
+
+@media (max-width: 640px) {
+  .kicker {
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+  }
 }
 
 .meta-label {
@@ -216,10 +234,11 @@ html.lenis, html.lenis body { height: auto; }
 }
 
 .hero-subtitle {
-  max-width: 620px;
+  max-width: min(620px, 100%);
   color: var(--color-body);
   font-size: clamp(17px, 2vw, 20px);
   line-height: 1.55;
+  overflow-wrap: break-word;
 }
 
 .hero-stat-card {
@@ -344,7 +363,51 @@ html.lenis, html.lenis body { height: auto; }
   margin-top: 4px;
 }
 
-.tracking-display { letter-spacing: -0.04em; }
+.tracking-display {
+  letter-spacing: -0.012em;
+  word-spacing: 0.02em;
+}
+
+@media (min-width: 768px) {
+  .tracking-display {
+    letter-spacing: -0.026em;
+    word-spacing: 0.015em;
+  }
+}
+
+.project-visual-slot {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px dashed rgba(255, 255, 255, 0.14);
+  background:
+    linear-gradient(135deg, rgba(34, 211, 238, 0.08), transparent 42%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.012));
+}
+
+.project-visual-slot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.16;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.16) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.16) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: radial-gradient(circle at 35% 40%, black, transparent 72%);
+}
+
+.project-visual-slot::after {
+  content: "";
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  top: 50%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.55), transparent);
+  opacity: 0.5;
+}
 
 /* Infinite marquee row (skill pills). */
 .marquee-track { animation: marquee 38s linear infinite; }
@@ -487,7 +550,7 @@ html.lenis, html.lenis body { height: auto; }
 }
 
 /* ===========================================================================
-   MOBILE — disable 3D to preserve performance and avoid layout issues
+   MOBILE: disable 3D to preserve performance and avoid layout issues
    =========================================================================== */
 @media (max-width: 1023px) {
   .perspective-scene {

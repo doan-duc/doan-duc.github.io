@@ -1,10 +1,11 @@
 /* ===========================================================================
-   SITE CONTENT — edit copy here; every section reads from this file.
+   SITE CONTENT
+   Every section reads from this file.
    =========================================================================== */
 
 /* -------- ABOUT / MANIFESTO --------------------------------------------- */
 export const about = {
-  lead: "I build models that stay honest outside the notebook —",
+  lead: "I build models that stay honest outside the notebook",
   leadAccent:
     "when data is noisy, hardware is tiny, and the result has to serve a person.",
   body: [
@@ -13,12 +14,13 @@ export const about = {
   ],
 };
 
-/* -------- SELECTED WORK (Problem → Built → Learned → Why) ---------------- */
+/* -------- SELECTED WORK -------------------------------------------------- */
 export type Project = {
   index: string;
   eyebrow: string;
   title: string;
   year: string;
+  visualHint: string;
   problem: string;
   built: string;
   learned: string;
@@ -33,12 +35,13 @@ export const projects: Project[] = [
     eyebrow: "Edge computer vision",
     title: "16-stream product recognition on Jetson Nano",
     year: "2025",
+    visualHint: "Reserved space for a future Jetson or multi-camera pipeline visual.",
     problem:
       "Multi-camera retail and industrial systems need real detection speed without leaning on expensive server hardware.",
     built:
       "A DeepStream + GStreamer pipeline (Docker, TensorRT, YOLOv8n) processing 16 concurrent RTSP streams on a single NVIDIA Jetson Nano.",
     learned:
-      "The bottleneck usually sits outside the model — stream scheduling, memory, container setup, and inference conversion decide whether it ships.",
+      "The bottleneck usually sits outside the model: stream scheduling, memory, container setup, and inference conversion decide whether it ships.",
     matters:
       "It turns computer vision from a demo into infrastructure that runs next to the camera, cutting latency and bandwidth cost.",
     tags: ["DeepStream", "TensorRT", "YOLOv8n", "Jetson"],
@@ -52,12 +55,13 @@ export const projects: Project[] = [
     eyebrow: "Industrial QA",
     title: "Electronic packaging control system",
     year: "2025",
+    visualHint: "Reserved space for a future packaging inspection visual.",
     problem:
       "Manual packaging checks are easy to miss as small electronic components move through multi-step production lines.",
     built:
       "A YOLOv8n system covering 11 component classes that tracks a 2-tier packaging pipeline across four camera streams.",
     learned:
-      "A useful QA model has to understand workflow state — not just objects in isolated frames.",
+      "A useful QA model has to understand workflow state, not just objects in isolated frames.",
     matters:
       "It points toward reliable factory assistance where AI backs up repeatable human inspection instead of replacing it.",
     tags: ["YOLO", "Tracking", "QA", "Automation"],
@@ -68,15 +72,16 @@ export const projects: Project[] = [
   },
   {
     index: "03",
-    eyebrow: "Applied AI · internship",
+    eyebrow: "Applied AI internship",
     title: "RAG support assistant + YOLO deployment",
     year: "2025",
+    visualHint: "Reserved space for a future retrieval or deployment workflow visual.",
     problem:
       "Support teams drown in repetitive questions while deployed vision models quietly drift out of spec.",
     built:
       "A retrieval-augmented support assistant and a YOLO deployment-optimization workflow built during an applied-AI internship at Viettel Telecom & HANET.",
     learned:
-      "Retrieval quality and grounding matter more than model size — and a deployment is only as good as the loop that keeps watching it.",
+      "Retrieval quality and grounding matter more than model size, and a deployment is only as good as the loop that keeps watching it.",
     matters:
       "It connects research instincts to production constraints: latency, cost, and answers people can trust.",
     tags: ["RAG", "LLM", "YOLO", "MLOps"],
@@ -88,15 +93,15 @@ export const highlight = {
   eyebrow: "Featured research",
   title: "Ear-to-chest ECG reconstruction",
   subtitle:
-    "A quantized spiking-neural-network autoencoder that rebuilds chest-style ECG from a noisy ear-worn sensor — small enough to live on the edge.",
-  chips: ["Spiking NN", "ECG · biosignals", "Quantized", "Edge-ready"],
+    "A quantized spiking-neural-network autoencoder that rebuilds chest-style ECG from a noisy ear-worn sensor, small enough to live on the edge.",
+  chips: ["Spiking NN", "ECG biosignals", "Quantized", "Edge-ready"],
   link: { label: "View repository", href: "https://github.com/doan-duc/ecg_perceptual" },
   phases: [
     {
       key: "01",
       label: "The problem",
       body:
-        "Ear-worn ECG is comfortable and wearable, but the signal is noisy and shaped completely differently from a clinical chest lead — which makes interpretation hard.",
+        "Ear-worn ECG is comfortable and wearable, but the signal is noisy and shaped completely differently from a clinical chest lead, which makes interpretation hard.",
     },
     {
       key: "02",
@@ -108,7 +113,7 @@ export const highlight = {
       key: "03",
       label: "What I learned",
       body:
-        "Personalization can be the whole game — the gap between a promising global model and one that actually works for a specific patient.",
+        "Personalization can be the whole game. The gap between a promising global model and one that works for a specific patient matters most.",
     },
     {
       key: "04",
@@ -143,7 +148,6 @@ export const capabilities = [
   },
 ];
 
-// Flat list for the infinite marquee row.
 export const skillMarquee = [
   "Spiking NN", "KAN", "NAS", "Quantization", "ECG / PPG", "Autoencoders",
   "TensorRT", "Jetson", "DeepStream", "YOLOv8", "PyTorch", "RAG", "Docker",
@@ -178,14 +182,14 @@ export const experience: Engagement[] = [
     period: "Now",
     role: "Teaching Assistant",
     org: "Matsuo-Iwasawa Laboratory",
-    place: "UTokyo · remote",
-    body: "Supporting the Global Consumer Intelligence course — ML concepts, assignments, and student feedback.",
+    place: "UTokyo, remote",
+    body: "Supporting the Global Consumer Intelligence course: ML concepts, assignments, and student feedback.",
   },
   {
     period: "Next",
     role: "What I want to build",
-    org: "Research → products",
-    place: "—",
+    org: "Research to products",
+    place: "Future",
     body: "AI systems that connect biomedical signals, embedded deployment, and interfaces real users actually trust.",
   },
 ];
@@ -211,20 +215,20 @@ export const recognition: Award[] = [
   {
     year: "2026",
     title: "Harvard HSIL Hackathon",
-    place: "Vietnam Hub · Global",
+    place: "Vietnam Hub, Global",
     description:
-      "2nd Place at the Vietnam Hub and Top 100 Global Teams — selected from 14,700+ applications worldwide.",
+      "2nd Place at the Vietnam Hub and Top 100 Global Teams, selected from 14,700+ applications worldwide.",
   },
   {
     year: "2026",
     title: "University of Tokyo research exchange",
     place: "Matsuo-Iwasawa Laboratory",
     description:
-      "Short-term AI research exchange in Japan — presenting work, receiving feedback, and stepping into an international research culture.",
+      "Short-term AI research exchange in Japan: presenting work, receiving feedback, and stepping into an international research culture.",
   },
   {
     year: "2025",
-    title: "Outstanding Student — GCI",
+    title: "Outstanding Student, GCI",
     place: "Matsuo-Iwasawa Laboratory, UTokyo",
     description:
       "Top 20 most outstanding students in the Global Consumer Intelligence course 2025.",
@@ -239,7 +243,6 @@ export const recognition: Award[] = [
 ];
 
 export const recognitionMoments: RecognitionMoment[] = [
-  // VN: "Yasuda Auditorium, Đại học Tokyo"
   {
     src: "/images/Yasuda_Auditorium.png",
     webpSrc: "/images/Yasuda_Auditorium.webp",
@@ -247,12 +250,11 @@ export const recognitionMoments: RecognitionMoment[] = [
     caption: "Yasuda Auditorium, University of Tokyo",
     location: "University of Tokyo, Tokyo",
   },
-  // VN: "Lễ trao giải — Giải Nhì, Vietnam Hub"
   {
     src: "/images/Harvard_Hackathon.jpg",
     webpSrc: "/images/Harvard_Hackathon.webp",
     alt: "Harvard HSIL Hackathon award ceremony, Vietnam Hub",
-    caption: "Award ceremony — 2nd place, Vietnam Hub",
+    caption: "Award ceremony, 2nd place, Vietnam Hub",
     location: "Phenikaa University, Hanoi",
   },
 ];

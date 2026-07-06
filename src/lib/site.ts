@@ -1,18 +1,19 @@
 /* ===========================================================================
-   SITE / IDENTITY CONFIG — single source of truth for name, contact, socials.
+   SITE / IDENTITY CONFIG
+   Single source of truth for name, contact, socials.
    =========================================================================== */
 export const site = {
   name: "Duc Doan Sinh",
   initials: "DDS",
   role: "AI / Embedded Systems",
-  tagline: "Efficient intelligence — from biosignals to the edge.",
+  tagline: "Efficient intelligence from biosignals to the edge.",
   summary:
-    "AI / Embedded Systems student building efficient, deployable intelligence — from wearable biosignals to multi-stream edge vision.",
+    "AI / Embedded Systems student building efficient, deployable intelligence from wearable biosignals to multi-stream edge vision.",
   location: "Hanoi, Vietnam",
-  education: "B.S. Smart Embedded Systems & IoT · HUST · expected 2027",
+  education: "B.S. Smart Embedded Systems & IoT, HUST, expected 2027",
   available: "AI / Embedded Systems student",
 
-  // 👉 Portrait — full natural color anchor. Swap at /public/images/profile.jpg
+  // Portrait: full natural color anchor. Swap at /public/images/profile.jpg.
   portrait: { src: "/images/profile.jpg", alt: "Portrait of Duc Doan Sinh" },
 
   email: "doansinhduc@gmail.com",

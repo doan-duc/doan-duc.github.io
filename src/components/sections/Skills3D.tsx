@@ -16,7 +16,7 @@ if (typeof window !== "undefined") {
 
 /**
  * Skills section: glass-3d panels at different Z-depths with parallax reveals.
- * No pinning — individual scroll-triggered entrances from depth.
+ * No pinning: individual scroll-triggered entrances from depth.
  */
 export function Skills3D() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -76,7 +76,6 @@ export function Skills3D() {
       <div className="perspective-scene">
         <Container className="preserve-3d">
           <SectionHeader
-            index="02 — Skills"
             kicker="What I work with"
             title={<>The stack behind the work.</>}
           />
@@ -88,7 +87,7 @@ export function Skills3D() {
                 data-skill-panel
                 className="skill-panel-3d glass-3d rounded-2xl p-8 md:p-10"
               >
-                <h3 className="text-2xl tracking-tight md:text-3xl">
+                <h3 className="text-2xl tracking-normal md:text-3xl md:tracking-tight">
                   {c.title}
                 </h3>
                 <p className="body-copy mt-3">{c.blurb}</p>

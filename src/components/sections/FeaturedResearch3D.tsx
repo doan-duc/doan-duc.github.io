@@ -104,12 +104,12 @@ export function FeaturedResearch3D() {
     <section
       id="featured"
       ref={sectionRef}
-      className={cn("relative", animate && "md:h-screen md:overflow-hidden")}
+      className={cn("relative", animate && "md:min-h-[100dvh] md:overflow-hidden")}
     >
-      <div className="perspective-scene h-full">
+      <div className="perspective-scene h-full min-h-[inherit]">
         <Container
           className={cn(
-            "flex h-full flex-col justify-center preserve-3d py-24 md:grid md:grid-cols-12 md:items-center md:gap-12",
+            "flex min-h-[inherit] flex-col justify-center preserve-3d py-24 md:grid md:grid-cols-12 md:items-center md:gap-12",
             animate ? "md:py-0" : "md:py-32",
           )}
         >
@@ -165,7 +165,7 @@ export function FeaturedResearch3D() {
             </ol>
           </div>
 
-          {/* Phase stage — panels crossfade with 3D depth */}
+          {/* Phase stage: panels crossfade with 3D depth */}
           <div
             ref={stageRef}
             className={cn(
@@ -200,7 +200,9 @@ export function FeaturedResearch3D() {
                   </span>
                   {/* Foreground content */}
                   <div className="relative">
-                    <div className="kicker">{p.label}</div>
+                    <div className="text-sm font-medium text-accent">
+                      {p.label}
+                    </div>
                     <p className="body-copy mt-5 max-w-lg">{p.body}</p>
                   </div>
                 </div>
