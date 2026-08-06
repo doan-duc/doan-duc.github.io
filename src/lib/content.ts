@@ -93,33 +93,36 @@ export const highlight = {
   eyebrow: "Featured research",
   title: "Ear-to-chest ECG reconstruction",
   subtitle:
-    "A quantized spiking-neural-network autoencoder that rebuilds chest-style ECG from a noisy ear-worn sensor, small enough to live on the edge.",
-  chips: ["Spiking NN", "ECG biosignals", "Quantized", "Edge-ready"],
-  link: { label: "View repository", href: "https://github.com/doan-duc/ecg_perceptual" },
+    "An offline LOSO benchmark for reconstructing chest-reference ECG morphology from single-ear ECG with a compact 4-bit spiking autoencoder.",
+  chips: ["Spiking NN", "ECG biosignals", "4-bit LSQ", "LOSO evaluation"],
+  link: {
+    label: "View repository",
+    href: "https://github.com/doan-duc/ear-to-chest-ecg-reconstruction",
+  },
   phases: [
     {
       key: "01",
       label: "The problem",
       body:
-        "Ear-worn ECG is comfortable and wearable, but the signal is noisy and shaped completely differently from a clinical chest lead, which makes interpretation hard.",
+        "Single-ear ECG is wearable-friendly but differs from a chest-reference signal, making faithful morphology reconstruction a challenging subject-independent research problem.",
     },
     {
       key: "02",
       label: "What I built",
       body:
-        "A quantized SNN autoencoder that reconstructs chest-style ECG from short ear-worn windows, kept compact enough for on-device, edge-research deployment.",
+        "A 23,140-parameter 1D SDCAE with 4-bit LSQ-quantized convolution layers and integer multi-level spike activations, plus an offline training and evaluation pipeline.",
     },
     {
       key: "03",
-      label: "What I learned",
+      label: "Evaluation",
       body:
-        "Personalization can be the whole game. The gap between a promising global model and one that works for a specific patient matters most.",
+        "Across 12 private leave-one-subject-out folds, SDCAE reached 0.873 +/- 0.039 PQRST-Pearson and 0.862 full-window correlation, with an 11.3 KB theoretical packed weight footprint.",
     },
     {
       key: "04",
-      label: "Why it matters",
+      label: "Scope",
       body:
-        "Better reconstruction makes wearable biosignal monitoring practical, without forcing people into uncomfortable clinical sensor setups.",
+        "Results are an offline research benchmark on private paired data. The system is not diagnostic, not a medical device, and real-time deployment has not been demonstrated.",
     },
   ],
 };
