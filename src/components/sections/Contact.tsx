@@ -32,14 +32,6 @@ export function Contact() {
               <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </a>
           </Magnetic>
-          <a
-            href={site.cv}
-            target="_blank"
-            rel="noreferrer"
-            className="rounded-full border border-line px-7 py-3.5 text-sm text-ink transition-colors hover:border-accent hover:bg-accent/10"
-          >
-            Download CV
-          </a>
         </Reveal>
 
         <Reveal stagger className="mt-16 grid gap-px overflow-hidden rounded-2xl border border-line sm:grid-cols-3">

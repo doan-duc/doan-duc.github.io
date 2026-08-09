@@ -21,7 +21,6 @@ export const site = {
   phone: "+84 928 161 469",
   github: "https://github.com/doan-duc",
   linkedin: "https://www.linkedin.com/in/doanduc2312",
-  cv: "/files/duc-doan-sinh-cv.pdf",
   focusAreas: ["Neuromorphic AI", "Biomedical signals", "Edge vision", "RAG systems"],
   affiliations: [
     {
