@@ -43,17 +43,17 @@ export const projects: Project[] = [
   {
     index: "01",
     eyebrow: "Edge computer vision",
-    title: "16-stream product recognition on Jetson Nano",
+    title: "16-stream object detection on Jetson Nano",
     year: "2025",
     visualHint: "Reserved space for a future Jetson or multi-camera pipeline visual.",
     problem:
-      "Multi-camera retail and industrial systems need real detection speed without leaning on expensive server hardware.",
+      "Running multi-camera vision on a Jetson Nano is a systems problem: 16 live streams must be decoded, batched, inferred, tracked, and rendered under tight compute and memory constraints.",
     built:
-      "A DeepStream + GStreamer pipeline (Docker, TensorRT, YOLOv8n) processing 16 concurrent RTSP streams on a single NVIDIA Jetson Nano.",
+      "A 16-stream DeepStream pipeline on Jetson Nano using TensorRT FP16, batch inference, IOU tracking, and Docker, paired with a custom ~1.1M-parameter YOLOv8n distilled from a larger teacher model.",
     learned:
-      "The bottleneck usually sits outside the model: stream scheduling, memory, container setup, and inference conversion decide whether it ships.",
+      "Throughput came from co-designing the model and the pipeline. Stream batching, inference intervals, TensorRT conversion, memory constraints, and model size mattered as much as detection accuracy.",
     matters:
-      "It turns computer vision from a demo into infrastructure that runs next to the camera, cutting latency and bandwidth cost.",
+      "It demonstrates that a multi-camera vision workload can be engineered around constrained edge hardware instead of requiring a discrete-GPU server.",
     tags: ["DeepStream", "TensorRT", "YOLOv8n", "Jetson"],
     demo: {
       src: "/video/16cam-jetson-demo.mp4",
@@ -75,13 +75,13 @@ export const projects: Project[] = [
     year: "2025",
     visualHint: "Reserved space for a future packaging inspection visual.",
     problem:
-      "Manual packaging checks are easy to miss as small electronic components move through multi-step production lines.",
+      "Packaging QA is not only about whether an item is present. Operators must place the right components, in the right locations, and in the right sequence across multiple assembly steps.",
     built:
-      "A YOLOv8n system covering 11 component classes that tracks a 2-tier packaging pipeline across four camera streams.",
+      "OSCO combines an 11-class YOLOv8 detector with four RTSP cameras, orientation-aware slot maps, a shared two-layer checklist, and workflow validation. A custom slim-neck model reduces the vision core to ~1.9M parameters / 5.3 GFLOPs.",
     learned:
-      "A useful QA model has to understand workflow state, not just objects in isolated frames.",
+      "The detector is only the perception layer. Reliable visual QA also needs geometry, temporal confirmation, cross-camera state, and explicit workflow rules to understand the process rather than isolated frames.",
     matters:
-      "It points toward reliable factory assistance where AI backs up repeatable human inspection instead of replacing it.",
+      "It moves computer vision from object detection to process-aware inspection, allowing missing, misplaced, or out-of-order components to be flagged during packing rather than after the box is complete.",
     tags: ["YOLO", "Tracking", "QA", "Automation"],
     demo: {
       src: "/video/osco-demo.mp4",
@@ -95,22 +95,6 @@ export const projects: Project[] = [
       label: "Repository",
       href: "https://github.com/doan-duc/OSCO-Object-Scanning-and-Checklist-Optimization",
     },
-  },
-  {
-    index: "03",
-    eyebrow: "Applied AI internship",
-    title: "RAG support assistant + YOLO deployment",
-    year: "2025",
-    visualHint: "Reserved space for a future retrieval or deployment workflow visual.",
-    problem:
-      "Support teams drown in repetitive questions while deployed vision models quietly drift out of spec.",
-    built:
-      "A retrieval-augmented support assistant and a YOLO deployment-optimization workflow built during an applied-AI internship at Viettel Telecom & HANET.",
-    learned:
-      "Retrieval quality and grounding matter more than model size, and a deployment is only as good as the loop that keeps watching it.",
-    matters:
-      "It connects research instincts to production constraints: latency, cost, and answers people can trust.",
-    tags: ["RAG", "LLM", "YOLO", "MLOps"],
   },
 ];
 
