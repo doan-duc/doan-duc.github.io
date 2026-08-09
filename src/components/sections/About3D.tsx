@@ -7,6 +7,7 @@ import { useIsoLayoutEffect } from "@/lib/use-iso-layout-effect";
 import { about, researchFocus } from "@/lib/content";
 import { Container } from "@/components/ui/Container";
 import { EcgWaveform } from "@/components/ui/EcgWaveform";
+import { AboutSignalInstrument } from "@/components/sections/AboutSignalInstrument";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -27,6 +28,21 @@ export function About3D() {
 
       /* ── Desktop: individual 3D reveals (no pin) ─────────────────── */
       mm.add("(min-width: 1024px)", () => {
+        // The identity arrives as one physical object before the story resolves.
+        gsap.from("[data-about-identity]", {
+          x: -44,
+          z: -140,
+          rotateY: -8,
+          opacity: 0,
+          duration: 1.25,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: "[data-about-identity]",
+            start: "top 82%",
+            once: true,
+          },
+        });
+
         // Lead text reveal from depth.
         gsap.from("[data-about-lead]", {
           z: -150,
@@ -91,6 +107,18 @@ export function About3D() {
 
       /* ── Mobile: simple reveals ──────────────────────────────────── */
       mm.add("(max-width: 1023px)", () => {
+        gsap.from("[data-about-identity]", {
+          opacity: 0,
+          y: 24,
+          duration: 0.9,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: "[data-about-identity]",
+            start: "top 88%",
+            once: true,
+          },
+        });
+
         gsap.from("[data-about-lead]", {
           opacity: 0,
           y: 30,
@@ -158,40 +186,49 @@ export function About3D() {
       <div className="perspective-scene relative z-10 w-full">
         <Container className="preserve-3d">
           {/* Lead + body */}
-          <div className="grid gap-10 border-y border-line py-12 preserve-3d md:grid-cols-12 md:gap-12 md:py-16">
-            <div className="md:col-span-4">
-              <span className="kicker">About</span>
-            </div>
-            <div className="preserve-3d md:col-span-8">
-              <p
-                data-about-lead
-                className="max-w-4xl text-balance text-3xl leading-[1.12] tracking-normal md:text-[3.1rem] md:tracking-tight"
-                style={{ willChange: "transform, opacity" }}
-              >
-                {about.lead}{" "}
-                <span className="text-[var(--color-body)]">
-                  {about.leadAccent}
-                </span>
-              </p>
-            </div>
-          </div>
-
-          <div className="grid gap-10 border-b border-line py-10 preserve-3d md:grid-cols-12 md:gap-12 md:py-12">
+          <div className="about-intro-grid preserve-3d">
             <div
-              className="hidden md:col-span-4 md:block"
-              aria-hidden="true"
-            />
-            <div className="grid gap-6 preserve-3d md:col-span-8 md:grid-cols-2">
-              {about.body.map((p, i) => (
+              data-about-identity
+              className="about-identity preserve-3d"
+              style={{ willChange: "transform, opacity" }}
+            >
+              <div>
+                <h2 data-about-heading className="about-identity-title">
+                  About<span aria-hidden="true">.</span>
+                </h2>
+                <p className="about-identity-caption">
+                  From raw signal to deployed system.
+                </p>
+              </div>
+              <AboutSignalInstrument />
+            </div>
+
+            <div className="about-story preserve-3d">
+              <div className="about-story-lead preserve-3d">
                 <p
-                  key={i}
-                  data-about-body
-                  className="body-copy"
+                  data-about-lead
+                  className="max-w-4xl text-balance text-3xl leading-[1.12] tracking-normal md:text-[3.1rem] md:tracking-tight"
                   style={{ willChange: "transform, opacity" }}
                 >
-                  {p}
+                  {about.lead}{" "}
+                  <span className="text-[var(--color-body)]">
+                    {about.leadAccent}
+                  </span>
                 </p>
-              ))}
+              </div>
+
+              <div className="about-story-body preserve-3d">
+                {about.body.map((p, i) => (
+                  <p
+                    key={i}
+                    data-about-body
+                    className="body-copy"
+                    style={{ willChange: "transform, opacity" }}
+                  >
+                    {p}
+                  </p>
+                ))}
+              </div>
             </div>
           </div>
 
