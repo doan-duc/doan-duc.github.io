@@ -61,8 +61,7 @@ portfolio/
 └─ public/
    ├─ images/profile.jpg              # 👉 swap portrait
    ├─ images/projects/                # project demo posters
-   ├─ video/                          # optimized silent project demos
-   └─ files/duc-doan-sinh-cv.pdf      # 👉 swap CV
+   └─ video/                          # optimized silent project demos
 ```
 
 ## Where to edit content
@@ -71,7 +70,7 @@ portfolio/
 - **All section copy:** `src/lib/content.ts`
 - **Accent color (one place):** `src/app/globals.css` → `@theme { --color-accent }`
   (violet `#7c3aed` · cyan `#06b6d4` · lime `#84cc16`)
-- **Portrait / CV:** replace the files in `public/`
+- **Portrait:** replace `public/images/profile.jpg`
 
 ## Project video demos
 
