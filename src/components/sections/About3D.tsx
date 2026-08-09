@@ -190,7 +190,6 @@ export function About3D() {
             <div
               data-about-identity
               className="about-identity preserve-3d"
-              style={{ willChange: "transform, opacity" }}
             >
               <div>
                 <h2 data-about-heading className="about-identity-title">
@@ -208,7 +207,6 @@ export function About3D() {
                 <p
                   data-about-lead
                   className="max-w-4xl text-balance text-3xl leading-[1.12] tracking-normal md:text-[3.1rem] md:tracking-tight"
-                  style={{ willChange: "transform, opacity" }}
                 >
                   {about.lead}{" "}
                   <span className="text-[var(--color-body)]">
@@ -223,7 +221,6 @@ export function About3D() {
                     key={i}
                     data-about-body
                     className="body-copy"
-                    style={{ willChange: "transform, opacity" }}
                   >
                     {p}
                   </p>
@@ -236,7 +233,6 @@ export function About3D() {
           <div
             data-about-focus
             className="mt-16 preserve-3d"
-            style={{ willChange: "transform, opacity" }}
           >
             <h3 className="mb-5 text-sm font-medium text-accent">
               Research interests &amp; focus

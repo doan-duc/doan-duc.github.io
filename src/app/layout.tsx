@@ -42,7 +42,6 @@ export default function RootLayout({
           <Nav />
           <main className="relative z-[1]">{children}</main>
           <Footer />
-          <div id="grain" aria-hidden="true" />
         </SmoothScroll>
       </body>
     </html>

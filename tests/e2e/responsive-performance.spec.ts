@@ -34,7 +34,7 @@ async function openInstrumentedDesktop(
     let mediaQueryReads = 0;
 
     window.matchMedia = function matchMedia(query: string) {
-      if (query === "(hover: none), (pointer: coarse)") mediaQueryReads += 1;
+      if (/\((?:hover|pointer)\s*:/.test(query)) mediaQueryReads += 1;
       return nativeMatchMedia.call(window, query);
     };
 
@@ -277,6 +277,16 @@ test.describe("motion smoothness budgets", () => {
             const hint = getComputedStyle(element).willChange;
             return hint === "auto" ? [] : [`${element.tagName.toLowerCase()}: ${hint}`];
           });
+          const aurora = document.querySelector<HTMLElement>("#aurora");
+          const heroGlow = document.querySelector<HTMLElement>(".hero-glow");
+          if (aurora) {
+            const hint = getComputedStyle(aurora, "::after").willChange;
+            if (hint !== "auto") promoted.push(`#aurora::after: ${hint}`);
+          }
+          if (heroGlow) {
+            const hint = getComputedStyle(heroGlow).willChange;
+            if (hint !== "auto") promoted.push(`.hero-glow: ${hint}`);
+          }
           const glass = document.querySelector<HTMLElement>(".glass-3d");
           const glassStyle = glass ? getComputedStyle(glass) : null;
           const backdrop = glassStyle
@@ -307,12 +317,59 @@ test.describe("motion smoothness budgets", () => {
     }
   });
 
+  test("large screens avoid persistent compositor promotion on static content", async ({
+    browser,
+    browserName,
+  }) => {
+    test.skip(browserName !== "chromium", "Compositor policy runs once in Chromium");
+
+    const { context, page } = await openResponsivePage(browser, {
+      name: "large-desktop",
+      width: 2560,
+      height: 1440,
+    });
+    try {
+      const promoted = await page.evaluate(() => {
+        const selectors = [
+          ".hero-affiliation-card",
+          ".hero-affiliation-surface-motion",
+          ".project-card-3d",
+          ".phase-panel-3d",
+          ".skill-panel-3d",
+          "[data-about-identity]",
+          "[data-about-lead]",
+          "[data-about-body]",
+          "[data-about-focus]",
+          "[data-achievement-node]",
+        ];
+        return Array.from(document.querySelectorAll<HTMLElement>(selectors.join(",")))
+          .filter((element) => getComputedStyle(element).willChange !== "auto")
+          .map((element) => ({
+            marker:
+              element.getAttribute("data-project-card") ??
+              element.getAttribute("data-about-identity") ??
+              element.className,
+            willChange: getComputedStyle(element).willChange,
+          }));
+      });
+
+      expect(promoted, "static content should not reserve compositor layers").toEqual([]);
+    } finally {
+      await context.close();
+    }
+  });
+
   test("scroll animation maintains a bounded frame and long-task budget", async ({
     browser,
     browserName,
   }, testInfo) => {
     test.skip(browserName !== "chromium", "Detailed timing APIs and CPU throttling are Chromium-only");
 
+    const scenarioFilter = process.env.MOTION_PERF_SCENARIO;
+    const sampleCount = Math.max(
+      1,
+      Number.parseInt(process.env.MOTION_PERF_SAMPLES ?? "3", 10) || 3,
+    );
     const scenarios = [
       {
         viewport: { name: "phone", width: 390, height: 844, mobile: true, touch: true, dpr: 3 },
@@ -321,7 +378,9 @@ test.describe("motion smoothness budgets", () => {
       { viewport: { name: "laptop", width: 1366, height: 768 }, cpuRate: 1 },
       { viewport: { name: "large-desktop", width: 2560, height: 1440 }, cpuRate: 1 },
       { viewport: { name: "throttled-laptop", width: 1366, height: 768 }, cpuRate: 4 },
-    ];
+    ].filter(({ viewport }) => !scenarioFilter || viewport.name === scenarioFilter);
+
+    expect(scenarios.length, "MOTION_PERF_SCENARIO must select a known scenario").toBeGreaterThan(0);
 
     const results: Array<{
       label: string;
@@ -332,7 +391,7 @@ test.describe("motion smoothness budgets", () => {
 
     for (const scenario of scenarios) {
       const runs: FrameMetrics[] = [];
-      for (let sample = 0; sample < 3; sample += 1) {
+      for (let sample = 0; sample < sampleCount; sample += 1) {
         const { context, page } = await openResponsivePage(
           browser,
           scenario.viewport,

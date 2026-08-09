@@ -127,7 +127,6 @@ export function Achievements3D() {
                 key={a.title}
                 data-achievement-node
                 className="relative mb-12 preserve-3d pl-5 last:mb-0 sm:pl-8 md:pl-12"
-                style={{ willChange: "transform, opacity" }}
               >
                 <div className="timeline-dot-3d" />
                 <div className="glass-3d rounded-2xl p-5 sm:p-6 md:p-8">

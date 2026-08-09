@@ -97,6 +97,18 @@ test.describe("responsive motion policies", () => {
       await expect
         .poll(() => page.evaluate(() => document.documentElement.classList.contains("lenis")))
         .toBe(true);
+
+      const selectedWork = page.getByRole("button", { name: "Selected work" });
+      const magneticWrapper = selectedWork.locator("..");
+      const buttonBox = await selectedWork.boundingBox();
+      expect(buttonBox).not.toBeNull();
+      await page.mouse.move(buttonBox!.x + 3, buttonBox!.y + buttonBox!.height / 2);
+      await expect
+        .poll(() =>
+          magneticWrapper.evaluate((element) => getComputedStyle(element).transform),
+        )
+        .not.toBe("none");
+
       await page.emulateMedia({ reducedMotion: "reduce" });
       await expect
         .poll(() => page.evaluate(() => document.documentElement.classList.contains("lenis")))
@@ -104,8 +116,118 @@ test.describe("responsive motion policies", () => {
       expect(
         await page.evaluate(() => getComputedStyle(document.documentElement).scrollBehavior),
       ).toBe("auto");
+      await expect
+        .poll(() =>
+          magneticWrapper.evaluate((element) => {
+            const transform = getComputedStyle(element).transform;
+            if (transform === "none") return true;
+            const matrix = new DOMMatrixReadOnly(transform);
+            return Math.abs(matrix.m41) < 0.1 && Math.abs(matrix.m42) < 0.1;
+          }),
+        )
+        .toBe(true);
     } finally {
       await context.close();
+    }
+  });
+
+  test("resets active pointer effects when fine-pointer capability changes", async ({
+    browser,
+    browserName,
+  }) => {
+    test.skip(browserName !== "chromium", "Runtime pointer emulation runs once in Chromium");
+
+    for (const selector of ["[data-hero-btns] > div", ".about-signal-tilt"]) {
+      const context = await browser.newContext({ viewport: { width: 1366, height: 768 } });
+      await context.addInitScript(() => {
+        const nativeMatchMedia = window.matchMedia.bind(window);
+        const media = "(hover: hover) and (pointer: fine)";
+        const listeners = new Set<(event: MediaQueryListEvent) => void>();
+        let enabled = true;
+        const pointerQuery = {
+          media,
+          get matches() {
+            return enabled;
+          },
+          onchange: null,
+          addEventListener(type: string, listener: EventListenerOrEventListenerObject | null) {
+            if (type === "change" && typeof listener === "function") {
+              listeners.add(listener as (event: MediaQueryListEvent) => void);
+            }
+          },
+          removeEventListener(type: string, listener: EventListenerOrEventListenerObject | null) {
+            if (type === "change" && typeof listener === "function") {
+              listeners.delete(listener as (event: MediaQueryListEvent) => void);
+            }
+          },
+          addListener(listener: (event: MediaQueryListEvent) => void) {
+            listeners.add(listener);
+          },
+          removeListener(listener: (event: MediaQueryListEvent) => void) {
+            listeners.delete(listener);
+          },
+          dispatchEvent() {
+            return true;
+          },
+        } as MediaQueryList;
+
+        window.matchMedia = (query) =>
+          query === media ? pointerQuery : nativeMatchMedia(query);
+        (
+          window as typeof window & { __setFinePointer: (next: boolean) => void }
+        ).__setFinePointer = (next) => {
+          enabled = next;
+          const event = { matches: next, media } as MediaQueryListEvent;
+          listeners.forEach((listener) => listener.call(pointerQuery, event));
+        };
+      });
+
+      await context.route("https://api.fontshare.com/**", (route) => route.abort());
+
+      const page = await context.newPage();
+      try {
+        await page.goto("/", { waitUntil: "domcontentloaded" });
+        await page.locator("main").waitFor({ state: "visible" });
+        await page.evaluate(async () => {
+          await document.fonts.ready;
+          await new Promise<void>((resolve) =>
+            requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+          );
+        });
+        const target = page.locator(selector).first();
+        await target.scrollIntoViewIfNeeded();
+        const box = await target.boundingBox();
+        expect(box, `${selector}: pointer target`).not.toBeNull();
+        await page.mouse.move(box!.x + box!.width - 4, box!.y + 4);
+
+        const isIdentity = () =>
+          target.evaluate((element) => {
+            const transform = getComputedStyle(element).transform;
+            if (transform === "none") return true;
+            const matrix = new DOMMatrixReadOnly(transform);
+            return (
+              Math.abs(matrix.m11 - 1) < 0.001 &&
+              Math.abs(matrix.m22 - 1) < 0.001 &&
+              Math.abs(matrix.m41) < 0.1 &&
+              Math.abs(matrix.m42) < 0.1
+            );
+          });
+
+        await expect.poll(isIdentity).toBe(false);
+        await page.evaluate(() =>
+          (
+            window as typeof window & { __setFinePointer: (next: boolean) => void }
+          ).__setFinePointer(false),
+        );
+        await page.evaluate(
+          () => new Promise<void>((resolve) =>
+            requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+          ),
+        );
+        expect(await isIdentity(), `${selector}: transform snaps to rest`).toBe(true);
+      } finally {
+        await context.close();
+      }
     }
   });
 });
