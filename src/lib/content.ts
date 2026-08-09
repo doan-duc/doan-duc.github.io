@@ -295,6 +295,13 @@ export const recognition: Award[] = [
   },
   {
     year: "2026",
+    title: "SCIC “Empowering Young Talent” Scholarship",
+    place: "State Capital Investment Corporation (SCIC)",
+    description:
+      "Selected among 40 outstanding students for achievements in technology, AI, and innovation.",
+  },
+  {
+    year: "2026",
     title: "University of Tokyo research exchange",
     place: "Matsuo-Iwasawa Laboratory",
     description:
@@ -306,13 +313,6 @@ export const recognition: Award[] = [
     place: "Matsuo-Iwasawa Laboratory, UTokyo",
     description:
       "Top 20 most outstanding students in the Global Consumer Intelligence course 2025.",
-  },
-  {
-    year: "2025",
-    title: "Bosch CodeRace Challenge",
-    place: "Bosch Global Software Technologies VN",
-    description:
-      "Top 30 team in a national challenge testing practical engineering, software thinking, and teamwork.",
   },
 ];
 
