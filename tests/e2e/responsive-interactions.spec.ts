@@ -23,10 +23,12 @@ test.describe("responsive interactions", () => {
         expect(toggleBox!.width, `${viewport.name}: menu toggle width`).toBeGreaterThanOrEqual(44);
         expect(toggleBox!.height, `${viewport.name}: menu toggle height`).toBeGreaterThanOrEqual(44);
 
-        await toggle.click();
+        await toggle.tap();
         await expect(toggle).toHaveAttribute("aria-expanded", "true");
         const aboutButton = await visibleLocator(page, "button", "About");
         const menu = aboutButton.locator("..");
+        await expect(menu).toHaveAttribute("role", "dialog");
+        await expect(menu).toHaveAttribute("aria-label", "Navigation");
         const menuMetrics = await menu.evaluate((element) => {
           const style = getComputedStyle(element);
           const children = [...element.querySelectorAll<HTMLElement>("button, a")]
@@ -57,10 +59,11 @@ test.describe("responsive interactions", () => {
 
         await page.keyboard.press("Escape");
         await expect(toggle).toHaveAttribute("aria-expanded", "false");
+        await expect(toggle).toBeFocused();
 
-        await toggle.click();
-        await page.setViewportSize({ width: 768, height: viewport.height });
-        await page.setViewportSize({ width: 767, height: viewport.height });
+        await toggle.tap();
+        await page.setViewportSize({ width: 1024, height: viewport.height });
+        await page.setViewportSize({ width: 1023, height: viewport.height });
         await expect(toggle).toHaveAttribute("aria-expanded", "false");
       } finally {
         await context.close();

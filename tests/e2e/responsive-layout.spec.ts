@@ -52,12 +52,21 @@ test.describe("responsive geometry", () => {
 
         const mobileToggle = page.getByRole("button", { name: "Toggle menu" });
         const desktopLinks = page.locator("header nav > div.md\\:flex");
-        if (viewport.width < 768) {
+        if (viewport.width < 1024) {
           await expect(mobileToggle).toBeVisible();
           await expect(desktopLinks).toBeHidden();
         } else {
           await expect(mobileToggle).toBeHidden();
           await expect(desktopLinks).toBeVisible();
+
+          const brandBox = await page.getByRole("button", { name: "Back to top" }).boundingBox();
+          const linksBox = await desktopLinks.boundingBox();
+          expect(brandBox).not.toBeNull();
+          expect(linksBox).not.toBeNull();
+          expect(
+            brandBox!.x + brandBox!.width + 16,
+            `${viewport.name}: desktop navigation must not overlap the brand`,
+          ).toBeLessThanOrEqual(linksBox!.x);
         }
       } finally {
         await context.close();
