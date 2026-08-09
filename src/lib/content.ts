@@ -15,6 +15,15 @@ export const about = {
 };
 
 /* -------- SELECTED WORK -------------------------------------------------- */
+export type ProjectDemo = {
+  src: string;
+  poster: string;
+  title: string;
+  triggerLabel: string;
+  ariaLabel: string;
+  duration: string;
+};
+
 export type Project = {
   index: string;
   eyebrow: string;
@@ -26,6 +35,7 @@ export type Project = {
   learned: string;
   matters: string;
   tags: string[];
+  demo?: ProjectDemo;
   link?: { label: string; href: string };
 };
 
@@ -45,6 +55,14 @@ export const projects: Project[] = [
     matters:
       "It turns computer vision from a demo into infrastructure that runs next to the camera, cutting latency and bandwidth cost.",
     tags: ["DeepStream", "TensorRT", "YOLOv8n", "Jetson"],
+    demo: {
+      src: "/video/16cam-jetson-demo.mp4",
+      poster: "/images/projects/16cam-jetson-demo.jpg",
+      title: "16-camera inference on Jetson Nano",
+      triggerLabel: "Play 16-camera demo",
+      ariaLabel: "16-camera Jetson Nano project demo",
+      duration: "0:49",
+    },
     link: {
       label: "Repository",
       href: "https://github.com/doan-duc/DeepStream-YOLOv8-Jetson-Nano-16RTSP",
@@ -65,6 +83,14 @@ export const projects: Project[] = [
     matters:
       "It points toward reliable factory assistance where AI backs up repeatable human inspection instead of replacing it.",
     tags: ["YOLO", "Tracking", "QA", "Automation"],
+    demo: {
+      src: "/video/osco-demo.mp4",
+      poster: "/images/projects/osco-demo.jpg",
+      title: "OSCO packaging control workflow",
+      triggerLabel: "Play OSCO demo",
+      ariaLabel: "OSCO packaging control project demo",
+      duration: "5:00",
+    },
     link: {
       label: "Repository",
       href: "https://github.com/doan-duc/OSCO-Object-Scanning-and-Checklist-Optimization",
@@ -93,7 +119,7 @@ export const highlight = {
   eyebrow: "Featured research",
   title: "Ear-to-chest ECG reconstruction",
   subtitle:
-    "An offline LOSO benchmark for reconstructing chest-reference ECG morphology from single-ear ECG with a compact 4-bit spiking autoencoder.",
+    "A compact 4-bit Spiking Denoising Convolutional Autoencoder (SDCAE) for reconstructing chest-reference ECG signals from single-ear recordings.",
   chips: ["Spiking NN", "ECG biosignals", "4-bit LSQ", "LOSO evaluation"],
   link: {
     label: "View repository",

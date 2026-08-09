@@ -3,6 +3,9 @@
 /out/
 /build
 /dist
+/video/*
+!/video/16cam-jetson-demo.mp4
+!/video/osco-demo.mp4
 .DS_Store
 *.pem
 Thumbs.db

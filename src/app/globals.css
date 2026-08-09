@@ -409,6 +409,32 @@ html.lenis, html.lenis body { height: auto; }
   opacity: 0.5;
 }
 
+.project-demo-dialog {
+  width: min(960px, calc(100vw - 2rem));
+  max-width: none;
+  max-height: calc(100dvh - 2rem);
+  margin: auto;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 24px;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  box-shadow: 0 32px 100px rgba(0, 0, 0, 0.58);
+}
+
+.project-demo-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(10px);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .project-demo-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.92);
+    backdrop-filter: none;
+  }
+}
+
 /* Infinite marquee row (skill pills). */
 .marquee-track { animation: marquee 38s linear infinite; }
 .marquee-track:hover { animation-play-state: paused; }

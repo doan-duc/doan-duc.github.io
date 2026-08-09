@@ -2,7 +2,8 @@
 
 An award-style, editorial dark portfolio for an AI / Embedded Systems student.
 Built to feel closer to linear.app / Awwwards "Site of the Day" than a CV or a
-default AI-portfolio template.
+default AI-portfolio template. Selected projects include poster-first video
+demos that open on demand without autoplay or unnecessary audio.
 
 **Stack:** Next.js 16 (App Router) · Tailwind CSS v4 · GSAP + ScrollTrigger ·
 Lenis · Framer Motion · TypeScript.
@@ -15,6 +16,7 @@ Lenis · Framer Motion · TypeScript.
 npm install
 npm run dev      # http://localhost:3000
 npm run build    # production build
+npm test         # static-export video integration tests
 npm run typecheck
 ```
 
@@ -51,11 +53,15 @@ portfolio/
 │     │  └─ Footer.tsx
 │     ├─ ui/
 │     │  ├─ Container.tsx · SectionHeader.tsx · Tag.tsx · icons.tsx
+│     ├─ projects/
+│     │  └─ ProjectVideoDemo.tsx      # accessible poster + native video dialog
 │     └─ sections/
 │        ├─ Hero.tsx · About.tsx · Work.tsx · Highlight.tsx
 │        └─ Capabilities.tsx · Experience.tsx · Recognition.tsx · Contact.tsx
 └─ public/
    ├─ images/profile.jpg              # 👉 swap portrait
+   ├─ images/projects/                # project demo posters
+   ├─ video/                          # optimized silent project demos
    └─ files/duc-doan-sinh-cv.pdf      # 👉 swap CV
 ```
 
@@ -66,6 +72,17 @@ portfolio/
 - **Accent color (one place):** `src/app/globals.css` → `@theme { --color-accent }`
   (violet `#7c3aed` · cyan `#06b6d4` · lime `#84cc16`)
 - **Portrait / CV:** replace the files in `public/`
+
+## Project video demos
+
+- Jetson Nano 16-camera inference: full 49-second demo, optimized for web.
+- OSCO packaging control: full 5-minute demo, optimized for web.
+- Both videos use poster images, native controls, `preload="metadata"`, and no
+  autoplay or audio.
+- Optimized publishable files live in `public/video/`. Large source recordings
+  may be kept locally in the ignored root `video/` directory.
+- `tests/project-videos.test.mjs` verifies static-export paths, accessible
+  labels, controls, posters, and the 30 MB per-video budget.
 
 ---
 
@@ -94,5 +111,6 @@ portfolio/
 ## Deploy
 
 - **Vercel (recommended):** import the repo, no config needed.
-- **GitHub Pages (static export):** uncomment `output: "export"` + `images.unoptimized`
-  in `next.config.mjs`, then `npm run build` and publish `out/`.
+- **GitHub Pages (static export):** `output: "export"` and unoptimized images are
+  already enabled. Run `npm run build`, then publish `out/`. This repository also
+  keeps a copy of that export at the repository root for branch-based Pages hosting.

@@ -10,6 +10,7 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Tag } from "@/components/ui/Tag";
 import { ArrowUpRight } from "@/components/ui/icons";
 import { TiltCard } from "@/components/motion/TiltCard";
+import { ProjectVideoDemo } from "@/components/projects/ProjectVideoDemo";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -27,6 +28,10 @@ function Phase({ label, children }: { label: string; children: string }) {
 
 /* ── Project card ────────────────────────────────────────────────────── */
 function ProjectVisualSlot({ project }: { project: Project }) {
+  if (project.demo) {
+    return <ProjectVideoDemo demo={project.demo} />;
+  }
+
   return (
     <div
       className="project-visual-slot mt-7"
