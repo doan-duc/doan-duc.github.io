@@ -35,3 +35,36 @@ test("About section renders the approved portfolio copy", () => {
     );
   }
 });
+
+test("About section balances its story with a semantic 3D identity", () => {
+  assert.ok(
+    aboutHtml.includes("data-about-identity"),
+    "About must include a dedicated visual identity column",
+  );
+
+  const headingMarker = aboutHtml.indexOf("data-about-heading");
+  const headingStart = aboutHtml.lastIndexOf("<h2", headingMarker);
+  const headingEnd = aboutHtml.indexOf("</h2>", headingMarker);
+  assert.ok(
+    headingMarker >= 0 && headingStart >= 0 && headingEnd > headingMarker,
+    "About must use a semantic h2 for its primary section identity",
+  );
+  assert.match(
+    aboutHtml.slice(headingStart, headingEnd + "</h2>".length),
+    />\s*About[\s\S]*<\/h2>/,
+    "the primary About heading must be visible",
+  );
+
+  assert.ok(
+    aboutHtml.includes('data-about-signal-stack="spring-3d"'),
+    "About must expose a spring-based 3D signal instrument",
+  );
+
+  const expectedLayers = ["signal", "intelligence", "system"];
+  for (const layer of expectedLayers) {
+    assert.ok(
+      aboutHtml.includes(`data-about-layer="${layer}"`),
+      `About instrument must include the ${layer} layer`,
+    );
+  }
+});
