@@ -241,83 +241,176 @@ html.lenis, html.lenis body { height: auto; }
   overflow-wrap: break-word;
 }
 
-.hero-affiliation-card {
-  position: relative;
+.hero-affiliations {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 18px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   overflow: hidden;
   border: 1px solid var(--color-line);
   border-radius: 16px;
-  padding: 14px 16px;
   background:
-    linear-gradient(105deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.016) 62%),
+    linear-gradient(110deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.012) 70%),
     rgba(10, 10, 10, 0.58);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045);
+}
+
+.hero-affiliation-card {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
+  padding: 16px 42px 16px 16px;
+  border-left: 1px solid var(--color-line);
   transition:
-    transform 0.3s ease,
-    border-color 0.3s ease,
-    box-shadow 0.3s ease,
-    background-color 0.3s ease;
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.hero-affiliation-card:first-child {
+  border-left: 0;
 }
 
 .hero-affiliation-card::before {
   position: absolute;
-  inset: 12px auto 12px 0;
-  width: 2px;
+  right: 18px;
+  bottom: 0;
+  left: 18px;
+  height: 2px;
   border-radius: 999px;
-  background: linear-gradient(180deg, #e32636, rgba(34, 211, 238, 0.7));
+  background: var(--color-accent);
   content: "";
+  opacity: 0;
+  transform: scaleX(0.45);
+  transform-origin: left;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.hero-affiliation-card--hust::before {
+  background: #e32636;
 }
 
 .hero-affiliation-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(34, 211, 238, 0.42);
-  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.24), 0 0 34px rgba(34, 211, 238, 0.1);
+  background: rgba(255, 255, 255, 0.035);
+  box-shadow: inset 0 0 32px rgba(34, 211, 238, 0.045);
+}
+
+.hero-affiliation-card:hover::before {
+  opacity: 1;
+  transform: scaleX(1);
 }
 
 .hero-affiliation-card:focus-visible {
   outline: 2px solid var(--color-accent);
-  outline-offset: 4px;
+  outline-offset: -3px;
 }
 
 .hero-affiliation-logo {
   display: flex;
-  width: 52px;
-  height: 76px;
   flex: none;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  border-radius: 8px;
+}
+
+.hero-affiliation-logo--hust {
+  width: 46px;
+  height: 68px;
   border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 7px;
   background: #fff;
   box-shadow: 0 8px 24px rgba(227, 38, 54, 0.12);
 }
 
-.hero-affiliation-logo img {
+.hero-affiliation-logo--hust img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
+.hero-affiliation-logo--edabk {
+  width: 84px;
+  height: 58px;
+  padding: 6px;
+  border: 1px solid rgba(34, 211, 238, 0.2);
+  background: rgba(5, 22, 28, 0.78);
+  box-shadow: 0 8px 28px rgba(34, 211, 238, 0.08);
+}
+
+.hero-affiliation-logo--edabk img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.hero-affiliation-copy {
+  min-width: 0;
+}
+
+.hero-affiliation-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px 8px;
+}
+
+.hero-affiliation-acronym {
+  color: var(--color-ink);
+  font-family: var(--font-display), sans-serif;
+  font-size: 1.18rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
 .hero-affiliation-badge {
   border: 1px solid rgba(34, 211, 238, 0.24);
   border-radius: 999px;
-  padding: 3px 8px;
+  padding: 3px 6px;
   color: var(--color-accent);
-  font-size: 0.62rem;
+  font-size: 0.54rem;
   font-weight: 700;
   letter-spacing: 0.12em;
   line-height: 1;
   text-transform: uppercase;
 }
 
-.hero-affiliation-arrow {
+.hero-affiliation-card--hust .hero-affiliation-badge {
+  border-color: rgba(227, 38, 54, 0.28);
+  color: #ff7b86;
+}
+
+.hero-affiliation-name {
+  display: block;
+  margin-top: 6px;
+  color: var(--color-body);
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
+.hero-affiliation-meta {
   display: flex;
-  width: 34px;
-  height: 34px;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 3px 6px;
+  margin-top: 8px;
+  color: var(--color-muted);
+  font-size: 0.66rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.hero-affiliation-separator {
+  color: color-mix(in srgb, var(--color-accent) 70%, transparent);
+}
+
+.hero-affiliation-arrow {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: flex;
+  width: 28px;
+  height: 28px;
   align-items: center;
   justify-content: center;
   border: 1px solid var(--color-line);
@@ -331,20 +424,35 @@ html.lenis, html.lenis body { height: auto; }
   color: var(--color-accent);
 }
 
-@media (max-width: 480px) {
-  .hero-affiliation-card {
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: 14px;
-    padding: 13px 14px;
+@media (max-width: 720px) {
+  .hero-affiliations {
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  .hero-affiliation-logo {
-    width: 46px;
-    height: 69px;
+  .hero-affiliation-card {
+    min-height: 104px;
+    gap: 14px;
+    padding: 14px 44px 14px 14px;
+    border-top: 1px solid var(--color-line);
+    border-left: 0;
+  }
+
+  .hero-affiliation-card:first-child {
+    border-top: 0;
+  }
+}
+
+@media (max-width: 420px) {
+  .hero-affiliation-card {
+    padding-right: 14px;
   }
 
   .hero-affiliation-arrow {
     display: none;
+  }
+
+  .hero-affiliation-logo--edabk {
+    width: 78px;
   }
 }
 

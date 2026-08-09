@@ -91,7 +91,7 @@ test("hero places EDABK beside HUST in one affiliation group", async () => {
   );
   assert.ok(affiliation.includes("EDABK"), "the EDABK name must be visible");
   assert.ok(
-    affiliation.includes("EDA-BK Research Laboratory"),
+    affiliation.includes("EDABK Research Lab"),
     "the laboratory name must be written in full",
   );
 

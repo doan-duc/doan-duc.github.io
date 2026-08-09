@@ -10,7 +10,7 @@ import { ArrowDown } from "@/components/ui/icons";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { useSmoothScroll } from "@/components/providers/SmoothScroll";
 import { EcgWaveform } from "@/components/ui/EcgWaveform";
-import { HustAffiliation } from "@/components/sections/HustAffiliation";
+import { HeroAffiliations } from "@/components/sections/HeroAffiliations";
 
 /**
  * Hero section: clean entrance animation only, no pin / no 3D scroll-out.
@@ -148,8 +148,8 @@ export function Hero3D() {
                 </a>
               </div>
 
-              <div className="mt-14 max-w-[620px]">
-                <HustAffiliation animate />
+              <div className="mt-14 max-w-[660px]">
+                <HeroAffiliations animate />
               </div>
             </div>
           </div>

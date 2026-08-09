@@ -23,14 +23,38 @@ export const site = {
   linkedin: "https://www.linkedin.com/in/doanduc2312",
   cv: "/files/duc-doan-sinh-cv.pdf",
   focusAreas: ["Neuromorphic AI", "Biomedical signals", "Edge vision", "RAG systems"],
-  affiliation: {
-    acronym: "HUST",
-    name: "Hanoi University of Science and Technology",
-    degree: "B.S. Smart Embedded Systems & IoT",
-    graduation: "Expected 2027",
-    url: "https://hust.edu.vn/",
-    logo: { src: "/images/hust-logo.png" },
-  },
+  affiliations: [
+    {
+      id: "hust",
+      acronym: "HUST",
+      kind: "University",
+      name: "Hanoi University of Science and Technology",
+      detail: "B.S. Smart Embedded Systems & IoT",
+      meta: "Expected 2027",
+      url: "https://hust.edu.vn/",
+      logo: {
+        src: "/images/hust-logo.png",
+        width: 130,
+        height: 194,
+        sizes: "48px",
+      },
+    },
+    {
+      id: "edabk",
+      acronym: "EDABK",
+      kind: "Research lab",
+      name: "EDABK Research Lab",
+      detail: "AI Researcher",
+      meta: "SET, HUST",
+      url: "https://sites.google.com/set.hust.edu.vn/hust-edabk-lab/home",
+      logo: {
+        src: "/images/EDABK.png",
+        width: 730,
+        height: 433,
+        sizes: "88px",
+      },
+    },
+  ],
 } as const;
 
 export const navLinks = [

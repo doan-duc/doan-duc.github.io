@@ -9,7 +9,7 @@ import { Container } from "@/components/ui/Container";
 import { ArrowDown } from "@/components/ui/icons";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { useSmoothScroll } from "@/components/providers/SmoothScroll";
-import { HustAffiliation } from "@/components/sections/HustAffiliation";
+import { HeroAffiliations } from "@/components/sections/HeroAffiliations";
 
 function HeroSignalPanel() {
   return (
@@ -133,8 +133,8 @@ export function Hero() {
                 </a>
               </div>
 
-              <div className="mt-14 max-w-[620px]">
-                <HustAffiliation />
+              <div className="mt-14 max-w-[660px]">
+                <HeroAffiliations />
               </div>
             </div>
           </div>
