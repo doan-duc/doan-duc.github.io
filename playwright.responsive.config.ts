@@ -2,7 +2,7 @@ import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./tests/e2e",
-  testMatch: "**/responsive-*.spec.ts",
+  testMatch: /responsive-(?!performance).*\.spec\.ts/,
   fullyParallel: false,
   forbidOnly: true,
   retries: 0,

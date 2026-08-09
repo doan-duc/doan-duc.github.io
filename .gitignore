@@ -15,4 +15,5 @@ npm-debug.log*
 *.tsbuildinfo
 next-env.d.ts
 /playwright-report/
+/playwright-performance-report/
 /test-results/
