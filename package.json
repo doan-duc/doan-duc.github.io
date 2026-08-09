@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "npm run build && node --test tests/project-videos.test.mjs tests/hero-hust-affiliation.test.mjs tests/about-copy.test.mjs",
+    "test": "npm run build && node --test tests/project-videos.test.mjs tests/hero-hust-affiliation.test.mjs tests/about-copy.test.mjs tests/current-focus.test.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
