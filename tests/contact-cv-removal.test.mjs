@@ -7,9 +7,19 @@ const html = await readFile(
   fileURLToPath(new URL("../out/index.html", import.meta.url)),
   "utf8",
 );
+const deployedHtml = await readFile(
+  fileURLToPath(new URL("../index.html", import.meta.url)),
+  "utf8",
+);
+const readme = await readFile(
+  fileURLToPath(new URL("../README.md", import.meta.url)),
+  "utf8",
+);
 
-test("the exported portfolio contains no CV download action", () => {
-  assert.doesNotMatch(html, /Download CV|\/files\/duc-doan-sinh-cv\.pdf/);
+test("generated and deployed pages contain no CV download action", () => {
+  for (const page of [html, deployedHtml]) {
+    assert.doesNotMatch(page, /Download CV|\/files\/duc-doan-sinh-cv\.pdf/);
+  }
 });
 
 test("the CV PDF is not included in the static export", async () => {
@@ -21,4 +31,8 @@ test("the CV PDF is not included in the static export", async () => {
     ),
     { code: "ENOENT" },
   );
+});
+
+test("repository documentation contains no removed CV path", () => {
+  assert.doesNotMatch(readme, /duc-doan-sinh-cv\.pdf|Portrait \/ CV/);
 });
