@@ -140,31 +140,73 @@ export const highlight = {
 /* -------- CAPABILITIES --------------------------------------------------- */
 export const capabilities = [
   {
-    title: "Efficient AI & models",
-    blurb: "Making networks small, fast, and still trustworthy.",
-    skills: ["Spiking NN (SNN)", "MLP-NAS", "Quantization", "Knowledge distillation", "Model compression"],
+    title: "Efficient AI & Model Optimization",
+    blurb:
+      "Designing smaller models for constrained compute without giving up useful performance.",
+    skills: [
+      "Spiking Neural Networks",
+      "Neural Architecture Search",
+      "Quantization",
+      "Knowledge Distillation",
+      "Pruning",
+      "Model Compression",
+    ],
   },
   {
-    title: "Biosignals & perception",
-    blurb: "Turning messy real-world signals into something readable.",
-    skills: ["ECG / PPG", "Signal denoising", "Autoencoders", "Computer vision", "Detection & tracking"],
+    title: "Biosignals & Time-Series",
+    blurb:
+      "Learning robust representations from noisy physiological and time-series signals.",
+    skills: [
+      "ECG / PPG",
+      "Signal Processing",
+      "Signal Denoising",
+      "Time-Series Learning",
+      "Autoencoders",
+    ],
   },
   {
-    title: "Edge deployment",
-    blurb: "Getting models to run next to the sensor, in real time.",
-    skills: ["NVIDIA Jetson", "TensorRT", "DeepStream / GStreamer", "Docker", "RTSP pipelines"],
+    title: "Edge AI & Deployment",
+    blurb:
+      "Running AI reliably under real hardware, latency, memory, and streaming constraints.",
+    skills: [
+      "NVIDIA Jetson",
+      "TensorRT",
+      "DeepStream / GStreamer",
+      "Docker",
+      "ONNX",
+      "RTSP Pipelines",
+    ],
   },
   {
-    title: "Applied systems",
-    blurb: "Wiring research into products people can use.",
-    skills: ["PyTorch", "Python", "RAG / LLM apps", "Multi-stream inference", "Real-time tracking"],
+    title: "Computer Vision & AI Systems",
+    blurb:
+      "Building perception pipelines that connect models, cameras, state, and application logic.",
+    skills: [
+      "Object Detection",
+      "Multi-Camera Vision",
+      "Tracking",
+      "Workflow Automation",
+      "Real-Time Inference",
+    ],
   },
 ];
 
 export const skillMarquee = [
-  "Spiking NN", "MLP-NAS", "Quantization", "ECG / PPG", "Autoencoders",
-  "TensorRT", "Jetson", "DeepStream", "YOLOv8", "PyTorch", "RAG", "Docker",
-  "Edge AI", "Computer vision",
+  "Spiking Neural Networks",
+  "Neural Architecture Search",
+  "Quantization",
+  "Knowledge Distillation",
+  "ECG / PPG",
+  "Signal Processing",
+  "Time-Series Learning",
+  "NVIDIA Jetson",
+  "TensorRT",
+  "DeepStream / GStreamer",
+  "Docker",
+  "ONNX",
+  "Object Detection",
+  "Multi-Camera Vision",
+  "Real-Time Inference",
 ];
 
 /* -------- RESEARCH INTERESTS / CURRENT FOCUS ---------------------------- */

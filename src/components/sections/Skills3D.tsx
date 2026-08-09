@@ -77,7 +77,7 @@ export function Skills3D() {
         <Container className="preserve-3d">
           <SectionHeader
             kicker="What I work with"
-            title={<>The stack behind the work.</>}
+            title={<>The tools and methods behind the work.</>}
           />
 
           <div className="mt-6 grid gap-4 preserve-3d md:grid-cols-2">
