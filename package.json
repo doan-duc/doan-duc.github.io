@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "node --test tests/project-videos.test.mjs",
+    "test": "npm run build && node --test tests/project-videos.test.mjs tests/hero-hust-affiliation.test.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -14,17 +14,17 @@
     "framer-motion": "12.42.0",
     "gsap": "3.13.0",
     "lenis": "1.3.1",
-    "next": "16.2.9",
+    "next": "16.3.0",
     "react": "19.2.7",
     "react-dom": "19.2.7"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "4.3.1",
+    "@tailwindcss/postcss": "4.3.3",
     "@types/node": "26.0.1",
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
-    "postcss": "8.5.15",
-    "tailwindcss": "4.3.1",
+    "postcss": "8.5.26",
+    "tailwindcss": "4.3.3",
     "typescript": "6.0.3"
   }
 }

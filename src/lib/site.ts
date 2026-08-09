@@ -23,11 +23,14 @@ export const site = {
   linkedin: "https://www.linkedin.com/in/doanduc2312",
   cv: "/files/duc-doan-sinh-cv.pdf",
   focusAreas: ["Neuromorphic AI", "Biomedical signals", "Edge vision", "RAG systems"],
-  heroStats: [
-    { label: "University", value: "HUST" },
-    { label: "Exchange", value: "UTokyo" },
-    { label: "Harvard HSIL", value: "2nd Place" },
-  ],
+  affiliation: {
+    acronym: "HUST",
+    name: "Hanoi University of Science and Technology",
+    degree: "B.S. Smart Embedded Systems & IoT",
+    graduation: "Expected 2027",
+    url: "https://hust.edu.vn/",
+    logo: { src: "/images/hust-logo.png" },
+  },
 } as const;
 
 export const navLinks = [

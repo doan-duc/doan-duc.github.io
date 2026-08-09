@@ -9,6 +9,7 @@ import { Container } from "@/components/ui/Container";
 import { ArrowDown } from "@/components/ui/icons";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { useSmoothScroll } from "@/components/providers/SmoothScroll";
+import { HustAffiliation } from "@/components/sections/HustAffiliation";
 
 function HeroSignalPanel() {
   return (
@@ -117,7 +118,7 @@ export function Hero() {
               <div className="mt-10 flex flex-wrap items-center gap-4">
                 <Magnetic>
                   <button
-                    onClick={() => scrollTo("#work")}
+                    onClick={() => scrollTo("#projects")}
                     className="group inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-[#0a0a0a] transition-transform hover:scale-[1.02]"
                   >
                     Selected work
@@ -132,15 +133,8 @@ export function Hero() {
                 </a>
               </div>
 
-              <div className="mt-14 grid max-w-3xl grid-cols-1 gap-3 sm:grid-cols-3">
-                {site.heroStats.map((s) => (
-                  <div key={s.label} className="hero-stat-card">
-                    <div className="font-display text-[17px] text-ink">{s.value}</div>
-                    <div className="mt-2 text-[12px] uppercase tracking-[0.1em] text-muted">
-                      {s.label}
-                    </div>
-                  </div>
-                ))}
+              <div className="mt-14 max-w-[620px]">
+                <HustAffiliation />
               </div>
             </div>
           </div>
