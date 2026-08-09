@@ -5,12 +5,12 @@
 
 /* -------- ABOUT / MANIFESTO --------------------------------------------- */
 export const about = {
-  lead: "I build models that stay honest outside the notebook",
+  lead: "I build AI systems that work beyond the notebook",
   leadAccent:
-    "when data is noisy, hardware is tiny, and the result has to serve a person.",
+    "— where signals are noisy, hardware is constrained, and technology has to work for people.",
   body: [
-    "I'm an Embedded Systems & IoT student at Hanoi University of Science and Technology, working where signal processing, efficient AI, and deployable systems overlap.",
-    "The thread across everything I do is translation: from wearable biosignals to clinical insight, from heavy vision models to edge devices, and from research ideas to prototypes you can actually put in front of people.",
+    "I'm an Embedded Systems & IoT undergraduate at Hanoi University of Science and Technology, focusing on signal processing, efficient AI, and deployable intelligent systems.",
+    "The common thread across my work is turning ideas into systems: from wearable biosignals to meaningful health insights, from large vision models to efficient edge deployments, and from research experiments to prototypes that work in the real world.",
   ],
 };
 

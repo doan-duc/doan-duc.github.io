@@ -10,6 +10,8 @@ const html = await readFile(
 
 const aboutStart = html.indexOf('id="about"');
 const aboutEnd = html.indexOf('id="featured"', aboutStart);
+assert.notEqual(aboutStart, -1, "the exported page must contain the About section");
+assert.notEqual(aboutEnd, -1, "the About section must end before Featured research");
 const aboutHtml = html.slice(aboutStart, aboutEnd);
 const aboutText = aboutHtml
   .replace(/<!--.*?-->/gs, " ")

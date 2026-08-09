@@ -1,3 +1,3 @@
 :HL["/_next/static/chunks/21c85vpjst6nd.css","style"]
 :HL["https://api.fontshare.com/v2/css?f[]=clash-display@600,500,700,400&display=swap","style"]
-0:{"tree":{"name":"","param":null,"prefetchHints":4112,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4224,"slots":null}}},"staleTime":300,"buildId":"S78tGFwzOqyL4okrrdRuB"}
+0:{"tree":{"name":"","param":null,"prefetchHints":4112,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4224,"slots":null}}},"staleTime":300,"buildId":"llS-zuYh4vSOO80mX9-ut"}
