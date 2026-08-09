@@ -158,7 +158,7 @@ export const capabilities = [
   {
     title: "Efficient AI & models",
     blurb: "Making networks small, fast, and still trustworthy.",
-    skills: ["Spiking NN (SNN)", "KAN", "Neural Arch. Search", "Quantization", "Knowledge distillation"],
+    skills: ["Spiking NN (SNN)", "MLP-NAS", "Quantization", "Knowledge distillation", "Model compression"],
   },
   {
     title: "Biosignals & perception",
@@ -178,9 +178,28 @@ export const capabilities = [
 ];
 
 export const skillMarquee = [
-  "Spiking NN", "KAN", "NAS", "Quantization", "ECG / PPG", "Autoencoders",
+  "Spiking NN", "MLP-NAS", "Quantization", "ECG / PPG", "Autoencoders",
   "TensorRT", "Jetson", "DeepStream", "YOLOv8", "PyTorch", "RAG", "Docker",
   "Edge AI", "Computer vision",
+];
+
+/* -------- RESEARCH INTERESTS / CURRENT FOCUS ---------------------------- */
+export type ResearchFocus = {
+  title: string;
+  body: string;
+};
+
+export const researchFocus: ResearchFocus[] = [
+  {
+    title: "Efficient AI for Biosignals",
+    body:
+      "Developing compact Spiking Neural Networks and neural architecture search (MLP-NAS) methods for ECG and PPG modeling, with an emphasis on efficient, deployable biosignal systems. KAN remains a smaller, exploratory direction within this work.",
+  },
+  {
+    title: "Efficient Edge AI",
+    body:
+      "Developing, quantizing, and deploying real-time multi-camera computer vision on constrained edge hardware, balancing accuracy, latency, and compute efficiency.",
+  },
 ];
 
 /* -------- NOW / EXPERIENCE ---------------------------------------------- */
@@ -198,7 +217,7 @@ export const experience: Engagement[] = [
     role: "AI Researcher",
     org: "EDABK Laboratory, HUST",
     place: "Hanoi",
-    body: "Researching SNN, KAN, MLP-NAS, ECG/PPG, and efficient computer-vision systems aimed at deployable AI.",
+    body: "Researching SNN and MLP-NAS for ECG/PPG, with smaller exploratory work on KAN, alongside efficient computer-vision systems aimed at deployable AI.",
   },
   {
     period: "Now",

@@ -4,7 +4,7 @@ import { useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useIsoLayoutEffect } from "@/lib/use-iso-layout-effect";
-import { about, experience } from "@/lib/content";
+import { about, researchFocus } from "@/lib/content";
 import { Container } from "@/components/ui/Container";
 import { EcgWaveform } from "@/components/ui/EcgWaveform";
 
@@ -14,7 +14,7 @@ if (typeof window !== "undefined") {
 
 /**
  * About section: no pin. Individual scroll-triggered 3D reveals
- * for lead text, body, and experience.  Continuous ECG parallax.
+ * for lead text, body, and research focus. Continuous ECG parallax.
  */
 export function About3D() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -74,15 +74,15 @@ export function About3D() {
           },
         );
 
-        // Experience block
-        gsap.from("[data-about-exp]", {
+        // Research-focus block
+        gsap.from("[data-about-focus]", {
           z: -120,
           opacity: 0,
           y: 40,
           duration: 1.1,
           ease: "power3.out",
           scrollTrigger: {
-            trigger: "[data-about-exp]",
+            trigger: "[data-about-focus]",
             start: "top 85%",
             once: true,
           },
@@ -116,13 +116,13 @@ export function About3D() {
           },
         });
 
-        gsap.from("[data-about-exp]", {
+        gsap.from("[data-about-focus]", {
           opacity: 0,
           y: 24,
           duration: 0.8,
           ease: "power3.out",
           scrollTrigger: {
-            trigger: "[data-about-exp]",
+            trigger: "[data-about-focus]",
             start: "top 88%",
             once: true,
           },
@@ -195,33 +195,29 @@ export function About3D() {
             </div>
           </div>
 
-          {/* Experience / Current Focus: clearly visible block */}
+          {/* Research interests / current focus */}
           <div
-            data-about-exp
-            className="mt-12 preserve-3d"
+            data-about-focus
+            className="mt-16 preserve-3d"
             style={{ willChange: "transform, opacity" }}
           >
-            <h3 className="mb-8 text-sm font-medium text-accent">
-              Current focus
+            <h3 className="mb-5 text-sm font-medium text-accent">
+              Research interests &amp; focus
             </h3>
-            <div className="grid gap-px overflow-hidden rounded-2xl border border-line md:grid-cols-2">
-              {experience.map((e) => (
-                <div
-                  key={e.role}
-                  className="group bg-white/[0.02] p-6 transition-colors hover:bg-white/[0.04] md:p-8"
+            <div className="grid border-y border-line md:grid-cols-2">
+              {researchFocus.map((focus) => (
+                <article
+                  key={focus.title}
+                  data-research-focus
+                  className="border-t border-line py-8 first:border-t-0 md:border-l md:border-t-0 md:px-8 md:first:border-l-0 md:first:pl-0 md:last:pr-0"
                 >
-                  <div className="flex items-baseline gap-3">
-                    <span className="text-xs font-semibold text-accent">
-                      {e.period}
-                    </span>
-                    <span className="text-xs text-muted/60">{e.place}</span>
-                  </div>
-                  <h4 className="mt-2 text-lg tracking-normal md:text-xl md:tracking-tight">
-                    {e.role}
+                  <h4 className="text-xl tracking-normal text-ink md:text-2xl md:tracking-tight">
+                    {focus.title}
                   </h4>
-                  <div className="mt-1 text-sm text-accent/80">{e.org}</div>
-                  <p className="body-copy mt-3 text-[15px]">{e.body}</p>
-                </div>
+                  <p className="body-copy mt-4 text-[15px] md:text-[16px]">
+                    {focus.body}
+                  </p>
+                </article>
               ))}
             </div>
           </div>
