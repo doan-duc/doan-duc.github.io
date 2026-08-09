@@ -214,7 +214,7 @@ export type Engagement = {
 export const experience: Engagement[] = [
   {
     period: "Now",
-    role: "AI Researcher",
+    role: "Lab Member",
     org: "EDABK Laboratory, HUST",
     place: "Hanoi",
     body: "Researching SNN and MLP-NAS for ECG/PPG, with smaller exploratory work on KAN, alongside efficient computer-vision systems aimed at deployable AI.",

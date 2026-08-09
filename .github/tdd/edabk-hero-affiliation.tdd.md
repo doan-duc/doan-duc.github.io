@@ -13,6 +13,12 @@ As a portfolio visitor, I want to see HUST and EDABK together at the top of the 
 - RED evidence: 6 tests passed and the new affiliation test failed because `data-hero-affiliations` was absent.
 - GREEN command: `npm test`.
 - GREEN evidence: 7 tests passed, including the same affiliation test and the About exclusion test.
+- Role-correction RED checkpoint: `433cd46` (`test: prevent overstated EDABK role`).
+- Role-correction RED evidence: 6 tests passed and the EDABK test failed because `Lab Member` was absent.
+- Role-correction GREEN evidence: the same 7-test suite passed after replacing `AI Researcher` with `Lab Member`.
+- Motion RED checkpoint: `b2d4fa1` (`test: require spring 3D affiliations`).
+- Motion RED evidence: 6 tests passed and the EDABK test failed because the spring-3D surfaces were absent.
+- Motion GREEN evidence: the same 7-test suite passed after adding reduced-motion-aware spring surfaces to both affiliations.
 - Additional validation: `npm run typecheck` passed; `npm audit --audit-level=high` reported 0 vulnerabilities.
 
 ## Test specification
@@ -20,8 +26,9 @@ As a portfolio visitor, I want to see HUST and EDABK together at the top of the 
 | # | What is guaranteed | Test target | Type | Result |
 |---|---|---|---|---|
 | 1 | HUST remains a single linked hero affiliation with its local logo and official name | `tests/hero-hust-affiliation.test.mjs` | Static-export integration | PASS |
-| 2 | EDABK appears exactly once beside HUST in one labelled affiliation group, links to the official lab page, and uses the supplied local logo | `tests/hero-hust-affiliation.test.mjs` | Static-export integration | PASS |
+| 2 | EDABK appears exactly once beside HUST, identifies the owner only as a `Lab Member`, links to the official lab page, and uses the supplied local logo | `tests/hero-hust-affiliation.test.mjs` | Static-export integration | PASS |
 | 3 | The exported About section contains neither `EDABK` nor `EDA-BK` | `tests/hero-hust-affiliation.test.mjs` | Static-export integration | PASS |
+| 4 | Both hero affiliations expose independent spring-3D surfaces while retaining a labelled group | `tests/hero-hust-affiliation.test.mjs` | Static-export integration | PASS |
 
 ## Coverage and known gaps
 

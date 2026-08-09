@@ -44,7 +44,7 @@ export const site = {
       acronym: "EDABK",
       kind: "Research lab",
       name: "EDABK Research Lab",
-      detail: "AI Researcher",
+      detail: "Lab Member",
       meta: "SET, HUST",
       url: "https://sites.google.com/set.hust.edu.vn/hust-edabk-lab/home",
       logo: {

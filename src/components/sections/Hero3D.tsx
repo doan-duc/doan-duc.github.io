@@ -44,7 +44,17 @@ export function Hero3D() {
         )
         .from(
           gsap.utils.toArray("[data-hero-stat]"),
-          { y: 26, opacity: 0, duration: 0.9, stagger: 0.1 },
+          {
+            y: 30,
+            z: -24,
+            rotateX: -7,
+            opacity: 0,
+            duration: 1.05,
+            ease: "power3.out",
+            stagger: 0.1,
+            transformOrigin: "50% 100%",
+            transformPerspective: 900,
+          },
           "-=0.55",
         )
         .from(
