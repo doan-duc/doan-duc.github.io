@@ -94,6 +94,15 @@ test("hero places EDABK beside HUST in one affiliation group", async () => {
     affiliation.includes("EDABK Research Lab"),
     "the laboratory name must be written in full",
   );
+  assert.ok(
+    affiliation.includes("Lab Member"),
+    "the EDABK affiliation must describe the owner as a lab member",
+  );
+  assert.doesNotMatch(
+    affiliation,
+    /AI Researcher/i,
+    "the portfolio must not overstate the EDABK role",
+  );
 
   const logo = await stat(
     fileURLToPath(new URL("../out/images/EDABK.png", import.meta.url)),
