@@ -20,7 +20,7 @@ export function Footer() {
               <a
                 key={l.id}
                 href={`#${l.id}`}
-                className="text-sm text-muted transition-colors hover:text-accent"
+                className="inline-flex min-h-11 items-center text-sm text-muted transition-colors hover:text-accent"
               >
                 {l.label}
               </a>
@@ -32,7 +32,7 @@ export function Footer() {
               target="_blank"
               rel="noreferrer"
               aria-label="GitHub"
-              className="text-muted transition-colors hover:text-accent"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full text-muted transition-colors hover:bg-surface hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
             >
               <Github className="h-5 w-5" />
             </a>
@@ -41,14 +41,14 @@ export function Footer() {
               target="_blank"
               rel="noreferrer"
               aria-label="LinkedIn"
-              className="text-muted transition-colors hover:text-accent"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full text-muted transition-colors hover:bg-surface hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
             >
               <Linkedin className="h-5 w-5" />
             </a>
             <a
               href={`mailto:${site.email}`}
               aria-label="Email"
-              className="text-muted transition-colors hover:text-accent"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full text-muted transition-colors hover:bg-surface hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
             >
               <Mail className="h-5 w-5" />
             </a>

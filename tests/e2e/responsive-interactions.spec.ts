@@ -26,6 +26,7 @@ test.describe("responsive interactions", () => {
         await toggle.tap();
         await expect(toggle).toHaveAttribute("aria-expanded", "true");
         const aboutButton = await visibleLocator(page, "button", "About");
+        await expect(aboutButton).toBeFocused();
         const menu = aboutButton.locator("..");
         await expect(menu).toHaveAttribute("role", "dialog");
         await expect(menu).toHaveAttribute("aria-label", "Navigation");
@@ -56,6 +57,12 @@ test.describe("responsive interactions", () => {
           await page.evaluate(() => getComputedStyle(document.body).overflowY),
           `${viewport.name}: background must be scroll-locked while the menu is open`,
         ).toBe("hidden");
+
+        await page.keyboard.press("Shift+Tab");
+        const closeButton = page.getByRole("button", { name: "Close navigation" });
+        await expect(closeButton).toBeFocused();
+        await page.keyboard.press("Tab");
+        await expect(aboutButton).toBeFocused();
 
         await page.keyboard.press("Escape");
         await expect(toggle).toHaveAttribute("aria-expanded", "false");

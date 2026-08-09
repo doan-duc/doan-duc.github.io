@@ -67,8 +67,8 @@ export function ProjectVideoDemo({ demo }: ProjectVideoDemoProps) {
         onClose={pauseVideo}
         onClick={closeFromBackdrop}
       >
-        <div className="overflow-hidden rounded-[inherit] bg-surface">
-          <header className="flex items-center justify-between gap-6 border-b border-line px-5 py-4 md:px-6">
+        <div className="project-demo-shell overflow-hidden rounded-[inherit] bg-surface">
+          <header className="project-demo-header flex items-center justify-between gap-4 border-b border-line px-4 py-3 sm:gap-6 sm:px-5 sm:py-4 md:px-6">
             <div>
               <div className="text-xs text-accent">Project demo</div>
               <h4 id={titleId} className="mt-1 text-lg leading-tight md:text-xl">
@@ -78,7 +78,7 @@ export function ProjectVideoDemo({ demo }: ProjectVideoDemoProps) {
             <button
               type="button"
               onClick={closeDialog}
-              className="shrink-0 rounded-full border border-line px-4 py-2 text-sm text-ink transition-colors hover:border-accent hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent active:scale-[0.98]"
+              className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-full border border-line px-4 py-2 text-sm text-ink transition-colors hover:border-accent hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent active:scale-[0.98]"
             >
               Close
             </button>
@@ -91,7 +91,7 @@ export function ProjectVideoDemo({ demo }: ProjectVideoDemoProps) {
             preload="metadata"
             poster={demo.poster}
             aria-label={demo.ariaLabel}
-            className="block max-h-[75dvh] w-full bg-black object-contain"
+            className="project-demo-video block w-full bg-black object-contain"
           >
             <source src={demo.src} type="video/mp4" />
             <a href={demo.src}>Download the project demo</a>

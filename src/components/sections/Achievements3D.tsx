@@ -119,19 +119,19 @@ export function Achievements3D() {
           />
 
           {/* Timeline */}
-          <div className="relative mt-10 preserve-3d pl-12 md:pl-16">
+          <div className="relative mt-10 preserve-3d pl-6 sm:pl-12 md:pl-16">
             <div ref={lineRef} className="timeline-connector-3d" />
 
             {recognition.map((a) => (
               <div
                 key={a.title}
                 data-achievement-node
-                className="relative mb-12 preserve-3d pl-8 last:mb-0 md:pl-12"
+                className="relative mb-12 preserve-3d pl-5 last:mb-0 sm:pl-8 md:pl-12"
                 style={{ willChange: "transform, opacity" }}
               >
                 <div className="timeline-dot-3d" />
-                <div className="glass-3d rounded-2xl p-6 md:p-8">
-                  <div className="flex items-baseline gap-4">
+                <div className="glass-3d rounded-2xl p-5 sm:p-6 md:p-8">
+                  <div className="flex flex-col items-start gap-1 min-[420px]:flex-row min-[420px]:items-baseline min-[420px]:gap-4">
                     <span className="font-display text-3xl leading-none text-ink/20 md:text-4xl">
                       {a.year}
                     </span>

@@ -51,6 +51,59 @@ test.describe("responsive motion policies", () => {
       expect(styles.marqueeAnimation).toBe("none");
       expect(styles.marqueeTransform).toBe("none");
       expect(styles.ecgAnimation).toBe("none");
+
+      const aboutInstrument = page.locator("[data-about-signal-stack]");
+      const systemLayer = page.locator('[data-about-layer="system"]');
+      await aboutInstrument.scrollIntoViewIfNeeded();
+      const layerTransformBefore = await systemLayer.evaluate(
+        (element) => getComputedStyle(element).transform,
+      );
+      await aboutInstrument.hover();
+      const layerTransformAfter = await systemLayer.evaluate(
+        (element) => getComputedStyle(element).transform,
+      );
+      expect(layerTransformAfter).toBe(layerTransformBefore);
+
+      const selectedWork = page.getByRole("button", { name: "Selected work" });
+      await page.evaluate(() => window.scrollTo({ top: 0, behavior: "auto" }));
+      const magneticWrapper = selectedWork.locator("..");
+      const magneticTransformBefore = await magneticWrapper.evaluate(
+        (element) => getComputedStyle(element).transform,
+      );
+      const selectedWorkBox = await selectedWork.boundingBox();
+      expect(selectedWorkBox).not.toBeNull();
+      await page.mouse.move(selectedWorkBox!.x + 4, selectedWorkBox!.y + 4);
+      const magneticTransformAfter = await magneticWrapper.evaluate(
+        (element) => getComputedStyle(element).transform,
+      );
+      expect(magneticTransformAfter).toBe(magneticTransformBefore);
+    } finally {
+      await context.close();
+    }
+  });
+
+  test("stops desktop smooth scrolling when reduced motion changes at runtime", async ({
+    browser,
+    browserName,
+  }) => {
+    test.skip(browserName !== "chromium", "Runtime preference changes run once in Chromium");
+    const { context, page } = await openResponsivePage(browser, {
+      name: "desktop-runtime-motion",
+      width: 1366,
+      height: 768,
+    });
+
+    try {
+      await expect
+        .poll(() => page.evaluate(() => document.documentElement.classList.contains("lenis")))
+        .toBe(true);
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      await expect
+        .poll(() => page.evaluate(() => document.documentElement.classList.contains("lenis")))
+        .toBe(false);
+      expect(
+        await page.evaluate(() => getComputedStyle(document.documentElement).scrollBehavior),
+      ).toBe("auto");
     } finally {
       await context.close();
     }

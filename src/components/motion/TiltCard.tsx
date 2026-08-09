@@ -46,7 +46,10 @@ export function TiltCard({
   const scale = useSpring(scaleTarget, spring);
 
   function handleMove(e: React.MouseEvent) {
-    if (shouldReduceMotion) return;
+    if (
+      shouldReduceMotion ||
+      window.matchMedia("(hover: none), (pointer: coarse)").matches
+    ) return;
     const el = ref.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
@@ -55,7 +58,10 @@ export function TiltCard({
   }
 
   function activate() {
-    if (shouldReduceMotion) return;
+    if (
+      shouldReduceMotion ||
+      window.matchMedia("(hover: none), (pointer: coarse)").matches
+    ) return;
     scaleTarget.set(hoverScale);
   }
 

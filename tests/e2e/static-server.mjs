@@ -5,6 +5,8 @@ import { fileURLToPath } from "node:url";
 
 const root = resolve(fileURLToPath(new URL("../../out", import.meta.url)));
 const rootPrefix = `${root}${sep}`;
+const realRoot = await fs.realpath(root);
+const realRootPrefix = `${realRoot}${sep}`;
 const configuredPort = Number.parseInt(process.env.PORT ?? "4175", 10);
 
 if (!Number.isInteger(configuredPort) || configuredPort < 1 || configuredPort > 65_535) {
@@ -62,7 +64,11 @@ const server = createServer(async (request, response) => {
   }
 
   try {
-    const filePath = safeFilePath(request.url ?? "/");
+    const candidatePath = safeFilePath(request.url ?? "/");
+    const filePath = await fs.realpath(candidatePath);
+    if (filePath !== realRoot && !filePath.startsWith(realRootPrefix)) {
+      throw new Error("Resolved path leaves the static export root");
+    }
     const stats = await fs.stat(filePath);
 
     if (!stats.isFile()) throw new Error("Requested path is not a file");

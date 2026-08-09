@@ -30,6 +30,7 @@ export const chromiumDeviceMatrix: ResponsiveViewport[] = [
   { name: "iphone-15", width: 393, height: 852, mobile: true, touch: true, dpr: 3 },
   { name: "pixel-7", width: 412, height: 915, mobile: true, touch: true, dpr: 2.625 },
   { name: "iphone-pro-max", width: 430, height: 932, mobile: true, touch: true, dpr: 3 },
+  { name: "minimum-square", width: 320, height: 320, mobile: true, touch: true, dpr: 2 },
   { name: "small-phone-landscape", width: 568, height: 320, mobile: true, touch: true, dpr: 2 },
   { name: "phone-landscape", width: 667, height: 375, mobile: true, touch: true, dpr: 2 },
   { name: "large-phone-landscape", width: 844, height: 390, mobile: true, touch: true, dpr: 3 },
@@ -49,7 +50,7 @@ export const chromiumDeviceMatrix: ResponsiveViewport[] = [
 ];
 
 export const shortLandscapeViewports = chromiumDeviceMatrix.filter(
-  ({ width, height }) => width > height && height <= 430,
+  ({ width, height }) => width >= height && height <= 430,
 );
 
 export function widthSweep() {
@@ -63,6 +64,19 @@ export function widthSweep() {
   }
 
   return [...widths].sort((left, right) => left - right);
+}
+
+export function heightSweep() {
+  const heights = new Set<number>();
+  for (let height = 320; height <= 1200; height += 40) heights.add(height);
+
+  for (const boundary of [375, 390, 430, 480, 568, 600, 700, 768, 844, 900, 1024]) {
+    heights.add(boundary - 1);
+    heights.add(boundary);
+    heights.add(boundary + 1);
+  }
+
+  return [...heights].sort((left, right) => left - right);
 }
 
 export async function openResponsivePage(

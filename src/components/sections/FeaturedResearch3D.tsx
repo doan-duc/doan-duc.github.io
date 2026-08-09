@@ -9,6 +9,7 @@ import { Container } from "@/components/ui/Container";
 import { Tag } from "@/components/ui/Tag";
 import { ArrowUpRight } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
+import { observeMediaQuery } from "@/lib/media-query";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -26,9 +27,21 @@ export function FeaturedResearch3D() {
 
   // Decide whether to enable the pinned 3D treatment
   useIsoLayoutEffect(() => {
-    setAnimate(
-      !window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const capableViewport = window.matchMedia(
+      "(min-width: 1024px) and (min-height: 700px) and (pointer: fine)",
     );
+    const update = () =>
+      setAnimate(!reduceMotion.matches && capableViewport.matches);
+
+    update();
+    const stopObservingReduceMotion = observeMediaQuery(reduceMotion, update);
+    const stopObservingViewport = observeMediaQuery(capableViewport, update);
+
+    return () => {
+      stopObservingReduceMotion();
+      stopObservingViewport();
+    };
   }, []);
 
   // Pin + scrub crossfade through the four research phases (desktop only)
@@ -38,60 +51,63 @@ export function FeaturedResearch3D() {
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
 
-      mm.add("(min-width: 768px)", () => {
-        const st = stageRef.current;
-        if (!st) return;
+      mm.add(
+        "(min-width: 1024px) and (min-height: 700px) and (pointer: fine)",
+        () => {
+          const st = stageRef.current;
+          if (!st) return;
 
-        const panels = gsap.utils.toArray<HTMLElement>(
-          st.querySelectorAll("[data-phase]"),
-        );
-        const n = panels.length;
+          const panels = gsap.utils.toArray<HTMLElement>(
+            st.querySelectorAll("[data-phase]"),
+          );
+          const n = panels.length;
 
-        // First panel visible, rest hidden at depth
-        gsap.set(panels, { autoAlpha: 0, z: -200, rotateX: 4 });
-        gsap.set(panels[0], { autoAlpha: 1, z: 0, rotateX: 0 });
+          // First panel visible, rest hidden at depth
+          gsap.set(panels, { autoAlpha: 0, z: -200, rotateX: 4 });
+          gsap.set(panels[0], { autoAlpha: 1, z: 0, rotateX: 0 });
 
-        let lastIdx = 0;
-        const tl = gsap.timeline({
-          defaults: { ease: "power1.inOut" },
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top top",
-            end: () => "+=" + window.innerHeight * (n - 0.5),
-            pin: true,
-            scrub: 1,
-            anticipatePin: 1,
-            invalidateOnRefresh: true,
-            onUpdate: (self) => {
-              const idx = Math.min(
-                n - 1,
-                Math.floor(self.progress * n),
-              );
-              if (idx !== lastIdx) {
-                lastIdx = idx;
-                setActive(idx);
-              }
+          let lastIdx = 0;
+          const tl = gsap.timeline({
+            defaults: { ease: "power1.inOut" },
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: "top top",
+              end: () => "+=" + window.innerHeight * (n - 0.5),
+              pin: true,
+              scrub: 1,
+              anticipatePin: 1,
+              invalidateOnRefresh: true,
+              onUpdate: (self) => {
+                const idx = Math.min(
+                  n - 1,
+                  Math.floor(self.progress * n),
+                );
+                if (idx !== lastIdx) {
+                  lastIdx = idx;
+                  setActive(idx);
+                }
+              },
             },
-          },
-        });
+          });
 
-        for (let i = 1; i < n; i++) {
-          // Previous phase exits forward (toward viewer)
-          tl.to(
-            panels[i - 1],
-            { autoAlpha: 0, z: 200, rotateX: -3, duration: 0.5 },
-            i - 0.25,
-          );
-          // Next phase enters from depth
-          tl.fromTo(
-            panels[i],
-            { autoAlpha: 0, z: -200, rotateX: 4 },
-            { autoAlpha: 1, z: 0, rotateX: 0, duration: 0.5 },
-            i - 0.05,
-          );
-        }
-        tl.to({}, { duration: 0.5 }); // linger on final phase
-      });
+          for (let i = 1; i < n; i++) {
+            // Previous phase exits forward (toward viewer)
+            tl.to(
+              panels[i - 1],
+              { autoAlpha: 0, z: 200, rotateX: -3, duration: 0.5 },
+              i - 0.25,
+            );
+            // Next phase enters from depth
+            tl.fromTo(
+              panels[i],
+              { autoAlpha: 0, z: -200, rotateX: 4 },
+              { autoAlpha: 1, z: 0, rotateX: 0, duration: 0.5 },
+              i - 0.05,
+            );
+          }
+          tl.to({}, { duration: 0.5 }); // linger on final phase
+        },
+      );
     }, sectionRef);
 
     return () => {
@@ -114,9 +130,9 @@ export function FeaturedResearch3D() {
           )}
         >
           {/* Identity column */}
-          <div className="md:col-span-5">
+          <div className="min-w-0 md:col-span-5">
             <span className="kicker">{highlight.eyebrow}</span>
-            <h2 className="mt-6 text-[clamp(2.25rem,5vw,4rem)] leading-[0.95] tracking-display">
+            <h2 className="mt-6 max-w-full text-[clamp(2.25rem,5vw,4rem)] leading-[0.95] tracking-display [overflow-wrap:anywhere]">
               {highlight.title}
             </h2>
             <p className="body-copy mt-6 max-w-md">{highlight.subtitle}</p>
@@ -180,7 +196,7 @@ export function FeaturedResearch3D() {
                 className={cn(
                   "phase-panel-3d flex flex-col justify-center",
                   animate ? "md:absolute md:inset-0" : "md:relative",
-                  i > 0 && "mt-16 md:mt-0",
+                  i > 0 && (animate ? "mt-16 md:mt-0" : "mt-16"),
                 )}
               >
                 <div className="relative">

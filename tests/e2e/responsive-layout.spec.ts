@@ -3,6 +3,7 @@ import {
   collectLayoutIssues,
   crossEngineViewports,
   expectNoLayoutIssues,
+  heightSweep,
   openResponsivePage,
   settleLayout,
   widthSweep,
@@ -38,6 +39,38 @@ test.describe("responsive geometry", () => {
     expect(failures, failures.join("\n")).toEqual([]);
   });
 
+  test("has no hidden overflow across short and tall viewport heights", async ({
+    browser,
+    browserName,
+  }) => {
+    test.skip(browserName !== "chromium", "The continuous height sweep runs once in Chromium");
+    test.slow();
+
+    const { context, page } = await openResponsivePage(
+      browser,
+      { name: "height-sweep", width: 320, height: 320 },
+      { reducedMotion: true },
+    );
+    const failures: string[] = [];
+
+    try {
+      for (const width of [320, 390, 667, 844, 1023, 1024, 1366, 2560]) {
+        for (const height of heightSweep()) {
+          await page.setViewportSize({ width, height });
+          await settleLayout(page);
+          const layoutIssues = await collectLayoutIssues(page);
+          if (layoutIssues.length > 0) {
+            failures.push(`${width}x${height}: ${layoutIssues.join(" | ")}`);
+          }
+        }
+      }
+    } finally {
+      await context.close();
+    }
+
+    expect(failures, failures.join("\n")).toEqual([]);
+  });
+
   test("keeps representative phone, tablet, laptop, and desktop layouts in bounds", async ({
     browser,
   }) => {
@@ -51,7 +84,7 @@ test.describe("responsive geometry", () => {
         await expectNoLayoutIssues(page, `${viewport.name} ${viewport.width}x${viewport.height}`);
 
         const mobileToggle = page.getByRole("button", { name: "Toggle menu" });
-        const desktopLinks = page.locator("header nav > div.md\\:flex");
+        const desktopLinks = page.locator("[data-desktop-nav]");
         if (viewport.width < 1024) {
           await expect(mobileToggle).toBeVisible();
           await expect(desktopLinks).toBeHidden();
@@ -82,6 +115,64 @@ test.describe("responsive geometry", () => {
       });
       try {
         await expectNoLayoutIssues(page, `fallback-font ${viewport.width}x${viewport.height}`);
+      } finally {
+        await context.close();
+      }
+    }
+  });
+
+  test("loads every rendered image at phone and desktop widths", async ({ browser }) => {
+    test.slow();
+    const verifiedSources = new Set<string>();
+
+    for (const viewport of crossEngineViewports.filter(({ width }) => [390, 1366].includes(width))) {
+      const { context, page } = await openResponsivePage(browser, viewport, {
+        reducedMotion: true,
+      });
+
+      try {
+        const images = page.locator("img");
+        const failures: string[] = [];
+        for (let index = 0; index < (await images.count()); index += 1) {
+          const image = images.nth(index);
+          if (await image.isVisible()) {
+            await image.scrollIntoViewIfNeeded();
+            await expect(image).toHaveJSProperty("complete", true);
+          }
+          const state = await image.evaluate((element) => {
+            const imageElement = element as HTMLImageElement;
+            return {
+              alt: imageElement.alt,
+              currentSrc: imageElement.currentSrc || imageElement.src,
+              naturalHeight: imageElement.naturalHeight,
+              naturalWidth: imageElement.naturalWidth,
+            };
+          });
+
+          if (!state.currentSrc) {
+            failures.push(`${state.alt || "decorative image"}: ${JSON.stringify(state)}`);
+            continue;
+          }
+
+          if (!verifiedSources.has(state.currentSrc)) {
+            const response = await context.request.get(state.currentSrc);
+            if (!response.ok() || !response.headers()["content-type"]?.startsWith("image/")) {
+              failures.push(
+                `${state.currentSrc}: HTTP ${response.status()} ${response.headers()["content-type"] ?? "no content type"}`,
+              );
+            }
+            verifiedSources.add(state.currentSrc);
+            await response.dispose();
+          }
+
+          if (
+            (await image.isVisible()) &&
+            (state.naturalWidth < 1 || state.naturalHeight < 1)
+          ) {
+            failures.push(`${state.alt || "decorative image"}: ${JSON.stringify(state)}`);
+          }
+        }
+        expect(failures, `${viewport.name}\n${failures.join("\n")}`).toEqual([]);
       } finally {
         await context.close();
       }
