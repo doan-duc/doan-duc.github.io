@@ -62,6 +62,15 @@ test("hero places EDABK beside HUST in one affiliation group", async () => {
     group.includes('aria-label="Academic and research affiliations"'),
     "the grouped affiliations must have an accessible name",
   );
+  assert.ok(
+    group.includes('data-affiliation-motion="spring-3d"'),
+    "the affiliation group must expose its reduced-motion-aware 3D behavior",
+  );
+  assert.equal(
+    group.match(/data-affiliation-surface/g)?.length,
+    2,
+    "each affiliation must have its own spring-driven 3D surface",
+  );
   assert.equal(
     group.match(/data-hust-affiliation/g)?.length,
     1,
