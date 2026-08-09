@@ -107,6 +107,15 @@ test("hero places EDABK beside HUST in one affiliation group", async () => {
     affiliation.includes("Lab Member"),
     "the EDABK affiliation must describe the owner as a lab member",
   );
+  assert.ok(
+    affiliation.includes("SEEE, HUST"),
+    "the EDABK affiliation must use the current SEEE school acronym",
+  );
+  assert.doesNotMatch(
+    affiliation,
+    />SET, HUST</,
+    "the retired SET school acronym must not be displayed",
+  );
   assert.doesNotMatch(
     affiliation,
     /AI Researcher/i,
