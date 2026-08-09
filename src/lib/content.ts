@@ -191,23 +191,7 @@ export const capabilities = [
   },
 ];
 
-export const skillMarquee = [
-  "Spiking Neural Networks",
-  "Neural Architecture Search",
-  "Quantization",
-  "Knowledge Distillation",
-  "ECG / PPG",
-  "Signal Processing",
-  "Time-Series Learning",
-  "NVIDIA Jetson",
-  "TensorRT",
-  "DeepStream / GStreamer",
-  "Docker",
-  "ONNX",
-  "Object Detection",
-  "Multi-Camera Vision",
-  "Real-Time Inference",
-];
+export const skillMarquee = capabilities.flatMap(({ skills }) => skills);
 
 /* -------- RESEARCH INTERESTS / CURRENT FOCUS ---------------------------- */
 export type ResearchFocus = {
