@@ -44,7 +44,7 @@ export const site = {
       kind: "Research lab",
       name: "EDABK Research Lab",
       detail: "Lab Member",
-      meta: "SET, HUST",
+      meta: "SEEE, HUST",
       url: "https://sites.google.com/set.hust.edu.vn/hust-edabk-lab/home",
       logo: {
         src: "/images/EDABK.png",
