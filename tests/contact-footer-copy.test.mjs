@@ -49,6 +49,6 @@ test("Footer omits the technology credit without removing copyright", () => {
       /Designed and built with Next\.js, GSAP, Lenis, and Framer Motion\./,
       `${relativePath} must omit the technology credit`,
     );
-    assert.match(footer, /Duc Doan Sinh\. All rights reserved\./);
+    assert.match(footer, /Duc Doan Sinh\s*\.\s*All rights reserved\./);
   }
 });

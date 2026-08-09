@@ -16,9 +16,9 @@ export function Contact() {
 
         <Reveal>
           <h2 className="mt-7 text-[clamp(2.75rem,9vw,8rem)] leading-[0.9] tracking-display">
-            Let&apos;s build
+            Relentless practice
             <br />
-            something useful.
+            builds mastery.
           </h2>
         </Reveal>
 

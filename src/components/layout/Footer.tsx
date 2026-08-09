@@ -58,7 +58,6 @@ export function Footer() {
 
       <Container className="mt-12 flex flex-col gap-2 border-t border-line pt-6 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
         <span>&copy; {new Date().getFullYear()} {site.name}. All rights reserved.</span>
-        <span>Designed and built with Next.js, GSAP, Lenis, and Framer Motion.</span>
       </Container>
     </footer>
   );
