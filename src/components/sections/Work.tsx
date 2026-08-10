@@ -19,7 +19,7 @@ function Phase({ label, children }: { label: string; children: string }) {
 
 function ProjectRow({ project }: { project: Project }) {
   return (
-    <TiltCard max={5} className="[transform-style:preserve-3d]">
+    <TiltCard max={8} hoverScale={1.015} className="[transform-style:preserve-3d]">
       {/* Faint accent border glow on hover (solid, never a gradient border) */}
       <div className="glass rounded-3xl p-7 transition-[border-color,box-shadow] duration-500 hover:border-accent/30 hover:shadow-[0_0_60px_-16px_rgba(34,211,238,0.35)] md:p-12">
         <div className="grid gap-10 md:grid-cols-12 md:gap-8">

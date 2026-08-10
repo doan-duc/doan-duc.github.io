@@ -18,17 +18,17 @@ type TiltSpring = {
 };
 
 const defaultSpring: TiltSpring = {
-  stiffness: 150,
-  damping: 18,
-  mass: 0.4,
+  stiffness: 220,
+  damping: 20,
+  mass: 0.3,
 };
 
 /** 3D tilt toward the pointer (Framer micro-interaction). Keep `max` low. */
 export function TiltCard({
   children,
   className,
-  max = 6,
-  hoverScale = 1,
+  max = 8,
+  hoverScale = 1.012,
   spring = defaultSpring,
 }: {
   children: ReactNode;
