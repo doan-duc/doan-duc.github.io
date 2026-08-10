@@ -1146,20 +1146,8 @@ html.lenis, html.lenis body { height: auto; }
 }
 
 /* ===========================================================================
-   DESKTOP: GPU-promote 3D cards for silky hover tilt & glow transitions.
-   Only on capable devices — mobile overrides disable this below.
+   DESKTOP: 3D depth system
    =========================================================================== */
-@media (hover: hover) and (pointer: fine) and (min-width: 1024px) {
-  .project-card-3d,
-  .phase-panel-3d,
-  .skill-panel-3d {
-    will-change: transform;
-  }
-
-  .glass-3d {
-    will-change: border-color, box-shadow;
-  }
-}
 
 /* ===========================================================================
    MOBILE: disable 3D to preserve performance and avoid layout issues
