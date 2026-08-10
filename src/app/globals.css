@@ -1071,6 +1071,7 @@ html.lenis, html.lenis body { height: auto; }
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-radius: 20px;
+  backface-visibility: hidden;
   transition: border-color 0.5s ease, box-shadow 0.5s ease;
 }
 
@@ -1142,6 +1143,22 @@ html.lenis, html.lenis body { height: auto; }
   background: var(--color-base);
   z-index: 2;
   box-shadow: 0 0 12px rgba(34, 211, 238, 0.25);
+}
+
+/* ===========================================================================
+   DESKTOP: GPU-promote 3D cards for silky hover tilt & glow transitions.
+   Only on capable devices — mobile overrides disable this below.
+   =========================================================================== */
+@media (hover: hover) and (pointer: fine) and (min-width: 1024px) {
+  .project-card-3d,
+  .phase-panel-3d,
+  .skill-panel-3d {
+    will-change: transform;
+  }
+
+  .glass-3d {
+    will-change: border-color, box-shadow;
+  }
 }
 
 /* ===========================================================================
