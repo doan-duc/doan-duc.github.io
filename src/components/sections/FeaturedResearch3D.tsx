@@ -22,17 +22,30 @@ if (typeof window !== "undefined") {
 export function FeaturedResearch3D() {
   const sectionRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
-  const [animate, setAnimate] = useState(false);
+  const [motionMode, setMotionMode] = useState<
+    "static" | "flow" | "pinned"
+  >("static");
   const [active, setActive] = useState(0);
+  const pinned = motionMode === "pinned";
 
-  // Decide whether to enable the pinned 3D treatment
+  // Keep the cinematic pin where it fits; every other viewport gets a
+  // scroll-tied, unpinned 3D treatment unless the user requests less motion.
   useIsoLayoutEffect(() => {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const capableViewport = window.matchMedia(
       "(min-width: 1024px) and (min-height: 700px) and (pointer: fine)",
     );
-    const update = () =>
-      setAnimate(!reduceMotion.matches && capableViewport.matches);
+    const update = () => {
+      const nextMode = reduceMotion.matches
+        ? "static"
+        : capableViewport.matches
+          ? "pinned"
+          : "flow";
+
+      setMotionMode((currentMode) =>
+        currentMode === nextMode ? currentMode : nextMode,
+      );
+    };
 
     update();
     const stopObservingReduceMotion = observeMediaQuery(reduceMotion, update);
@@ -44,89 +57,142 @@ export function FeaturedResearch3D() {
     };
   }, []);
 
-  // Pin + scrub crossfade through the four research phases (desktop only)
+  // Scrub through all four phases. Large fine-pointer screens use the pinned
+  // depth stack; touch, compact, and short screens reveal the same phases in
+  // normal document flow so content can never be clipped by a pin.
   useIsoLayoutEffect(() => {
-    if (!animate) return;
+    if (motionMode === "static") {
+      setActive(0);
+      return;
+    }
 
     const ctx = gsap.context(() => {
-      const mm = gsap.matchMedia();
+      const st = stageRef.current;
+      if (!st) return;
 
-      mm.add(
-        "(min-width: 1024px) and (min-height: 700px) and (pointer: fine)",
-        () => {
-          const st = stageRef.current;
-          if (!st) return;
+      const panels = gsap.utils.toArray<HTMLElement>(
+        st.querySelectorAll("[data-phase]"),
+      );
+      const n = panels.length;
+      if (n === 0) return;
 
-          const panels = gsap.utils.toArray<HTMLElement>(
-            st.querySelectorAll("[data-phase]"),
+      const showPhase = (index: number) => {
+        const boundedIndex = Math.max(0, Math.min(n - 1, index));
+        setActive((currentIndex) =>
+          currentIndex === boundedIndex ? currentIndex : boundedIndex,
+        );
+      };
+
+      if (motionMode === "pinned") {
+        // First panel visible, rest hidden at depth.
+        gsap.set(panels, { autoAlpha: 0, z: -200, rotateX: 4 });
+        gsap.set(panels[0], { autoAlpha: 1, z: 0, rotateX: 0 });
+
+        let lastIdx = 0;
+        const tl = gsap.timeline({
+          defaults: { ease: "power1.inOut" },
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top top",
+            end: () => "+=" + window.innerHeight * (n - 0.5),
+            pin: true,
+            scrub: 1,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+            onUpdate: (self) => {
+              const idx = Math.min(n - 1, Math.floor(self.progress * n));
+              if (idx !== lastIdx) {
+                lastIdx = idx;
+                showPhase(idx);
+              }
+            },
+          },
+        });
+
+        for (let i = 1; i < n; i++) {
+          // Previous phase exits forward (toward viewer).
+          tl.to(
+            panels[i - 1],
+            { autoAlpha: 0, z: 200, rotateX: -3, duration: 0.5 },
+            i - 0.25,
           );
-          const n = panels.length;
+          // Next phase enters from depth.
+          tl.fromTo(
+            panels[i],
+            { autoAlpha: 0, z: -200, rotateX: 4 },
+            { autoAlpha: 1, z: 0, rotateX: 0, duration: 0.5 },
+            i - 0.05,
+          );
+        }
+        tl.to({}, { duration: 0.5 });
+        return;
+      }
 
-          // First panel visible, rest hidden at depth
-          gsap.set(panels, { autoAlpha: 0, z: -200, rotateX: 4 });
-          gsap.set(panels[0], { autoAlpha: 1, z: 0, rotateX: 0 });
+      panels.forEach((panel, index) => {
+        const rotateY = index % 2 === 0 ? -4 : 4;
 
-          let lastIdx = 0;
-          const tl = gsap.timeline({
-            defaults: { ease: "power1.inOut" },
+        gsap.fromTo(
+          panel,
+          {
+            opacity: 0.22,
+            z: -140,
+            y: 52,
+            rotateX: 7,
+            rotateY,
+            scale: 0.96,
+          },
+          {
+            opacity: 1,
+            z: 0,
+            y: 0,
+            rotateX: 0,
+            rotateY: 0,
+            scale: 1,
+            ease: "none",
+            force3D: true,
             scrollTrigger: {
-              trigger: sectionRef.current,
-              start: "top top",
-              end: () => "+=" + window.innerHeight * (n - 0.5),
-              pin: true,
-              scrub: 1,
-              anticipatePin: 1,
+              trigger: panel,
+              start: "top 96%",
+              end: "top 54%",
+              scrub: 0.55,
               invalidateOnRefresh: true,
+              onEnter: () => showPhase(index),
+              onEnterBack: () => showPhase(index),
+              onLeaveBack: () => showPhase(index - 1),
               onUpdate: (self) => {
-                const idx = Math.min(
-                  n - 1,
-                  Math.floor(self.progress * n),
-                );
-                if (idx !== lastIdx) {
-                  lastIdx = idx;
-                  setActive(idx);
+                if (self.direction > 0 && self.progress >= 0.42) {
+                  showPhase(index);
+                } else if (self.direction < 0 && self.progress < 0.28) {
+                  showPhase(index - 1);
                 }
               },
             },
-          });
-
-          for (let i = 1; i < n; i++) {
-            // Previous phase exits forward (toward viewer)
-            tl.to(
-              panels[i - 1],
-              { autoAlpha: 0, z: 200, rotateX: -3, duration: 0.5 },
-              i - 0.25,
-            );
-            // Next phase enters from depth
-            tl.fromTo(
-              panels[i],
-              { autoAlpha: 0, z: -200, rotateX: 4 },
-              { autoAlpha: 1, z: 0, rotateX: 0, duration: 0.5 },
-              i - 0.05,
-            );
-          }
-          tl.to({}, { duration: 0.5 }); // linger on final phase
-        },
-      );
+          },
+        );
+      });
     }, sectionRef);
 
     return () => {
       ctx.revert();
       setActive(0);
     };
-  }, [animate]);
+  }, [motionMode]);
 
   return (
     <section
       id="featured"
       ref={sectionRef}
-      className={cn("relative", animate && "md:min-h-[100dvh] md:overflow-hidden")}
+      data-featured-motion={motionMode}
+      className={cn(
+        "relative overflow-x-clip",
+        pinned && "md:min-h-[100dvh] md:overflow-y-hidden",
+      )}
     >
       <div className="perspective-scene h-full min-h-[inherit]">
         <Container
           className={cn(
             "flex min-h-[inherit] flex-col justify-center preserve-3d py-24 md:grid md:grid-cols-12 md:items-center md:gap-12",
-            animate ? "md:py-0" : "md:py-32",
+            pinned ? "md:py-0" : "md:py-32",
           )}
         >
           {/* Identity column */}
@@ -156,6 +222,7 @@ export function FeaturedResearch3D() {
               {highlight.phases.map((p, i) => (
                 <li
                   key={p.key}
+                  aria-current={active === i ? "step" : undefined}
                   className={cn(
                     "flex items-center gap-3 transition-colors duration-300",
                     active === i ? "text-ink" : "text-muted/45",
@@ -186,17 +253,18 @@ export function FeaturedResearch3D() {
             ref={stageRef}
             className={cn(
               "relative preserve-3d md:col-span-7",
-              animate && "md:h-[58vh]",
+              pinned && "md:h-[58vh]",
             )}
           >
             {highlight.phases.map((p, i) => (
               <article
                 key={p.key}
                 data-phase
+                data-phase-index={i}
                 className={cn(
                   "phase-panel-3d flex flex-col justify-center",
-                  animate ? "md:absolute md:inset-0" : "md:relative",
-                  i > 0 && (animate ? "mt-16 md:mt-0" : "mt-16"),
+                  pinned ? "md:absolute md:inset-0" : "md:relative",
+                  i > 0 && (pinned ? "mt-16 md:mt-0" : "mt-16"),
                 )}
               >
                 <div className="relative">

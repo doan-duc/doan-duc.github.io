@@ -1,6 +1,6 @@
 /**
  * Subtle ECG/PPG waveform SVG decoration.
- * Rendered as a CSS-animated stroke-dashoffset line.
+ * Rendered as a seamless, transform-animated pair of waveform paths.
  * Server-safe (no "use client" needed — pure JSX).
  */
 export function EcgWaveform({
@@ -22,11 +22,13 @@ export function EcgWaveform({
       preserveAspectRatio="none"
       aria-hidden="true"
     >
-      <path
-        d={d}
-        className="ecg-line ecg-animate"
+      <g
+        className="ecg-animate"
         style={delay ? { animationDelay: `${delay}s` } : undefined}
-      />
+      >
+        <path d={d} className="ecg-line" />
+        <path d={d} className="ecg-line" transform="translate(500 0)" />
+      </g>
     </svg>
   );
 }

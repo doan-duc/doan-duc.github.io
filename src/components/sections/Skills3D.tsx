@@ -22,13 +22,15 @@ export function Skills3D() {
   const sectionRef = useRef<HTMLElement>(null);
 
   useIsoLayoutEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
 
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        gsap.set("[data-skill-panel]", { clearProps: "all" });
+      });
+
       /* ── Desktop: parallax depth reveals ──────────────────────────── */
-      mm.add("(min-width: 1024px)", () => {
+      mm.add("(min-width: 1024px) and (prefers-reduced-motion: no-preference)", () => {
         const panels = gsap.utils.toArray<HTMLElement>("[data-skill-panel]");
         const depths = [-250, -350, -200, -400];
 
@@ -36,7 +38,7 @@ export function Skills3D() {
           gsap.from(panel, {
             z: depths[i % depths.length],
             opacity: 0,
-            rotateY: i % 2 === 0 ? -4 : 4,
+            rotateY: i % 2 === 0 ? -2.4 : 2.4,
             scale: 0.94,
             duration: 1.4,
             ease: "power3.out",
@@ -49,14 +51,22 @@ export function Skills3D() {
         });
       });
 
-      /* ── Mobile: simple fade-up reveals ──────────────────────────── */
-      mm.add("(max-width: 1023px)", () => {
+      /* ── Mobile: alternating 3D depth reveals ───────────────────── */
+      mm.add("(max-width: 1023px) and (prefers-reduced-motion: no-preference)", () => {
         const panels = gsap.utils.toArray<HTMLElement>("[data-skill-panel]");
-        panels.forEach((panel) => {
+        const depths = [-180, -240, -160, -220];
+
+        panels.forEach((panel, i) => {
           gsap.from(panel, {
+            z: depths[i % depths.length],
+            rotateX: 3,
+            rotateY: i % 2 === 0 ? -4 : 4,
             opacity: 0,
-            y: 32,
-            duration: 0.8,
+            y: 38,
+            scale: 0.94,
+            force3D: true,
+            clearProps: "transform,opacity",
+            duration: 1.2,
             ease: "power3.out",
             scrollTrigger: { trigger: panel, start: "top 88%", once: true },
           });

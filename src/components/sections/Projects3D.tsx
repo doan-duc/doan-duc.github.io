@@ -47,9 +47,9 @@ function ProjectCard({ project }: { project: Project }) {
   return (
     <TiltCard max={8.5} hoverScale={1.014} glare className="[transform-style:preserve-3d]">
       <div className="glass-3d relative z-[1] rounded-3xl p-7 md:p-12">
-        <div className="grid gap-10 md:grid-cols-12 md:gap-8">
+        <div className="grid gap-10 lg:grid-cols-12 lg:gap-8">
           {/* Identity */}
-          <div className="md:col-span-4">
+          <div className="lg:col-span-4">
             <div className="num-gradient-solid font-display text-6xl leading-none opacity-25">
               {project.index}
             </div>
@@ -82,7 +82,7 @@ function ProjectCard({ project }: { project: Project }) {
           </div>
 
           {/* Phases */}
-          <div className="grid gap-7 sm:grid-cols-2 md:col-span-8">
+          <div className="grid gap-7 sm:grid-cols-2 lg:col-span-8">
             <Phase label="Problem">{project.problem}</Phase>
             <Phase label="What I built">{project.built}</Phase>
             <Phase label="What I learned">{project.learned}</Phase>
@@ -100,13 +100,15 @@ export function Projects3D() {
   const stackRef = useRef<HTMLDivElement>(null);
 
   useIsoLayoutEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
 
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        gsap.set("[data-project-card]", { clearProps: "all" });
+      });
+
       /* ── Desktop: individual 3D depth reveals ────────────────────── */
-      mm.add("(min-width: 1024px)", () => {
+      mm.add("(min-width: 1024px) and (prefers-reduced-motion: no-preference)", () => {
         const cards = gsap.utils.toArray<HTMLElement>(
           stackRef.current!.querySelectorAll("[data-project-card]"),
         );
@@ -129,18 +131,30 @@ export function Projects3D() {
         });
       });
 
-      /* ── Mobile: simple fade-up reveals ──────────────────────────── */
-      mm.add("(max-width: 1023px)", () => {
+      /* ── Mobile: full depth reveals on outer wrappers ───────────── */
+      mm.add("(max-width: 1023px) and (prefers-reduced-motion: no-preference)", () => {
         const cards = gsap.utils.toArray<HTMLElement>(
           stackRef.current!.querySelectorAll("[data-project-card]"),
         );
-        cards.forEach((card) => {
+        cards.forEach((card, i) => {
           gsap.from(card, {
+            z: -220,
+            rotateX: 6,
+            rotateY: i % 2 === 0 ? -0.5 : 0.5,
             opacity: 0,
-            y: 48,
-            duration: 0.9,
+            y: 58,
+            scale: 0.94,
+            force3D: true,
+            duration: 1.2,
             ease: "power3.out",
-            scrollTrigger: { trigger: card, start: "top 84%", once: true },
+            scrollTrigger: {
+              trigger: card,
+              start: "top 88%",
+              once: true,
+            },
+            onComplete: () => {
+              gsap.set(card, { clearProps: "transform,opacity" });
+            },
           });
         });
       });

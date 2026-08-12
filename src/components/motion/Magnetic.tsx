@@ -21,8 +21,9 @@ export function Magnetic({
   const sx = useSpring(x, { stiffness: 200, damping: 15 });
   const sy = useSpring(y, { stiffness: 200, damping: 15 });
 
-  function move(e: React.MouseEvent) {
+  function move(e: React.PointerEvent) {
     if (shouldReduceMotion || !pointerEffectsEnabled) return;
+    if (e.pointerType === "touch") return;
     const el = ref.current;
     if (!el) return;
     const r = boundsRef.current ?? el.getBoundingClientRect();
@@ -30,8 +31,9 @@ export function Magnetic({
     x.set((e.clientX - (r.left + r.width / 2)) * strength);
     y.set((e.clientY - (r.top + r.height / 2)) * strength);
   }
-  function activate() {
+  function activate(e: React.PointerEvent) {
     if (shouldReduceMotion || !pointerEffectsEnabled) return;
+    if (e.pointerType === "touch") return;
     boundsRef.current = ref.current?.getBoundingClientRect() ?? null;
   }
   function reset() {
@@ -52,9 +54,10 @@ export function Magnetic({
   return (
     <motion.div
       ref={ref}
-      onMouseEnter={activate}
-      onMouseMove={move}
-      onMouseLeave={reset}
+      onPointerEnter={activate}
+      onPointerMove={move}
+      onPointerLeave={reset}
+      onPointerCancel={reset}
       style={{ x: sx, y: sy }}
       className="inline-block"
     >

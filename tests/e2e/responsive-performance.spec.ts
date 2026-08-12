@@ -1,4 +1,4 @@
-import { expect, test, type Browser, type Page } from "@playwright/test";
+import { expect, test, type Browser, type BrowserContext, type Page } from "@playwright/test";
 import { openResponsivePage, type ResponsiveViewport } from "./responsive-helpers";
 
 type MotionAudit = {
@@ -34,7 +34,7 @@ async function openInstrumentedDesktop(
     let mediaQueryReads = 0;
 
     window.matchMedia = function matchMedia(query: string) {
-      if (/\((?:hover|pointer)\s*:/.test(query)) mediaQueryReads += 1;
+      if (/\((?:any-)?(?:hover|pointer)\s*:/.test(query)) mediaQueryReads += 1;
       return nativeMatchMedia.call(window, query);
     };
 
@@ -76,7 +76,9 @@ async function auditPointerSweep(
   return target.evaluate(async (element, eventType) => {
     const nativeRect = element.getBoundingClientRect;
     const bounds = nativeRect.call(element);
-    const transformBeforeSweep = getComputedStyle(element).transform;
+    const motionSurface =
+      element.querySelector<HTMLElement>("[data-tilt-surface]") ?? element;
+    const transformBeforeSweep = getComputedStyle(motionSurface).transform;
     const audit = (window as InstrumentedWindow).__motionAudit;
     let rectReads = 0;
     Object.defineProperty(element, "getBoundingClientRect", {
@@ -116,7 +118,7 @@ async function auditPointerSweep(
       return {
         rectReads,
         transformBeforeSweep,
-        transform: getComputedStyle(element).transform,
+        transform: getComputedStyle(motionSurface).transform,
         ...audit.snapshot(),
       };
     } finally {
@@ -127,7 +129,9 @@ async function auditPointerSweep(
 
 async function readTransformMatrix(page: Page, selector: string) {
   return page.locator(selector).first().evaluate((element) => {
-    const matrix = new DOMMatrixReadOnly(getComputedStyle(element).transform);
+    const motionSurface =
+      element.querySelector<HTMLElement>("[data-tilt-surface]") ?? element;
+    const matrix = new DOMMatrixReadOnly(getComputedStyle(motionSurface).transform);
     return [
       matrix.m11,
       matrix.m12,
@@ -281,6 +285,52 @@ function medianMetrics(runs: FrameMetrics[]): FrameMetrics {
   };
 }
 
+async function performTouchScroll(
+  context: BrowserContext,
+  page: Page,
+  viewport: ResponsiveViewport,
+) {
+  const client = await context.newCDPSession(page);
+  const x = viewport.width / 2;
+  const startY = viewport.height * 0.78;
+  const endY = viewport.height * 0.2;
+
+  for (let swipe = 0; swipe < 40; swipe += 1) {
+    await client.send("Input.dispatchTouchEvent", {
+      type: "touchStart",
+      touchPoints: [{ x, y: startY, radiusX: 8, radiusY: 8, force: 0.5 }],
+    });
+    for (let step = 1; step <= 10; step += 1) {
+      await client.send("Input.dispatchTouchEvent", {
+        type: "touchMove",
+        touchPoints: [{
+          x,
+          y: startY + ((endY - startY) * step) / 10,
+          radiusX: 8,
+          radiusY: 8,
+          force: 0.5,
+        }],
+      });
+      await page.waitForTimeout(16);
+    }
+    await client.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+    await page.waitForTimeout(48);
+
+    const reachedBottom = await page.evaluate(
+      () => window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2,
+    );
+    if (reachedBottom) break;
+  }
+
+  const reached = await page.evaluate(() => ({
+    bottom: window.scrollY + window.innerHeight,
+    total: document.documentElement.scrollHeight,
+  }));
+  expect(reached.bottom, "touch benchmark must exercise the full document").toBeGreaterThanOrEqual(
+    reached.total - viewport.height,
+  );
+}
+
 test.describe("motion smoothness budgets", () => {
   test("pointer effects do not recalculate layout or media capability per mousemove", async ({
     browser,
@@ -310,7 +360,7 @@ test.describe("motion smoothness budgets", () => {
 
         const tilt = await auditPointerSweep(
           page,
-          "[data-project-card] > div",
+          "[data-project-card] [data-tilt-card]",
           "pointermove",
         );
         expect(
@@ -345,18 +395,23 @@ test.describe("motion smoothness budgets", () => {
       for (const surface of [
         {
           name: "hero affiliation",
-          selector: ".hero-affiliation-surface-motion",
+          selector: "[data-hust-affiliation] [data-tilt-card]",
+        },
+        {
+          name: "about signal instrument",
+          selector: "[data-about-signal-stack] [data-tilt-card]",
         },
         {
           name: "selected-work project",
-          selector: "[data-project-card] > div",
+          selector: "[data-project-card] [data-tilt-card]",
         },
       ]) {
         const target = page.locator(surface.selector).first();
+        const motionSurface = target.locator("[data-tilt-surface]").first();
         await target.scrollIntoViewIfNeeded();
         await page.mouse.move(0, 0);
         expect(
-          await target.evaluate((element) => getComputedStyle(element).willChange),
+          await motionSurface.evaluate((element) => getComputedStyle(element).willChange),
           `${surface.name}: resting surface must not reserve a GPU layer`,
         ).toBe("auto");
 
@@ -365,14 +420,14 @@ test.describe("motion smoothness budgets", () => {
           () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve())),
         );
         expect(
-          await target.evaluate((element) => getComputedStyle(element).willChange),
+          await motionSurface.evaluate((element) => getComputedStyle(element).willChange),
           `${surface.name}: active tilt should be compositor-promoted`,
         ).toContain("transform");
 
         await page.mouse.move(0, 0);
         await page.waitForTimeout(550);
         expect(
-          await target.evaluate((element) => getComputedStyle(element).willChange),
+          await motionSurface.evaluate((element) => getComputedStyle(element).willChange),
           `${surface.name}: promotion should be released after the return spring settles`,
         ).toBe("auto");
       }
@@ -395,11 +450,11 @@ test.describe("motion smoothness budgets", () => {
       for (const surface of [
         {
           name: "hero affiliation",
-          selector: ".hero-affiliation-surface-motion",
+          selector: "[data-hust-affiliation] [data-tilt-card]",
         },
         {
           name: "selected-work project",
-          selector: "[data-project-card] > div",
+          selector: "[data-project-card] [data-tilt-card]",
         },
       ]) {
         const response = await measureTiltStepResponse(page, surface.selector);
@@ -511,7 +566,9 @@ test.describe("motion smoothness budgets", () => {
       try {
         const policy = await page.evaluate(() => {
           const animationChecks = [
-            ["#aurora", "::after"],
+            [".aurora-1", null],
+            [".aurora-2", null],
+            [".aurora-3", null],
             [".hero-glow", null],
             [".ecg-animate", null],
             [".about-signal-trace-flow", null],
@@ -541,7 +598,9 @@ test.describe("motion smoothness budgets", () => {
           policy.activeAnimations,
           `${viewport.name}: viewport width or pointer type must not silently disable the visual animations`,
         ).toEqual([
-          "#aurora::after: auroraDrift",
+          ".aurora-1: aurora-1",
+          ".aurora-2: aurora-2",
+          ".aurora-3: aurora-3",
           ".hero-glow: hero-pulse",
           ".ecg-animate: ecgDraw",
           ".about-signal-trace-flow: about-trace-flow",
@@ -601,6 +660,7 @@ test.describe("motion smoothness budgets", () => {
     browser,
     browserName,
   }, testInfo) => {
+    test.setTimeout(240_000);
     test.skip(browserName !== "chromium", "Detailed timing APIs and CPU throttling are Chromium-only");
 
     const scenarioFilter = process.env.MOTION_PERF_SCENARIO;
@@ -642,10 +702,14 @@ test.describe("motion smoothness budgets", () => {
           }
 
           await startFrameProbe(page);
-          const wheelStep = Math.max(280, Math.round(scenario.viewport.height * 0.7));
-          for (let step = 0; step < 18; step += 1) {
-            await page.mouse.wheel(0, wheelStep);
-            await page.waitForTimeout(24);
+          if (scenario.viewport.touch) {
+            await performTouchScroll(context, page, scenario.viewport);
+          } else {
+            const wheelStep = Math.max(280, Math.round(scenario.viewport.height * 0.7));
+            for (let step = 0; step < 18; step += 1) {
+              await page.mouse.wheel(0, wheelStep);
+              await page.waitForTimeout(24);
+            }
           }
           await page.waitForTimeout(900);
           runs.push(await stopFrameProbe(page));
@@ -670,23 +734,23 @@ test.describe("motion smoothness budgets", () => {
     }
 
     for (const { label, throttled, metrics } of results) {
-        expect(metrics.samples, `${label}: enough frame samples`).toBeGreaterThan(30);
-        expect(metrics.p95FrameMs, `${label}: p95 frame interval`).toBeLessThanOrEqual(
-          throttled ? 50 : 34,
-        );
-        expect(metrics.longestFrameMs, `${label}: longest frame interval`).toBeLessThanOrEqual(
-          throttled ? 180 : 120,
-        );
-        expect(metrics.over50msRatio, `${label}: frames slower than 20fps`).toBeLessThanOrEqual(
-          throttled ? 0.1 : 0.03,
-        );
-        expect(metrics.longTaskTotalMs, `${label}: total long-task blocking`).toBeLessThanOrEqual(
-          throttled ? 350 : 150,
-        );
-        expect(
-          metrics.over100msAnimationFrames,
-          `${label}: animation frames above 100ms`,
-        ).toBeLessThanOrEqual(throttled ? 3 : 1);
+      expect(metrics.samples, `${label}: enough frame samples`).toBeGreaterThan(30);
+      expect(metrics.p95FrameMs, `${label}: p95 frame interval`).toBeLessThanOrEqual(
+        throttled ? 50 : 34,
+      );
+      expect(metrics.longestFrameMs, `${label}: longest frame interval`).toBeLessThanOrEqual(
+        throttled ? 180 : 120,
+      );
+      expect(metrics.over50msRatio, `${label}: frames slower than 20fps`).toBeLessThanOrEqual(
+        throttled ? 0.1 : 0.03,
+      );
+      expect(metrics.longTaskTotalMs, `${label}: total long-task blocking`).toBeLessThanOrEqual(
+        throttled ? 350 : 150,
+      );
+      expect(
+        metrics.over100msAnimationFrames,
+        `${label}: animation frames above 100ms`,
+      ).toBeLessThanOrEqual(throttled ? 3 : 1);
     }
   });
 });

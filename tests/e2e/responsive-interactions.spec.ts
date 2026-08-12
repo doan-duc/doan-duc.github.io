@@ -109,6 +109,46 @@ test.describe("responsive interactions", () => {
     }
   });
 
+  test("keyboard section navigation clears the fixed header before Lenis boots", async ({
+    browser,
+    browserName,
+  }) => {
+    test.skip(browserName !== "chromium", "Keyboard offset behavior runs once in Chromium");
+    const { context, page } = await openResponsivePage(
+      browser,
+      {
+        name: "keyboard-navigation",
+        width: 1366,
+        height: 768,
+      },
+      { reducedMotion: true },
+    );
+
+    try {
+      expect(
+        await page.evaluate(() => document.documentElement.classList.contains("lenis")),
+        "smooth wheel should still be waiting for pointer or wheel intent",
+      ).toBe(false);
+
+      const projectsButton = page
+        .locator('[data-desktop-nav="true"]')
+        .getByRole("button", { name: "Projects" });
+      await projectsButton.focus();
+      await page.keyboard.press("Enter");
+
+      const top = await page
+        .locator("#projects")
+        .evaluate((section) => section.getBoundingClientRect().top);
+      expect(top, "section should sit close to the fixed navigation").toBeLessThanOrEqual(96);
+      expect(
+        top,
+        "section should clear the fixed navigation",
+      ).toBeGreaterThanOrEqual(64);
+    } finally {
+      await context.close();
+    }
+  });
+
   test("@smoke keeps project video dialogs and controls inside short landscape screens", async ({
     browser,
     browserName,

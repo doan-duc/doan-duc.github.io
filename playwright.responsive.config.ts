@@ -30,7 +30,7 @@ export default defineConfig({
   webServer: {
     command: "node tests/e2e/static-server.mjs",
     url: "http://127.0.0.1:4175",
-    reuseExistingServer: false,
+    reuseExistingServer: process.env.PW_REUSE_STATIC_SERVER === "1",
     timeout: 30_000,
   },
 });

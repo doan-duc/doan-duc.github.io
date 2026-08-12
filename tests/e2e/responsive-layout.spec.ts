@@ -79,6 +79,10 @@ test.describe("responsive geometry", () => {
     for (const viewport of crossEngineViewports) {
       const { context, page } = await openResponsivePage(browser, viewport);
       try {
+        await page.evaluate(() => window.scrollTo({ top: document.body.scrollHeight, behavior: "auto" }));
+        await page.waitForTimeout(1_500);
+        await page.evaluate(() => window.scrollTo({ top: 0, behavior: "auto" }));
+        await page.waitForTimeout(100);
         await expectNoLayoutIssues(page, `${viewport.name} ${viewport.width}x${viewport.height}`);
 
         const mobileToggle = page.getByRole("button", { name: "Toggle menu" });
@@ -98,6 +102,91 @@ test.describe("responsive geometry", () => {
             brandBox!.x + brandBox!.width + 16,
             `${viewport.name}: desktop navigation must not overlap the brand`,
           ).toBeLessThanOrEqual(linksBox!.x);
+        }
+      } finally {
+        await context.close();
+      }
+    }
+  });
+
+  test("stays in bounds through live phone and tablet orientation changes", async ({
+    browser,
+  }) => {
+    for (const device of [
+      {
+        name: "phone",
+        initial: { width: 390, height: 844 },
+        rotated: { width: 844, height: 390 },
+        dpr: 3,
+        mobile: true,
+      },
+      {
+        name: "tablet",
+        initial: { width: 820, height: 1180 },
+        rotated: { width: 1180, height: 820 },
+        dpr: 2,
+        mobile: false,
+      },
+    ]) {
+      const { context, page } = await openResponsivePage(browser, {
+        name: `${device.name}-orientation`,
+        ...device.initial,
+        mobile: device.mobile,
+        touch: true,
+        dpr: device.dpr,
+      });
+      try {
+        for (const viewport of [device.initial, device.rotated, device.initial]) {
+          await page.setViewportSize(viewport);
+          await page.waitForTimeout(180);
+          await settleLayout(page);
+          await expectNoLayoutIssues(
+            page,
+            `${device.name} orientation ${viewport.width}x${viewport.height}`,
+          );
+          await expect(page.locator("#featured")).toHaveAttribute(
+            "data-featured-motion",
+            "flow",
+          );
+          await expect(page.locator(".pin-spacer")).toHaveCount(0);
+        }
+      } finally {
+        await context.close();
+      }
+    }
+  });
+
+  test("keeps every animated section in bounds after scroll reveals", async ({ browser }) => {
+    test.slow();
+    const animatedViewports = crossEngineViewports.filter(({ name }) =>
+      [
+        "modern-phone",
+        "large-phone-landscape",
+        "tablet-landscape",
+        "laptop",
+        "large-desktop",
+      ].includes(name),
+    );
+
+    for (const viewport of animatedViewports) {
+      const { context, page } = await openResponsivePage(browser, viewport);
+      try {
+        for (const sectionId of [
+          "about",
+          "featured",
+          "projects",
+          "skills",
+          "achievements",
+          "contact",
+        ]) {
+          await page.locator(`#${sectionId}`).scrollIntoViewIfNeeded();
+          await page.evaluate(
+            () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))),
+          );
+          await expectNoLayoutIssues(
+            page,
+            `${viewport.name} animated #${sectionId}`,
+          );
         }
       } finally {
         await context.close();

@@ -22,8 +22,8 @@ function ProjectRow({ project }: { project: Project }) {
     <TiltCard max={8.5} hoverScale={1.014} glare className="[transform-style:preserve-3d]">
       {/* Faint accent border glow on hover (solid, never a gradient border) */}
       <div className="glass relative z-[1] rounded-3xl p-7 transition-[border-color,box-shadow] duration-500 hover:border-accent/30 hover:shadow-[0_0_60px_-16px_rgba(34,211,238,0.35)] md:p-12">
-        <div className="grid gap-10 md:grid-cols-12 md:gap-8">
-          <div className="md:col-span-4">
+        <div className="grid gap-10 lg:grid-cols-12 lg:gap-8">
+          <div className="lg:col-span-4">
             <div className="num-gradient-solid font-display text-6xl leading-none opacity-25">
               {project.index}
             </div>
@@ -53,7 +53,7 @@ function ProjectRow({ project }: { project: Project }) {
           </div>
 
           {/* Problem → Built → Learned → Why */}
-          <div className="grid gap-7 sm:grid-cols-2 md:col-span-8">
+          <div className="grid gap-7 sm:grid-cols-2 lg:col-span-8">
             <Phase label="Problem">{project.problem}</Phase>
             <Phase label="What I built">{project.built}</Phase>
             <Phase label="What I learned">{project.learned}</Phase>

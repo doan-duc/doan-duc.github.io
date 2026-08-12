@@ -92,15 +92,37 @@ html.lenis, html.lenis body { height: auto; }
 /* Aurora mesh blobs: very slow drift (60s+), heavy blur, low opacity.
    Sits behind everything and must never compete with text. */
 .aurora-blob {
-  position: absolute;
+  position: fixed;
+  z-index: 0;
   border-radius: 9999px;
-  filter: blur(120px);
-  mix-blend-mode: screen;
+  contain: strict;
+  pointer-events: none;
   will-change: transform;
 }
-.aurora-1 { animation: aurora-1 64s var(--ease-out-expo) infinite; }
-.aurora-2 { animation: aurora-2 72s var(--ease-out-expo) infinite; }
-.aurora-3 { animation: aurora-3 80s var(--ease-out-expo) infinite; }
+.aurora-1 {
+  top: -9vmax;
+  left: -8vmax;
+  width: clamp(280px, 29vmax, 860px);
+  height: clamp(280px, 29vmax, 860px);
+  background: radial-gradient(circle, rgba(34, 211, 238, 0.19), transparent 70%);
+  animation: aurora-1 64s var(--ease-out-expo) infinite;
+}
+.aurora-2 {
+  top: 7vh;
+  right: -8vmax;
+  width: clamp(260px, 27vmax, 800px);
+  height: clamp(260px, 27vmax, 800px);
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.16), transparent 70%);
+  animation: aurora-2 72s var(--ease-out-expo) infinite;
+}
+.aurora-3 {
+  right: 12vw;
+  bottom: -12vmax;
+  width: clamp(320px, 33vmax, 920px);
+  height: clamp(320px, 33vmax, 920px);
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.16), transparent 70%);
+  animation: aurora-3 80s var(--ease-out-expo) infinite;
+}
 
 @keyframes aurora-1 {
   0%, 100% { transform: translate3d(-8%, -6%, 0) scale(1); }
@@ -376,18 +398,21 @@ html.lenis, html.lenis body { height: auto; }
 
 .about-signal-layer--signal {
   --about-layer-rest-transform: translate3d(0, 0, 12px);
+  --about-layer-active-transform: translate3d(-0.2rem, -0.1rem, 18px);
   top: 1.1rem;
   transform: var(--about-layer-rest-transform);
 }
 
 .about-signal-layer--intelligence {
   --about-layer-rest-transform: translate3d(1.1rem, 0, 48px);
+  --about-layer-active-transform: translate3d(1.2rem, -0.15rem, 62px);
   top: 5.8rem;
   transform: var(--about-layer-rest-transform);
 }
 
 .about-signal-layer--system {
   --about-layer-rest-transform: translate3d(2.2rem, 0, 84px);
+  --about-layer-active-transform: translate3d(2.45rem, -0.2rem, 104px);
   top: 10.55rem;
   border-color: rgba(34, 211, 238, 0.24);
   background:
@@ -396,21 +421,46 @@ html.lenis, html.lenis body { height: auto; }
 }
 
 .about-signal-instrument:hover .about-signal-layer--signal {
-  transform: translate3d(-0.2rem, -0.1rem, 18px);
+  transform: var(--about-layer-active-transform);
 }
 
 .about-signal-instrument:hover .about-signal-layer--intelligence {
-  transform: translate3d(1.2rem, -0.15rem, 62px);
+  transform: var(--about-layer-active-transform);
 }
 
 .about-signal-instrument:hover .about-signal-layer--system {
-  transform: translate3d(2.45rem, -0.2rem, 104px);
+  transform: var(--about-layer-active-transform);
 }
 
-@media (hover: none), (pointer: coarse) {
-  .about-signal-instrument:hover .about-signal-layer {
-    transform: var(--about-layer-rest-transform);
+/* Touch has no persistent hover state, so the signal stack keeps its depth
+   alive with a slow transform-only breathing motion instead. */
+@media (any-hover: none) and (any-pointer: coarse) {
+  .about-signal-layer--signal {
+    animation: about-layer-signal-touch 6.4s ease-in-out infinite alternate;
   }
+
+  .about-signal-layer--intelligence {
+    animation: about-layer-intelligence-touch 7.1s ease-in-out -1.2s infinite alternate;
+  }
+
+  .about-signal-layer--system {
+    animation: about-layer-system-touch 7.8s ease-in-out -2.4s infinite alternate;
+  }
+}
+
+@keyframes about-layer-signal-touch {
+  from { transform: var(--about-layer-rest-transform); }
+  to { transform: var(--about-layer-active-transform); }
+}
+
+@keyframes about-layer-intelligence-touch {
+  from { transform: var(--about-layer-rest-transform); }
+  to { transform: var(--about-layer-active-transform); }
+}
+
+@keyframes about-layer-system-touch {
+  from { transform: var(--about-layer-rest-transform); }
+  to { transform: var(--about-layer-active-transform); }
 }
 
 .about-signal-layer-label {
@@ -494,10 +544,12 @@ html.lenis, html.lenis body { height: auto; }
 
   .about-signal-layer--intelligence {
     --about-layer-rest-transform: translate3d(0.75rem, 0, 36px);
+    --about-layer-active-transform: translate3d(0.9rem, -0.12rem, 52px);
   }
 
   .about-signal-layer--system {
     --about-layer-rest-transform: translate3d(1.5rem, 0, 66px);
+    --about-layer-active-transform: translate3d(1.7rem, -0.18rem, 86px);
   }
 }
 
@@ -508,10 +560,12 @@ html.lenis, html.lenis body { height: auto; }
 
   .about-signal-layer--intelligence {
     --about-layer-rest-transform: translate3d(0.35rem, 0, 36px);
+    --about-layer-active-transform: translate3d(0.48rem, -0.1rem, 50px);
   }
 
   .about-signal-layer--system {
     --about-layer-rest-transform: translate3d(0.7rem, 0, 66px);
+    --about-layer-active-transform: translate3d(0.85rem, -0.16rem, 84px);
   }
 }
 
@@ -589,10 +643,24 @@ html.lenis, html.lenis body { height: auto; }
   pointer-events: none;
 }
 
-@media (max-width: 1023px), (pointer: coarse), (prefers-reduced-motion: reduce) {
+/* Pointer-follow lighting becomes ambient depth lighting on touch. It remains
+   transform/opacity-only so it can move without blocking native scrolling. */
+@media (any-hover: none) and (any-pointer: coarse) {
   .tilt-card-glare {
-    display: none;
+    display: block;
+    opacity: 0.34 !important;
+    animation: tilt-glare-touch 6.8s ease-in-out infinite alternate;
   }
+
+  .project-card-3d .tilt-card-hit-area {
+    overflow: clip;
+    border-radius: 1.5rem;
+  }
+}
+
+@keyframes tilt-glare-touch {
+  from { transform: translate3d(-9%, -5%, 4px) scale(0.96); }
+  to { transform: translate3d(9%, 5%, 4px) scale(1.06); }
 }
 
 .hero-affiliation-card--hust .tilt-card-glare {
@@ -802,6 +870,23 @@ html.lenis, html.lenis body { height: auto; }
 
   .hero-affiliation-card:first-child {
     border-top: 0;
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .hero-affiliation-card {
+    overflow: hidden;
+  }
+}
+
+@media (max-width: 720px) {
+  .hero-affiliation-card {
+    overflow: hidden;
+  }
+
+  .hero-affiliations {
+    width: calc(100% - 8px);
+    margin-inline: 4px;
   }
 }
 
@@ -1046,35 +1131,16 @@ html.lenis, html.lenis body { height: auto; }
 /* Infinite marquee row (skill pills). */
 .marquee-track { animation: marquee 38s linear infinite; }
 .marquee-track:hover { animation-play-state: paused; }
+.marquee-track[data-paused] { animation-play-state: paused; }
+@media (hover: none), (pointer: coarse) {
+  .marquee-toggle { opacity: 0.78; }
+}
 @keyframes marquee {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
 }
 
-#aurora{
-  position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;
-}
-#aurora::after{
-  content:""; position:absolute; inset:-18%;
-  background:
-    radial-gradient(38% 38% at 22% 28%, rgba(34,211,238,0.16), transparent 70%),
-    radial-gradient(42% 42% at 78% 32%, rgba(59,130,246,0.12), transparent 70%),
-    radial-gradient(44% 44% at 60% 82%, rgba(139,92,246,0.13), transparent 70%);
-  opacity: 0.8;
-  animation: auroraDrift 56s ease-in-out infinite alternate;
-  will-change: transform;
-}
-@keyframes auroraDrift{
-  from{ transform: translate3d(0,0,0) scale(1) rotate(0deg); }
-  to  { transform: translate3d(0,-4%,0) scale(1.15) rotate(7deg); }
-}
-
-@media (min-width: 1920px) {
-  #aurora::after {
-    animation: none;
-    will-change: auto;
-  }
-}
+#aurora { display: contents; }
 
 /* ===========================================================================
    3D DEPTH SYSTEM
@@ -1098,15 +1164,21 @@ html.lenis, html.lenis body { height: auto; }
   transform-style: preserve-3d;
 }
 
+.tilt-card-hit-area {
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
 /* Promote only while a fine pointer is actively driving a 3D surface. The
    short release window keeps the return spring on the compositor without
    reserving GPU memory for every card while the page is idle. */
-@media (hover: hover) and (pointer: fine) {
-  .tilt-card[data-tilt-active] {
+@media (any-hover: hover) and (any-pointer: fine) {
+  .tilt-card-hit-area[data-tilt-active] > .tilt-card {
     will-change: transform;
   }
 
-  .tilt-card[data-tilt-active] .tilt-card-glare {
+  .tilt-card-hit-area[data-tilt-active] .tilt-card-glare {
     will-change: transform, opacity;
   }
 }
@@ -1138,6 +1210,31 @@ html.lenis, html.lenis body { height: auto; }
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
+/* At ultrawide pixel counts, live backdrop sampling is far more expensive than
+   the card motion itself. A denser translucent gradient preserves the glass
+   read while leaving the full transform/opacity animation budget untouched. */
+@media (min-width: 3000px) {
+  .glass-3d {
+    background: linear-gradient(
+      135deg,
+      rgba(24, 28, 35, 0.9) 0%,
+      rgba(11, 13, 18, 0.84) 100%
+    );
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .hero-glow,
+  .about-signal-stage::before {
+    filter: none !important;
+  }
+
+  .phase-panel-3d .blur-2xl {
+    filter: none;
+    opacity: 0.16;
+  }
+}
+
 /* ECG / PPG waveform SVG decoration */
 .ecg-line {
   stroke: var(--color-accent);
@@ -1147,13 +1244,14 @@ html.lenis, html.lenis body { height: auto; }
 }
 
 .ecg-animate {
-  stroke-dasharray: 800;
-  stroke-dashoffset: 800;
+  transform-box: fill-box;
+  transform-origin: left center;
   animation: ecgDraw 8s linear infinite;
+  will-change: transform;
 }
 
 @keyframes ecgDraw {
-  to { stroke-dashoffset: -800; }
+  to { transform: translate3d(-50%, 0, 0); }
 }
 
 /* 3D project card in card-stack */
@@ -1219,62 +1317,26 @@ html.lenis, html.lenis body { height: auto; }
 }
 
 /* ===========================================================================
-   DESKTOP: 3D depth system
-   =========================================================================== */
-
-/* ===========================================================================
-   MOBILE: disable 3D to preserve performance and avoid layout issues
+   COMPACT / TOUCH: preserve the full depth language with bounded paint areas
    =========================================================================== */
 @media (max-width: 1023px) {
   .perspective-scene {
-    perspective: none !important;
+    perspective: 900px;
   }
   .preserve-3d,
   .project-card-3d,
   .phase-panel-3d,
   .skill-panel-3d {
-    transform-style: flat !important;
+    transform-style: preserve-3d;
   }
 }
 
-/* Compact/touch devices keep the visual language while avoiding continuous
-   full-screen paint and permanent compositor layers during native scrolling. */
+/* Device size changes paint cost, never animation availability. These rules
+   retain every motion system while reducing only oversized blur/overscan. */
 @media (max-width: 1023px), (pointer: coarse) {
-  #aurora::after,
-  .hero-glow,
-  .ecg-animate,
-  .about-signal-trace-flow,
-  .marquee-track {
-    animation: none !important;
-  }
-
-  .ecg-animate {
-    stroke-dashoffset: 0;
-  }
-
-  .marquee-track {
-    transform: none !important;
-  }
-
-  #aurora::after,
-  .hero-glow {
-    will-change: auto !important;
-  }
-
   .glass-3d {
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-  }
-
-  .project-card-3d,
-  .phase-panel-3d,
-  .skill-panel-3d,
-  [data-about-identity],
-  [data-about-lead],
-  [data-about-body],
-  [data-about-focus],
-  [data-achievement-node] {
-    will-change: auto !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
   }
 }
 
@@ -1308,12 +1370,22 @@ html.lenis, html.lenis body { height: auto; }
   }
   .ecg-animate {
     animation: none !important;
-    stroke-dashoffset: 0 !important;
+    transform: none !important;
   }
 
   .marquee-track {
     animation: none !important;
     transform: none !important;
+  }
+
+  .tilt-card-glare {
+    display: none !important;
+    animation: none !important;
+  }
+
+  .about-signal-layer {
+    animation: none !important;
+    transform: var(--about-layer-rest-transform) !important;
   }
 
   .about-signal-instrument:hover .about-signal-layer {

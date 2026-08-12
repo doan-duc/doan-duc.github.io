@@ -1,5 +1,36 @@
 # Motion smoothness - TDD evidence
 
+## Full-motion compatibility update (2026-08-12)
+
+This pass supersedes the earlier compact-device low-paint policy below. Screen
+size, touch capability, and coarse pointers no longer disable the portfolio's
+motion language; only `prefers-reduced-motion: reduce` may do so.
+
+- RED checkpoint: `f8cef48` (`test: require full motion across devices`).
+- RED evidence: real touch swipes scrolled and advanced page progress, but phone,
+  phone-landscape, and touch-tablet returned `animation-name: none` for aurora,
+  hero glow, ECG, About trace, and marquee; compact 3D perspective was `none`.
+- Additional RED evidence: Selected Work hover produced only `0.0139` matrix
+  travel and `0.0719` glare opacity because the moving 3D surface repeatedly
+  emitted `pointerleave` while the pointer remained geometrically inside.
+- GREEN behavior: fixed hit areas now drive separate moving 3D surfaces; touch
+  uses native momentum with active compositor motion; wheel intent lazily boots
+  Lenis; hybrid touch tears Lenis down before native swipes; Ctrl/Meta and
+  horizontal wheel gestures remain browser-owned.
+- GREEN compatibility: 72 responsive E2E cases completed with 42 passes and 30
+  intentional engine-specific skips across Chromium, Firefox, and WebKit. The
+  matrix includes widths from 320 px through 4K representatives, short/tall
+  heights, touch, orientation changes, keyboard navigation, font failure, and
+  active 3D scroll reveals.
+- GREEN hover gates: geometry/media-query caching, active-only compositor
+  promotion, 120 ms tilt response, pointer-follow glare, and fade-out all pass.
+- GREEN 2560 x 1440 confirmation: 5-run median p95 `33.4 ms`, longest frame
+  `50.1 ms`, >50 ms ratio `0.93%`, no long tasks, and no >100 ms animation frame.
+- Visual QA: eight viewports from 320 x 568 through 3840 x 2160 showed no page
+  overflow, card/text overlap, or console error. Touch retained 9 ambient motion
+  groups plus active tilt/glare; desktop recorded 12 distinct tilt frames in
+  each direction and 18 distinct wheel-scroll positions.
+
 ## Acceptance scope
 
 The portfolio's 3D hover, decorative motion, and scroll animation must stay smooth across the responsive envelope without layout work on pointer hot paths, persistent compositor promotion on static content, or long main-thread stalls during animated scrolling.
@@ -29,29 +60,29 @@ npm audit --audit-level=high
 | Guarantee | Test file or command | Type | Result | Evidence |
 |---|---|---|---|---|
 | Pointer effects cache geometry and pointer capability instead of recalculating per mousemove | `tests/e2e/responsive-performance.spec.ts` | E2E performance | PASS | 180 synthetic moves per target; budget <=2 rect reads and <=1 media-query read |
-| Coarse-pointer and compact screens disable continuous decorative animation, fixed grain paint, blur glass, and persistent promotion | `tests/e2e/responsive-performance.spec.ts` | E2E policy | PASS | phone, phone-landscape, and touch-tablet cases |
+| Coarse-pointer and compact screens retain ambient animation and 3D depth without blocking native touch | `tests/e2e/responsive-performance.spec.ts` | E2E policy | PASS | phone, phone-landscape, and touch-tablet cases |
 | Large desktop static content does not reserve persistent compositor layers | `tests/e2e/responsive-performance.spec.ts` | E2E policy | PASS | 2560 x 1440 static-content promotion check |
 | Scroll animation remains inside frame and long-task budgets | `tests/e2e/responsive-performance.spec.ts` | E2E performance | PASS | Chromium `requestAnimationFrame` cadence plus `PerformanceObserver` long-task/LoAF probe |
-| Responsive envelope still passes while motion policy changes are active | `.github/tdd/responsive-compatibility.tdd.md` | E2E compatibility | PASS | width sweep 320-2560 px, height sweep 320-1200 px, Chromium/Firefox/WebKit, touch, landscape, keyboard, reduced motion |
+| Responsive envelope still passes while motion policy changes are active | `.github/tdd/responsive-compatibility.tdd.md` | E2E compatibility | PASS | continuous width sweep 320-2560 px, representative layouts through 3840 x 2160, height sweep 320-1200 px, Chromium/Firefox/WebKit, touch, landscape, keyboard, reduced motion |
 
 ## Final measured medians
 
 | Scenario | Viewport / CPU | Samples | p95 frame | Longest frame | >50 ms ratio | Long tasks | LoAF >100 ms |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| phone | 390 x 844, touch, 1x | 125 | 16.8 ms | 16.8 ms | 0% | 0 | 0 |
-| laptop | 1366 x 768, 1x | 143 | 16.8 ms | 33.4 ms | 0% | 0 | 0 |
-| large desktop | 2560 x 1440, 1x | 117 | 33.4 ms | 50.0 ms | 0% | 0 | 0 |
-| throttled laptop | 1366 x 768, 4x CPU | 223 | 33.4 ms | 50.1 ms | 0.89% | 0 | 0 |
+| phone | 390 x 844, touch, 1x | 1130 | 16.8 ms | 16.8 ms | 0% | 0 | 0 |
+| laptop | 1366 x 768, 1x | 144 | 16.7 ms | 16.8 ms | 0% | 0 | 0 |
+| large desktop | 2560 x 1440, 1x | 111 | 33.4 ms | 50.0 ms | 0% | 0 | 0 |
+| throttled laptop | 1366 x 768, 4x CPU | 213 | 33.4 ms | 50.0 ms | 0% | 0 | 0 |
 
-The `playwright-performance-report/index.html` run used `MOTION_PERF_SAMPLES` defaulting to 3 samples per scenario. The targeted large-desktop command above raised the sample count to 5 and preserved the requested 33.4 ms / 0% / 50.0 ms median.
+The `playwright-performance-report/index.html` run used `MOTION_PERF_SAMPLES` defaulting to 3 samples per scenario. The targeted large-desktop command above raised the sample count to 5 and produced a 33.4 ms p95, 50.1 ms longest frame, 0.93% >50 ms ratio, no long tasks, and no >100 ms animation frames.
 
 ## Screen matrix
 
-Responsive compatibility is covered by `playwright.responsive.config.ts` across Chromium, Firefox, and WebKit. The documented matrix in `.github/tdd/responsive-compatibility.tdd.md` covers 320-2560 px width sweeps, 320-1200 px height sweeps, phone portrait, phone landscape, tablet, split screen, laptop, desktop, ultrawide, 320 x 320 minimum square, touch input, keyboard/focus behavior, reduced motion, and asset failure. Motion timing and 4x CPU throttling are Chromium-only in `playwright.performance.config.ts`.
+Responsive compatibility is covered by `playwright.responsive.config.ts` across Chromium, Firefox, and WebKit. The documented matrix in `.github/tdd/responsive-compatibility.tdd.md` covers continuous 320-2560 px width sweeps, representative layouts through 3840 x 2160, 320-1200 px height sweeps, phone portrait, phone landscape, tablet, split screen, laptop, desktop, ultrawide, 320 x 320 minimum square, touch input, keyboard/focus behavior, reduced motion, and asset failure. Motion timing and 4x CPU throttling are Chromium-only in `playwright.performance.config.ts`.
 
 ## Visual QA
 
-A temporary screenshot run covered phone, laptop, and ultrawide top/projects views. The reviewed frames showed no clipped copy, unintended horizontal overflow, hidden controls, or broken motion-rest states after the performance changes; the temporary screenshots were not committed.
+A temporary visual run covered 320 x 568, 390 x 844, 844 x 390 touch landscape, 1024 x 768 touch tablet, 1366 x 768, 1920 x 1080, 2560 x 1440, and 3840 x 2160. The reviewed frames showed no clipped copy, unintended horizontal overflow, hidden controls, or broken motion-rest states. Touch press produced live 3D tilt and glare, desktop pointer sweeps produced distinct reversible transforms, and wheel sampling produced continuous intermediate scroll positions; the temporary screenshots were not committed.
 
 ## Documentation basis
 
@@ -66,4 +97,4 @@ A temporary screenshot run covered phone, laptop, and ultrawide top/projects vie
 
 ## Limits
 
-Headless emulation cannot guarantee every physical GPU, browser version, OS compositor, display refresh rate, thermal state, or driver path. This evidence is a reproducible current-engine budget over the repository's automated 320-2560 px matrix, with separate Chromium-only timing and 4x CPU checks.
+Headless emulation cannot guarantee every physical GPU, browser version, OS compositor, display refresh rate, thermal state, or driver path. This evidence is a reproducible current-engine budget over the repository's automated continuous 320-2560 px sweep plus representative 3840 x 2160 coverage, with separate Chromium-only timing and 4x CPU checks.

@@ -37,7 +37,11 @@ export default function RootLayout({
         />
 
         <SmoothScroll>
-          <div id="aurora" aria-hidden="true" />
+          <div id="aurora" aria-hidden="true">
+            <span className="aurora-blob aurora-1" />
+            <span className="aurora-blob aurora-2" />
+            <span className="aurora-blob aurora-3" />
+          </div>
           <ScrollProgress />
           <Nav />
           <main className="relative z-[1]">{children}</main>

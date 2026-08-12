@@ -2,6 +2,100 @@ import { expect, test } from "@playwright/test";
 import { openResponsivePage } from "./responsive-helpers";
 
 test.describe("responsive motion policies", () => {
+  test("keeps ambient and depth motion active across engines and input modes", async ({
+    browser,
+    browserName,
+  }) => {
+    for (const viewport of [
+      { name: "touch-phone", width: 390, height: 844, mobile: true, touch: true, dpr: 3 },
+      { name: "touch-tablet", width: 1024, height: 768, touch: true, dpr: 2 },
+      { name: "compact-fine-pointer", width: 820, height: 900 },
+      { name: "large-desktop", width: 2560, height: 1440 },
+    ]) {
+      const { context, page } = await openResponsivePage(browser, viewport);
+      try {
+        const motion = await page.evaluate(() => {
+          const animationName = (selector: string, pseudo?: string) => {
+            const element = document.querySelector<HTMLElement>(selector);
+            return element ? getComputedStyle(element, pseudo).animationName : null;
+          };
+          const perspective = document.querySelector<HTMLElement>(".perspective-scene");
+          const project = document.querySelector<HTMLElement>(".project-card-3d");
+
+          return {
+            animations: [
+              animationName(".aurora-1"),
+              animationName(".aurora-2"),
+              animationName(".aurora-3"),
+              animationName(".hero-glow"),
+              animationName(".ecg-animate"),
+              animationName(".about-signal-trace-flow"),
+              animationName(".marquee-track"),
+            ],
+            lenisActive: document.documentElement.classList.contains("lenis"),
+            wheelCapable: matchMedia("(any-hover: hover) and (any-pointer: fine)").matches,
+            perspective: perspective ? getComputedStyle(perspective).perspective : null,
+            projectTransformStyle: project
+              ? getComputedStyle(project).transformStyle
+              : null,
+          };
+        });
+
+        expect(motion.animations, `${viewport.name}: full ambient motion`).not.toContain("none");
+        expect(motion.animations, `${viewport.name}: every motion surface exists`).not.toContain(null);
+        expect(motion.lenisActive, `${viewport.name}: Lenis starts lazily`).toBe(false);
+        if (
+          browserName === "chromium" &&
+          motion.wheelCapable &&
+          !("touch" in viewport && viewport.touch)
+        ) {
+          await page.mouse.wheel(0, 40);
+          await expect
+            .poll(
+              () => page.evaluate(() => document.documentElement.classList.contains("lenis")),
+              { message: `${viewport.name}: wheel intent boots Lenis` },
+            )
+            .toBe(true);
+        }
+        expect(motion.perspective, `${viewport.name}: perspective`).not.toBe("none");
+        expect(motion.projectTransformStyle, `${viewport.name}: project depth`).toBe("preserve-3d");
+      } finally {
+        await context.close();
+      }
+    }
+  });
+
+  test("advances compositor-driven ambient motion in every browser engine", async ({
+    browser,
+  }) => {
+    const { context, page } = await openResponsivePage(browser, {
+      name: "ambient-progress",
+      width: 390,
+      height: 844,
+      mobile: true,
+      touch: true,
+      dpr: 3,
+    });
+
+    try {
+      const sample = () =>
+        page.evaluate(() => ({
+          aurora: getComputedStyle(document.querySelector<HTMLElement>(".aurora-1")!).transform,
+          ecg: getComputedStyle(document.querySelector<HTMLElement>(".ecg-animate")!).transform,
+          marquee: getComputedStyle(document.querySelector<HTMLElement>(".marquee-track")!).transform,
+        }));
+      const before = await sample();
+      await page.waitForTimeout(350);
+      const after = await sample();
+
+      expect(after.aurora, "aurora transform progresses").not.toBe(before.aurora);
+      expect(after.ecg, "ECG transform progresses").not.toBe(before.ecg);
+      expect(after.marquee, "marquee transform progresses").not.toBe(before.marquee);
+    } finally {
+      await context.close();
+    }
+  });
+
   test("touch scrolling keeps visible motion tied to real swipe progress", async ({
     browser,
     browserName,
@@ -64,6 +158,301 @@ test.describe("responsive motion policies", () => {
     }
   });
 
+  test("touch press drives 3D feedback without taking over native scrolling", async ({
+    browser,
+    browserName,
+  }) => {
+    test.skip(browserName !== "chromium", "Synthetic touchscreen input runs once in Chromium");
+
+    for (const viewport of [
+      { name: "phone", width: 390, height: 844, mobile: true, touch: true, dpr: 3 },
+      { name: "tablet", width: 1024, height: 768, touch: true, dpr: 2 },
+    ]) {
+      const { context, page } = await openResponsivePage(browser, viewport);
+      try {
+        const target = page.locator("[data-about-signal-stack] [data-tilt-card]");
+        const motionSurface = target.locator("[data-tilt-surface]");
+        await target.scrollIntoViewIfNeeded();
+        const bounds = await target.boundingBox();
+        expect(bounds, `${viewport.name}: About instrument bounds`).not.toBeNull();
+        const baseline = await motionSurface.evaluate(
+          (element) => getComputedStyle(element).transform,
+        );
+        const point = {
+          x: bounds!.x + bounds!.width * 0.2,
+          y: bounds!.y + bounds!.height * 0.25,
+          radiusX: 8,
+          radiusY: 8,
+          force: 0.5,
+        };
+
+        await target.dispatchEvent("pointerdown", {
+          bubbles: true,
+          pointerId: 7,
+          pointerType: "touch",
+          isPrimary: true,
+          clientX: point.x,
+          clientY: point.y,
+        });
+        await expect(target).toHaveAttribute("data-tilt-active", "");
+        await expect
+          .poll(() =>
+            motionSurface.evaluate((element) => getComputedStyle(element).transform),
+          )
+          .not.toBe(baseline);
+
+        await target.dispatchEvent("pointerup", {
+          bubbles: true,
+          pointerId: 7,
+          pointerType: "touch",
+          isPrimary: true,
+          clientX: point.x,
+          clientY: point.y,
+        });
+        await expect(target).not.toHaveAttribute("data-tilt-active", "", { timeout: 1_500 });
+      } finally {
+        await context.close();
+      }
+    }
+  });
+
+  test("keeps hybrid-device touch native until mouse or wheel intent", async ({
+    browser,
+    browserName,
+  }) => {
+    test.skip(browserName !== "chromium", "Hybrid pointer emulation runs once in Chromium");
+
+    const context = await browser.newContext({
+      viewport: { width: 1024, height: 768 },
+      screen: { width: 1024, height: 768 },
+      hasTouch: true,
+      deviceScaleFactor: 2,
+      reducedMotion: "no-preference",
+      colorScheme: "dark",
+    });
+    await context.addInitScript(() => {
+      const nativeMatchMedia = window.matchMedia.bind(window);
+      const hybridQueries = new Set([
+        "(any-hover: hover) and (any-pointer: fine)",
+      ]);
+      const touchListenerRecords: Array<{
+        type: string;
+        passive: boolean | null;
+        target: string;
+      }> = [];
+      window.matchMedia = (query) => {
+        if (hybridQueries.has(query)) {
+          return {
+            media: query,
+            matches: true,
+            onchange: null,
+            addEventListener() {},
+            removeEventListener() {},
+            addListener() {},
+            removeListener() {},
+            dispatchEvent() {
+              return true;
+            },
+          } as MediaQueryList;
+        }
+        return nativeMatchMedia(query);
+      };
+
+      const nativeAdd = EventTarget.prototype.addEventListener;
+      EventTarget.prototype.addEventListener = function addEventListener(
+        type,
+        listener,
+        options,
+      ) {
+        if (type === "touchstart" || type === "touchmove" || type === "touchend") {
+          const passive =
+            typeof options === "object" && options !== null && "passive" in options
+              ? Boolean(options.passive)
+              : null;
+          const target =
+            this === window
+              ? "window"
+              : this === document
+                ? "document"
+                : (this as Element).tagName?.toLowerCase?.() ?? "unknown";
+          touchListenerRecords.push({ type, passive, target });
+        }
+        return nativeAdd.call(this, type, listener, options);
+      };
+
+      (
+        window as typeof window & {
+          __touchListenerRecords: typeof touchListenerRecords;
+        }
+      ).__touchListenerRecords = touchListenerRecords;
+    });
+    await context.route("https://api.fontshare.com/**", (route) => route.abort());
+
+    const page = await context.newPage();
+    try {
+      await page.goto("/", { waitUntil: "domcontentloaded" });
+      await page.locator("main").waitFor({ state: "visible" });
+      await page.evaluate(async () => {
+        await document.fonts.ready;
+        await new Promise<void>((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+        );
+      });
+
+      const initial = await page.evaluate(() => ({
+        lenis: document.documentElement.classList.contains("lenis"),
+        nonPassiveTouch: (
+          window as typeof window & {
+            __touchListenerRecords: Array<{ passive: boolean | null; target: string }>;
+          }
+        ).__touchListenerRecords.filter(
+          (record) => record.target === "window" && record.passive !== true,
+        ).length,
+      }));
+      expect(initial.lenis, "Lenis should not boot before input intent").toBe(false);
+
+      const client = await context.newCDPSession(page);
+      await client.send("Input.dispatchTouchEvent", {
+        type: "touchStart",
+        touchPoints: [{ x: 512, y: 600, radiusX: 8, radiusY: 8, force: 0.5 }],
+      });
+      await client.send("Input.dispatchTouchEvent", {
+        type: "touchMove",
+        touchPoints: [{ x: 512, y: 220, radiusX: 8, radiusY: 8, force: 0.5 }],
+      });
+      await client.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+      await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(100);
+      expect(
+        await page.evaluate(() => document.documentElement.classList.contains("lenis")),
+        "touch input should not opt into Lenis",
+      ).toBe(false);
+      expect(
+        await page.evaluate(
+          () =>
+            (
+              window as typeof window & {
+                __touchListenerRecords: Array<{ passive: boolean | null; target: string }>;
+              }
+            ).__touchListenerRecords.filter(
+              (record) => record.target === "window" && record.passive !== true,
+            ).length,
+        ),
+        "touch input should not add Lenis non-passive touch listeners",
+      ).toBe(initial.nonPassiveTouch);
+
+      await page.mouse.wheel(0, 1);
+      await expect
+        .poll(() => page.evaluate(() => document.documentElement.classList.contains("lenis")))
+        .toBe(true);
+
+      const secondSwipeStart = await page.evaluate(() => window.scrollY);
+      await client.send("Input.dispatchTouchEvent", {
+        type: "touchStart",
+        touchPoints: [{ x: 512, y: 600, radiusX: 8, radiusY: 8, force: 0.5 }],
+      });
+      await client.send("Input.dispatchTouchEvent", {
+        type: "touchMove",
+        touchPoints: [{ x: 512, y: 220, radiusX: 8, radiusY: 8, force: 0.5 }],
+      });
+      await client.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+      await expect
+        .poll(() => page.evaluate(() => window.scrollY))
+        .toBeGreaterThan(secondSwipeStart + 100);
+      expect(
+        await page.evaluate(() => document.documentElement.classList.contains("lenis")),
+        "touch must tear Lenis down before a hybrid-device swipe",
+      ).toBe(false);
+    } finally {
+      await context.close();
+    }
+  });
+
+  test("leaves browser zoom and horizontal wheel gestures untouched", async ({
+    browser,
+    browserName,
+  }) => {
+    test.skip(browserName !== "chromium", "Wheel cancellation policy runs once in Chromium");
+    const { context, page } = await openResponsivePage(browser, {
+      name: "wheel-browser-controls",
+      width: 1366,
+      height: 768,
+    });
+
+    try {
+      const results = await page.evaluate(() => {
+        const dispatch = (init: WheelEventInit) => {
+          const event = new WheelEvent("wheel", {
+            bubbles: true,
+            cancelable: true,
+            ...init,
+          });
+          const accepted = window.dispatchEvent(event);
+          return { accepted, defaultPrevented: event.defaultPrevented };
+        };
+        return {
+          zoom: dispatch({ deltaY: 120, ctrlKey: true }),
+          horizontal: dispatch({ deltaX: 120, deltaY: 0 }),
+          lenis: document.documentElement.classList.contains("lenis"),
+        };
+      });
+
+      expect(results.zoom).toEqual({ accepted: true, defaultPrevented: false });
+      expect(results.horizontal).toEqual({ accepted: true, defaultPrevented: false });
+      expect(results.lenis, "browser-control wheel gestures must not boot Lenis").toBe(false);
+    } finally {
+      await context.close();
+    }
+  });
+
+  test("wheel impulses remain interpolated on compact and large fine-pointer screens", async ({
+    browser,
+    browserName,
+  }) => {
+    test.skip(browserName !== "chromium", "Wheel interpolation timing runs once in Chromium");
+
+    for (const viewport of [
+      { name: "compact-fine", width: 820, height: 900 },
+      { name: "laptop", width: 1366, height: 768 },
+      { name: "large-desktop", width: 2560, height: 1440 },
+    ]) {
+      const { context, page } = await openResponsivePage(browser, viewport);
+      try {
+        await page.mouse.wheel(0, 1);
+        await expect
+          .poll(() => page.evaluate(() => document.documentElement.classList.contains("lenis")))
+          .toBe(true);
+        await page.evaluate(() => {
+          const auditWindow = window as typeof window & { __wheelSamples?: number[] };
+          auditWindow.__wheelSamples = [];
+          window.addEventListener(
+            "scroll",
+            () => auditWindow.__wheelSamples?.push(window.scrollY),
+            { passive: true },
+          );
+        });
+
+        await page.mouse.wheel(0, 640);
+        await page.waitForTimeout(700);
+        const samples = await page.evaluate(
+          () => (window as typeof window & { __wheelSamples?: number[] }).__wheelSamples ?? [],
+        );
+        const distinct = [...new Set(samples.map((value) => Math.round(value)))];
+        const total = distinct.at(-1) ?? 0;
+        const largestStep = distinct.reduce(
+          (largest, value, index) =>
+            index === 0 ? value : Math.max(largest, value - distinct[index - 1]),
+          0,
+        );
+
+        expect(distinct.length, `${viewport.name}: interpolated wheel frames`).toBeGreaterThanOrEqual(6);
+        expect(total, `${viewport.name}: wheel travel`).toBeGreaterThan(300);
+        expect(largestStep, `${viewport.name}: no single-frame wheel jump`).toBeLessThan(total * 0.5);
+      } finally {
+        await context.close();
+      }
+    }
+  });
+
   test("@smoke avoids pinned research on short, touch, or tablet-class viewports", async ({
     browser,
     browserName,
@@ -88,6 +477,55 @@ test.describe("responsive motion policies", () => {
       } finally {
         await context.close();
       }
+    }
+  });
+
+  test("keeps the cinematic research sequence pinned and escapable on desktop", async ({
+    browser,
+    browserName,
+  }) => {
+    test.skip(browserName !== "chromium", "Pinned scroll sequencing runs once in Chromium");
+    const { context, page } = await openResponsivePage(browser, {
+      name: "pinned-desktop",
+      width: 1366,
+      height: 768,
+    });
+
+    try {
+      const featured = page.locator("#featured");
+      await expect(featured).toHaveAttribute("data-featured-motion", "pinned");
+      await featured.scrollIntoViewIfNeeded();
+      await expect(page.locator(".pin-spacer")).toHaveCount(1);
+
+      const startPhase = await featured.locator('[aria-current="step"]').textContent();
+      for (let step = 0; step < 5; step += 1) {
+        await page.mouse.wheel(0, 600);
+        await page.waitForTimeout(80);
+      }
+      await expect
+        .poll(() => featured.locator('[aria-current="step"]').textContent())
+        .not.toBe(startPhase);
+
+      const projects = page.locator("#projects");
+      for (let step = 0; step < 20; step += 1) {
+        const visible = await projects.evaluate((section) => {
+          const rect = section.getBoundingClientRect();
+          return rect.top < window.innerHeight && rect.bottom > 0;
+        });
+        if (visible) break;
+        await page.mouse.wheel(0, 700);
+        await page.waitForTimeout(120);
+      }
+      await expect
+        .poll(() =>
+          projects.evaluate((section) => {
+            const rect = section.getBoundingClientRect();
+            return rect.top < window.innerHeight && rect.bottom > 0;
+          }),
+        )
+        .toBe(true);
+    } finally {
+      await context.close();
     }
   });
 
@@ -144,6 +582,36 @@ test.describe("responsive motion policies", () => {
     }
   });
 
+  test("lets keyboard and touch users pause continuous marquee motion", async ({
+    browser,
+  }) => {
+    const { context, page } = await openResponsivePage(browser, {
+      name: "marquee-control",
+      width: 390,
+      height: 844,
+      mobile: true,
+      touch: true,
+      dpr: 3,
+    });
+
+    try {
+      const toggle = page.locator(".marquee-toggle").first();
+      await toggle.scrollIntoViewIfNeeded();
+      await expect(toggle).toHaveAccessibleName("Toggle skills marquee motion");
+      await toggle.focus();
+      await page.keyboard.press("Enter");
+      await expect(toggle).toHaveAttribute("aria-pressed", "true");
+      await expect(page.locator(".marquee-track")).toHaveAttribute("data-paused", "");
+      expect(
+        await page.locator(".marquee-track").evaluate(
+          (element) => getComputedStyle(element).animationPlayState,
+        ),
+      ).toBe("paused");
+    } finally {
+      await context.close();
+    }
+  });
+
   test("stops desktop smooth scrolling when reduced motion changes at runtime", async ({
     browser,
     browserName,
@@ -156,6 +624,7 @@ test.describe("responsive motion policies", () => {
     });
 
     try {
+      await page.mouse.wheel(0, 1);
       await expect
         .poll(() => page.evaluate(() => document.documentElement.classList.contains("lenis")))
         .toBe(true);
@@ -199,11 +668,14 @@ test.describe("responsive motion policies", () => {
   }) => {
     test.skip(browserName !== "chromium", "Runtime pointer emulation runs once in Chromium");
 
-    for (const selector of ["[data-hero-btns] > div", ".about-signal-tilt"]) {
+    for (const selector of [
+      "[data-hero-btns] > div",
+      "[data-about-signal-stack] [data-tilt-card]",
+    ]) {
       const context = await browser.newContext({ viewport: { width: 1366, height: 768 } });
       await context.addInitScript(() => {
         const nativeMatchMedia = window.matchMedia.bind(window);
-        const media = "(hover: hover) and (pointer: fine)";
+        const media = "(any-hover: hover) and (any-pointer: fine)";
         const listeners = new Set<(event: MediaQueryListEvent) => void>();
         let enabled = true;
         const pointerQuery = {
@@ -264,7 +736,9 @@ test.describe("responsive motion policies", () => {
 
         const isIdentity = () =>
           target.evaluate((element) => {
-            const transform = getComputedStyle(element).transform;
+            const motionSurface =
+              element.querySelector<HTMLElement>("[data-tilt-surface]") ?? element;
+            const transform = getComputedStyle(motionSurface).transform;
             if (transform === "none") return true;
             const matrix = new DOMMatrixReadOnly(transform);
             return (

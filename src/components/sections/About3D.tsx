@@ -21,13 +21,24 @@ export function About3D() {
   const sectionRef = useRef<HTMLElement>(null);
 
   useIsoLayoutEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
 
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        gsap.set(
+          [
+            "[data-about-identity]",
+            "[data-about-lead]",
+            "[data-about-body]",
+            "[data-about-waves]",
+            "[data-about-focus]",
+          ],
+          { clearProps: "all" },
+        );
+      });
+
       /* ── Desktop: individual 3D reveals (no pin) ─────────────────── */
-      mm.add("(min-width: 1024px)", () => {
+      mm.add("(min-width: 1024px) and (prefers-reduced-motion: no-preference)", () => {
         // The identity arrives as one physical object before the story resolves.
         gsap.from("[data-about-identity]", {
           x: -44,
@@ -105,12 +116,18 @@ export function About3D() {
         });
       });
 
-      /* ── Mobile: simple reveals ──────────────────────────────────── */
-      mm.add("(max-width: 1023px)", () => {
+      /* ── Mobile: touch-scroll 3D reveals ────────────────────────── */
+      mm.add("(max-width: 1023px) and (prefers-reduced-motion: no-preference)", () => {
         gsap.from("[data-about-identity]", {
+          z: -140,
+          rotateX: 4,
+          rotateY: -2.5,
           opacity: 0,
-          y: 24,
-          duration: 0.9,
+          y: 30,
+          scale: 0.96,
+          force3D: true,
+          clearProps: "transform,opacity",
+          duration: 1.15,
           ease: "power3.out",
           scrollTrigger: {
             trigger: "[data-about-identity]",
@@ -120,9 +137,14 @@ export function About3D() {
         });
 
         gsap.from("[data-about-lead]", {
+          z: -160,
+          rotateX: 5,
           opacity: 0,
-          y: 30,
-          duration: 0.9,
+          y: 42,
+          scale: 0.97,
+          force3D: true,
+          clearProps: "transform,opacity",
+          duration: 1.15,
           ease: "power3.out",
           scrollTrigger: {
             trigger: "[data-about-lead]",
@@ -132,10 +154,15 @@ export function About3D() {
         });
 
         gsap.from(gsap.utils.toArray("[data-about-body]"), {
+          z: -140,
+          rotateX: 4,
           opacity: 0,
-          y: 24,
-          duration: 0.8,
-          stagger: 0.1,
+          y: 36,
+          scale: 0.98,
+          force3D: true,
+          clearProps: "transform,opacity",
+          duration: 1.05,
+          stagger: 0.12,
           ease: "power3.out",
           scrollTrigger: {
             trigger: "[data-about-body]",
@@ -144,10 +171,32 @@ export function About3D() {
           },
         });
 
+        // Keep the signal layer responsive to native touch scrolling.
+        gsap.fromTo(
+          "[data-about-waves]",
+          { y: 36 },
+          {
+            y: -36,
+            force3D: true,
+            ease: "none",
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: "top bottom",
+              end: "bottom top",
+              scrub: 0.45,
+            },
+          },
+        );
+
         gsap.from("[data-about-focus]", {
+          z: -140,
+          rotateX: 4,
           opacity: 0,
-          y: 24,
-          duration: 0.8,
+          y: 38,
+          scale: 0.97,
+          force3D: true,
+          clearProps: "transform,opacity",
+          duration: 1.1,
           ease: "power3.out",
           scrollTrigger: {
             trigger: "[data-about-focus]",

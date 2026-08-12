@@ -42,13 +42,15 @@ export function Achievements3D() {
   const lineRef = useRef<HTMLDivElement>(null);
 
   useIsoLayoutEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
 
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        gsap.set([lineRef.current, "[data-achievement-node]"], { clearProps: "all" });
+      });
+
       /* ── Desktop: 3D depth reveals ───────────────────────────────── */
-      mm.add("(min-width: 1024px)", () => {
+      mm.add("(min-width: 1024px) and (prefers-reduced-motion: no-preference)", () => {
         // Timeline connector draws
         if (lineRef.current) {
           gsap.from(lineRef.current, {
@@ -71,7 +73,7 @@ export function Achievements3D() {
         nodes.forEach((node, i) => {
           gsap.from(node, {
             z: -150,
-            rotateY: i % 2 === 0 ? 5 : -5,
+            rotateY: i % 2 === 0 ? 3 : -3,
             opacity: 0,
             x: i % 2 === 0 ? -30 : 30,
             duration: 1.2,
@@ -85,16 +87,38 @@ export function Achievements3D() {
         });
       });
 
-      /* ── Mobile: simple fade-up ──────────────────────────────────── */
-      mm.add("(max-width: 1023px)", () => {
+      /* ── Mobile: connector draw and 3D node reveals ─────────────── */
+      mm.add("(max-width: 1023px) and (prefers-reduced-motion: no-preference)", () => {
+        if (lineRef.current) {
+          gsap.from(lineRef.current, {
+            scaleY: 0,
+            transformOrigin: "top center",
+            force3D: true,
+            clearProps: "transform",
+            duration: 1.5,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: lineRef.current,
+              start: "top 88%",
+              once: true,
+            },
+          });
+        }
+
         const nodes = gsap.utils.toArray<HTMLElement>(
           "[data-achievement-node]",
         );
-        nodes.forEach((node) => {
+        nodes.forEach((node, i) => {
           gsap.from(node, {
+            z: -160,
+            rotateX: 3,
+            rotateY: i % 2 === 0 ? 5 : -5,
             opacity: 0,
-            y: 30,
-            duration: 0.8,
+            y: 38,
+            scale: 0.97,
+            force3D: true,
+            clearProps: "transform,opacity",
+            duration: 1.15,
             ease: "power3.out",
             scrollTrigger: { trigger: node, start: "top 88%", once: true },
           });

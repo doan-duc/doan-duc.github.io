@@ -30,6 +30,8 @@ const glareSpring: TiltSpring = {
 };
 
 const layerReleaseDelayMs = 480;
+const touchTiltStrength = 0.62;
+const touchPressScale = 0.992;
 
 /** 3D tilt toward the pointer (Framer micro-interaction). Keep `max` low. */
 export function TiltCard({
@@ -49,6 +51,7 @@ export function TiltCard({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const layerReleaseTimerRef = useRef<number | null>(null);
+  const activeTouchPointerRef = useRef<number | null>(null);
   const shouldReduceMotion = useReducedMotion();
   const pointerEffectsEnabled = usePointerEffectsEnabled();
   const boundsRef = useRef<DOMRect | null>(null);
@@ -69,15 +72,34 @@ export function TiltCard({
     layerReleaseTimerRef.current = null;
   }
 
-  function handleMove(e: React.PointerEvent) {
-    if (shouldReduceMotion || !pointerEffectsEnabled) return;
-    if (e.pointerType === "touch") return;
+  function updateTiltFromPointer(e: React.PointerEvent, strength = 1) {
     const el = ref.current;
     if (!el) return;
     const r = boundsRef.current ?? el.getBoundingClientRect();
     boundsRef.current = r;
-    px.set((e.clientX - r.left) / r.width - 0.5);
-    py.set((e.clientY - r.top) / r.height - 0.5);
+    const normalizedX = Math.min(
+      0.5,
+      Math.max(-0.5, (e.clientX - r.left) / r.width - 0.5),
+    );
+    const normalizedY = Math.min(
+      0.5,
+      Math.max(-0.5, (e.clientY - r.top) / r.height - 0.5),
+    );
+    px.set(normalizedX * strength);
+    py.set(normalizedY * strength);
+  }
+
+  function handleMove(e: React.PointerEvent) {
+    if (shouldReduceMotion) return;
+
+    if (e.pointerType === "touch") {
+      if (activeTouchPointerRef.current !== e.pointerId) return;
+      updateTiltFromPointer(e, touchTiltStrength);
+      return;
+    }
+
+    if (!pointerEffectsEnabled) return;
+    updateTiltFromPointer(e);
   }
 
   function activate(e: React.PointerEvent) {
@@ -90,7 +112,29 @@ export function TiltCard({
     glareOpacityTarget.set(1);
   }
 
+  function press(e: React.PointerEvent) {
+    if (shouldReduceMotion || e.pointerType !== "touch") return;
+    clearLayerReleaseTimer();
+    activeTouchPointerRef.current = e.pointerId;
+    ref.current?.setAttribute("data-tilt-active", "");
+    boundsRef.current = ref.current?.getBoundingClientRect() ?? null;
+    updateTiltFromPointer(e, touchTiltStrength);
+    scaleTarget.set(touchPressScale);
+    glareOpacityTarget.set(0.72);
+  }
+
+  function release(e: React.PointerEvent) {
+    if (
+      e.pointerType !== "touch" ||
+      activeTouchPointerRef.current !== e.pointerId
+    ) {
+      return;
+    }
+    reset();
+  }
+
   function reset() {
+    activeTouchPointerRef.current = null;
     boundsRef.current = null;
     px.set(0);
     py.set(0);
@@ -106,6 +150,7 @@ export function TiltCard({
   useEffect(() => {
     if (!shouldReduceMotion && pointerEffectsEnabled) return;
     clearLayerReleaseTimer();
+    activeTouchPointerRef.current = null;
     boundsRef.current = null;
     ref.current?.removeAttribute("data-tilt-active");
     px.set(0);
@@ -139,32 +184,39 @@ export function TiltCard({
   );
 
   return (
-    <motion.div
+    <div
       ref={ref}
       data-tilt-card=""
       onPointerEnter={activate}
+      onPointerDown={press}
       onPointerMove={handleMove}
+      onPointerUp={release}
       onPointerLeave={reset}
       onPointerCancel={reset}
-      style={{
-        rotateX,
-        rotateY,
-        scale,
-        transformPerspective: 900,
-        transformStyle: "preserve-3d",
-        backfaceVisibility: "hidden",
-      }}
-      className={cn("tilt-card relative", className)}
+      className="tilt-card-hit-area relative"
     >
-      {glare ? (
-        <motion.span
-          aria-hidden="true"
-          data-tilt-glare=""
-          className="tilt-card-glare"
-          style={{ x: glareX, y: glareY, opacity: glareOpacity, z: 4 }}
-        />
-      ) : null}
-      {children}
-    </motion.div>
+      <motion.div
+        data-tilt-surface=""
+        style={{
+          rotateX,
+          rotateY,
+          scale,
+          transformPerspective: 900,
+          transformStyle: "preserve-3d",
+          backfaceVisibility: "hidden",
+        }}
+        className={cn("tilt-card relative", className)}
+      >
+        {glare ? (
+          <motion.span
+            aria-hidden="true"
+            data-tilt-glare=""
+            className="tilt-card-glare"
+            style={{ x: glareX, y: glareY, opacity: glareOpacity, z: 4 }}
+          />
+        ) : null}
+        {children}
+      </motion.div>
+    </div>
   );
 }

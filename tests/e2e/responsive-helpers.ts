@@ -191,9 +191,12 @@ export async function collectLayoutIssues(page: Page) {
         );
       }
 
+      const transformedByMotion = style.transform !== "none";
+
       if (
         element.clientWidth > 0 &&
         element.scrollWidth > element.clientWidth + tolerance &&
+        !transformedByMotion &&
         !element.closest("[data-responsive-audit-allow-overflow]")
       ) {
         issues.push(
