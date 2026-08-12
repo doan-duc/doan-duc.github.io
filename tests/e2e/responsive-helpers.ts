@@ -12,13 +12,20 @@ export type ResponsiveViewport = {
 export const crossEngineViewports: ResponsiveViewport[] = [
   { name: "compact-phone", width: 320, height: 568, mobile: true, touch: true, dpr: 2 },
   { name: "modern-phone", width: 390, height: 844, mobile: true, touch: true, dpr: 3 },
+  { name: "large-phone", width: 430, height: 932, mobile: true, touch: true, dpr: 3 },
   { name: "phone-landscape", width: 667, height: 375, mobile: true, touch: true, dpr: 2 },
   { name: "large-phone-landscape", width: 844, height: 390, mobile: true, touch: true, dpr: 3 },
   { name: "tablet-portrait", width: 768, height: 1024, touch: true, dpr: 2 },
+  { name: "tablet-air-portrait", width: 820, height: 1180, touch: true, dpr: 2 },
   { name: "tablet-landscape", width: 1024, height: 768, touch: true, dpr: 2 },
+  { name: "tablet-air-landscape", width: 1180, height: 820, touch: true, dpr: 2 },
+  { name: "short-laptop", width: 1280, height: 720 },
   { name: "laptop", width: 1366, height: 768 },
   { name: "desktop", width: 1920, height: 1080 },
   { name: "large-desktop", width: 2560, height: 1440 },
+  { name: "ultrawide", width: 3440, height: 1440 },
+  { name: "portrait-monitor", width: 1080, height: 1920 },
+  { name: "4k-desktop", width: 3840, height: 2160 },
 ];
 
 export const chromiumDeviceMatrix: ResponsiveViewport[] = [
@@ -46,6 +53,9 @@ export const chromiumDeviceMatrix: ResponsiveViewport[] = [
   { name: "large-desktop", width: 1920, height: 1080 },
   { name: "ultrawide", width: 2560, height: 1080 },
   { name: "high-resolution", width: 2560, height: 1440 },
+  { name: "wide-ultrawide", width: 3440, height: 1440 },
+  { name: "4k-desktop", width: 3840, height: 2160 },
+  { name: "portrait-display", width: 1080, height: 1920 },
   { name: "portrait-monitor", width: 1440, height: 2560 },
 ];
 
@@ -56,8 +66,9 @@ export const shortLandscapeViewports = chromiumDeviceMatrix.filter(
 export function widthSweep() {
   const widths = new Set<number>();
   for (let width = 320; width <= 2560; width += 16) widths.add(width);
+  for (let width = 2624; width <= 3840; width += 64) widths.add(width);
 
-  for (const boundary of [420, 560, 640, 720, 768, 900, 960, 1024, 1152, 1280, 1536]) {
+  for (const boundary of [420, 560, 640, 720, 768, 899, 900, 960, 1023, 1024, 1152, 1280, 1536, 1920, 2560, 3440, 3840]) {
     widths.add(boundary - 1);
     widths.add(boundary);
     widths.add(boundary + 1);
@@ -69,8 +80,9 @@ export function widthSweep() {
 export function heightSweep() {
   const heights = new Set<number>();
   for (let height = 320; height <= 1200; height += 40) heights.add(height);
+  for (let height = 1280; height <= 2160; height += 160) heights.add(height);
 
-  for (const boundary of [375, 390, 430, 480, 568, 600, 700, 768, 844, 900, 1024]) {
+  for (const boundary of [375, 390, 430, 480, 568, 600, 699, 700, 768, 844, 900, 1024, 1180, 1440, 1920, 2160]) {
     heights.add(boundary - 1);
     heights.add(boundary);
     heights.add(boundary + 1);

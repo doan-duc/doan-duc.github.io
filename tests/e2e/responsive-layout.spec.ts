@@ -77,9 +77,7 @@ test.describe("responsive geometry", () => {
     test.slow();
 
     for (const viewport of crossEngineViewports) {
-      const { context, page } = await openResponsivePage(browser, viewport, {
-        reducedMotion: true,
-      });
+      const { context, page } = await openResponsivePage(browser, viewport);
       try {
         await expectNoLayoutIssues(page, `${viewport.name} ${viewport.width}x${viewport.height}`);
 

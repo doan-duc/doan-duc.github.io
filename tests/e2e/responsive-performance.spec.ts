@@ -494,7 +494,7 @@ test.describe("motion smoothness budgets", () => {
     }
   });
 
-  test("compact and coarse-pointer screens use a low-paint motion profile", async ({
+  test("no-preference keeps the full visual animation language on compact and touch screens", async ({
     browser,
     browserName,
   }) => {
@@ -523,61 +523,32 @@ test.describe("motion smoothness budgets", () => {
             const name = getComputedStyle(element, pseudo).animationName;
             return name === "none" ? [] : [`${selector}${pseudo ?? ""}: ${name}`];
           });
-          const promoted = Array.from(
-            document.querySelectorAll<HTMLElement>(
-              [
-                "[data-project-card]",
-                "[data-skill-panel]",
-                "[data-achievement-node]",
-                "[data-about-identity]",
-                "[data-about-lead]",
-                "[data-about-body]",
-                "[data-about-focus]",
-              ].join(","),
-            ),
-          ).flatMap((element) => {
-            const hint = getComputedStyle(element).willChange;
-            return hint === "auto" ? [] : [`${element.tagName.toLowerCase()}: ${hint}`];
-          });
-          const aurora = document.querySelector<HTMLElement>("#aurora");
-          const heroGlow = document.querySelector<HTMLElement>(".hero-glow");
-          if (aurora) {
-            const hint = getComputedStyle(aurora, "::after").willChange;
-            if (hint !== "auto") promoted.push(`#aurora::after: ${hint}`);
-          }
-          if (heroGlow) {
-            const hint = getComputedStyle(heroGlow).willChange;
-            if (hint !== "auto") promoted.push(`.hero-glow: ${hint}`);
-          }
-          const glass = document.querySelector<HTMLElement>(".glass-3d");
-          const glassStyle = glass ? getComputedStyle(glass) : null;
-          const backdrop = glassStyle
-            ? glassStyle.backdropFilter ||
-              (glassStyle as CSSStyleDeclaration & { webkitBackdropFilter?: string })
-                .webkitBackdropFilter ||
-              "none"
-            : "none";
-          const grain = document.querySelector<HTMLElement>("#grain");
-          const visibleGlare = Array.from(
-            document.querySelectorAll<HTMLElement>("[data-tilt-glare]"),
-          ).filter((element) => getComputedStyle(element).display !== "none").length;
+          const perspective = document.querySelector<HTMLElement>(".perspective-scene");
+          const depthRoot = document.querySelector<HTMLElement>(".preserve-3d");
 
           return {
+            reducedMotion: matchMedia("(prefers-reduced-motion: reduce)").matches,
             coarsePointer: matchMedia("(pointer: coarse)").matches,
             activeAnimations,
-            promoted,
-            backdrop,
-            grainDisplay: grain ? getComputedStyle(grain).display : "none",
-            visibleGlare,
+            perspective: perspective ? getComputedStyle(perspective).perspective : "none",
+            transformStyle: depthRoot ? getComputedStyle(depthRoot).transformStyle : "flat",
           };
         });
 
         expect(policy.coarsePointer || viewport.width < 1024, `${viewport.name}: test precondition`).toBe(true);
-        expect(policy.activeAnimations, `${viewport.name}: continuous decorative motion`).toEqual([]);
-        expect(policy.promoted, `${viewport.name}: persistent compositor layers`).toEqual([]);
-        expect(policy.backdrop, `${viewport.name}: glass blur`).toBe("none");
-        expect(policy.grainDisplay, `${viewport.name}: fixed grain paint`).toBe("none");
-        expect(policy.visibleGlare, `${viewport.name}: pointer-only depth lighting`).toBe(0);
+        expect(policy.reducedMotion, `${viewport.name}: no user opt-out`).toBe(false);
+        expect(
+          policy.activeAnimations,
+          `${viewport.name}: viewport width or pointer type must not silently disable the visual animations`,
+        ).toEqual([
+          "#aurora::after: auroraDrift",
+          ".hero-glow: hero-pulse",
+          ".ecg-animate: ecgDraw",
+          ".about-signal-trace-flow: about-trace-flow",
+          ".marquee-track: marquee",
+        ]);
+        expect(policy.perspective, `${viewport.name}: 3D scene remains available`).not.toBe("none");
+        expect(policy.transformStyle, `${viewport.name}: depth hierarchy remains 3D`).toBe("preserve-3d");
       } finally {
         await context.close();
       }
