@@ -127,6 +127,7 @@ export function SignalCursor() {
     let lastContextElement: Element | null = null;
     let lastRawTarget: EventTarget | null = null;
     let suppressMouseUntil = 0;
+    let inactive = true;
 
     const setNativeCursorActive = (active: boolean) => {
       if (documentRoot.hasAttribute("data-signal-cursor-active") === active) return;
@@ -165,6 +166,8 @@ export function SignalCursor() {
     };
 
     const deactivate = () => {
+      if (inactive && frameId === null && !latestSample && !pulseAnimation) return;
+      inactive = true;
       latestSample = null;
       setVisible(false);
       setNativeCursorActive(false);
@@ -184,6 +187,7 @@ export function SignalCursor() {
 
       targetX = sample.x;
       targetY = sample.y;
+      inactive = false;
       dot.style.transform = translateTo(targetX, targetY);
       updateMode(sample.target);
       if (lastMode === "native") {

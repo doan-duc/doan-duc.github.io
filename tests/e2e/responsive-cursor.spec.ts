@@ -6,9 +6,10 @@ type Point = { x: number; y: number };
 declare global {
   interface Window {
     __cursorMotionFrames?: Array<{ dot: Point; ring: Point }>;
-    __cursorPulseFrames?: Array<{
+      __cursorPulseFrames?: Array<{
       opacity: number;
       transform: string;
+      center: Point;
     } | null>;
     __cursorHotPathAudit?: {
       active: boolean;
@@ -18,6 +19,7 @@ declare global {
       dotStyleMutations: number;
       projectQuerySelectorCalls: number;
     };
+    __cursorIdleMutationCount?: number;
   }
 }
 
@@ -94,6 +96,12 @@ test.describe("signal cursor", () => {
       expect(policy.bodyCursor).toBe("none");
       expect(policy.interactiveCursor).toBe("none");
       expect(policy.paragraphCursor).toBe("text");
+
+      const mediaPolicy = await page.evaluate(() => ({
+        forcedColorsActive: matchMedia("(forced-colors: active)").matches,
+        forcedColorsNone: matchMedia("(forced-colors: none)").matches,
+      }));
+      expect(mediaPolicy).toEqual({ forcedColorsActive: false, forcedColorsNone: true });
 
       const paragraph = page.locator("main p").first();
       await paragraph.hover();
@@ -220,6 +228,10 @@ test.describe("signal cursor", () => {
               ? {
                   opacity: Number.parseFloat(getComputedStyle(pulse).opacity),
                   transform: getComputedStyle(pulse).transform,
+                  center: (() => {
+                    const rect = pulse.getBoundingClientRect();
+                    return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+                  })(),
                 }
               : null,
           );
@@ -244,6 +256,11 @@ test.describe("signal cursor", () => {
       expect(frames.length, "the pulse should be present during click feedback").toBeGreaterThan(2);
       expect(Math.max(...frames.map(({ opacity }) => opacity)), "pulse should become visible").toBeGreaterThan(0.1);
       expect(new Set(signatures).size, "pulse should expand or fade over time").toBeGreaterThanOrEqual(3);
+      const visibleFrames = frames.filter(({ opacity }) => opacity > 0.1);
+      expect(
+        Math.max(...visibleFrames.map(({ center }) => distance(center, { x: 20, y: 300 }))),
+        "pulse should stay centered on the actual pointerdown point",
+      ).toBeLessThan(2);
     } finally {
       await context.close();
     }
@@ -322,6 +339,12 @@ test.describe("signal cursor", () => {
       await forcedColorsPage.locator("main").waitFor({ state: "visible" });
       await expect(forcedColorsPage.locator("[data-signal-cursor]")).toHaveCount(0);
       expect(
+        await forcedColorsPage.evaluate(() => ({
+          active: matchMedia("(forced-colors: active)").matches,
+          none: matchMedia("(forced-colors: none)").matches,
+        })),
+      ).toEqual({ active: true, none: false });
+      expect(
         await forcedColorsPage.evaluate(() => getComputedStyle(document.body).cursor),
       ).not.toBe("none");
     } finally {
@@ -347,7 +370,7 @@ test.describe("signal cursor", () => {
         "view",
       );
 
-      await trigger.click();
+      await page.locator('[data-cursor="play"]').first().click();
       const dialog = page.locator("dialog[open]");
       await expect(dialog).toBeVisible();
       await expect(page.locator("[data-signal-cursor]")).not.toHaveAttribute("data-visible", "");
@@ -355,16 +378,7 @@ test.describe("signal cursor", () => {
       expect(await dialog.evaluate((element) => getComputedStyle(element).cursor)).not.toBe("none");
 
       await dialog.getByRole("button", { name: "Close" }).click();
-      await page.evaluate(() => {
-        window.dispatchEvent(
-          new PointerEvent("pointermove", {
-            bubbles: true,
-            clientX: 180,
-            clientY: 180,
-            pointerType: "mouse",
-          }),
-        );
-      });
+      await page.locator('button[aria-haspopup="dialog"]').first().hover();
       await expect(page.locator("html")).toHaveAttribute("data-signal-cursor-active", "");
     } finally {
       await context.close();
@@ -419,6 +433,57 @@ test.describe("signal cursor", () => {
       });
       await expect(cursor).toHaveAttribute("data-visible", "");
       await expect(page.locator("html")).toHaveAttribute("data-signal-cursor-active", "");
+    } finally {
+      await context.close();
+    }
+  });
+
+  test("keeps touch and wheel deactivation idempotent during native scrolling", async ({
+    browser,
+    browserName,
+  }) => {
+    test.skip(browserName !== "chromium", "Event-burst instrumentation runs once in Chromium");
+    const { context, page } = await openResponsivePage(browser, {
+      name: "cursor-idle-event-bursts",
+      width: 1366,
+      height: 768,
+    });
+
+    try {
+      await page.mouse.move(20, 300);
+      await expect(page.locator("[data-signal-cursor]")).toHaveAttribute("data-visible", "");
+      const mutations = await page.evaluate(async () => {
+        const root = document.querySelector<HTMLElement>("[data-signal-cursor]")!;
+        window.dispatchEvent(
+          new PointerEvent("pointermove", { pointerType: "touch", clientX: 20, clientY: 300 }),
+        );
+        await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+
+        window.__cursorIdleMutationCount = 0;
+        const observer = new MutationObserver((records) => {
+          window.__cursorIdleMutationCount! += records.length;
+        });
+        observer.observe(root, {
+          attributes: true,
+          characterData: true,
+          childList: true,
+          subtree: true,
+        });
+        for (let index = 0; index < 80; index += 1) {
+          window.dispatchEvent(
+            new PointerEvent("pointermove", {
+              pointerType: "touch",
+              clientX: 20 + index,
+              clientY: 300,
+            }),
+          );
+          window.dispatchEvent(new WheelEvent("wheel", { deltaY: 2 }));
+        }
+        await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+        observer.disconnect();
+        return window.__cursorIdleMutationCount;
+      });
+      expect(mutations, "inactive touch/wheel bursts must not rewrite cursor DOM").toBe(0);
     } finally {
       await context.close();
     }
