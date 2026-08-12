@@ -15,6 +15,8 @@ declare global {
       boundingRectCalls: number;
       matchMediaCalls: number;
       childListMutations: number;
+      dotStyleMutations: number;
+      projectQuerySelectorCalls: number;
     };
   }
 }
@@ -71,6 +73,8 @@ test.describe("signal cursor", () => {
       const cursor = page.locator("[data-signal-cursor]");
       await expect(cursor).toHaveCount(1);
       await expect(cursor).toHaveAttribute("aria-hidden", "true");
+      await page.mouse.move(40, 180);
+      await expect(page.locator("html")).toHaveAttribute("data-signal-cursor-active", "");
 
       const policy = await page.evaluate(() => {
         const overlay = document.querySelector<HTMLElement>("[data-signal-cursor]");
@@ -90,6 +94,11 @@ test.describe("signal cursor", () => {
       expect(policy.bodyCursor).toBe("none");
       expect(policy.interactiveCursor).toBe("none");
       expect(policy.paragraphCursor).toBe("text");
+
+      const paragraph = page.locator("main p").first();
+      await paragraph.hover();
+      await expect(cursor).toHaveAttribute("data-cursor-native-active", "");
+      await expect(cursor).not.toHaveAttribute("data-visible", "");
     } finally {
       await context.close();
     }
@@ -176,12 +185,12 @@ test.describe("signal cursor", () => {
     try {
       await expectCursorLabel(
         page,
-        page.locator("[data-project-card]").first().getByRole("heading", { level: 3 }),
+        page.locator('button[aria-haspopup="dialog"]').first(),
         "VIEW",
       );
       await expectCursorLabel(
         page,
-        page.locator('button[aria-haspopup="dialog"]').first(),
+        page.locator('[data-cursor="play"]').first(),
         "PLAY",
       );
       await expectCursorLabel(page, page.locator("[data-hust-affiliation]"), "OPEN ↗");
@@ -200,7 +209,7 @@ test.describe("signal cursor", () => {
     });
 
     try {
-      await page.mouse.move(640, 360);
+      await page.mouse.move(20, 300);
       await page.evaluate(() => {
         window.__cursorPulseFrames = [];
         let remaining = 22;
@@ -275,6 +284,146 @@ test.describe("signal cursor", () => {
     }
   });
 
+  test("restores the native cursor when motion preference changes at runtime or high contrast is active", async ({
+    browser,
+    browserName,
+  }) => {
+    test.skip(browserName !== "chromium", "Runtime media emulation is covered once in Chromium");
+
+    const { context, page } = await openResponsivePage(browser, {
+      name: "runtime-cursor-preferences",
+      width: 1366,
+      height: 768,
+    });
+
+    try {
+      await expect(page.locator("[data-signal-cursor]")).toHaveCount(1);
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      await expect(page.locator("[data-signal-cursor]")).toHaveCount(0);
+      expect(await page.evaluate(() => getComputedStyle(document.body).cursor)).not.toBe("none");
+
+      await page.emulateMedia({ reducedMotion: "no-preference" });
+      await expect(page.locator("[data-signal-cursor]")).toHaveCount(1);
+    } finally {
+      await context.close();
+    }
+
+    const forcedColorsContext = await browser.newContext({
+      viewport: { width: 1366, height: 768 },
+      colorScheme: "dark",
+      forcedColors: "active",
+      reducedMotion: "no-preference",
+    });
+    await forcedColorsContext.route("https://api.fontshare.com/**", (route) => route.abort());
+    const forcedColorsPage = await forcedColorsContext.newPage();
+
+    try {
+      await forcedColorsPage.goto("/", { waitUntil: "domcontentloaded" });
+      await forcedColorsPage.locator("main").waitFor({ state: "visible" });
+      await expect(forcedColorsPage.locator("[data-signal-cursor]")).toHaveCount(0);
+      expect(
+        await forcedColorsPage.evaluate(() => getComputedStyle(document.body).cursor),
+      ).not.toBe("none");
+    } finally {
+      await forcedColorsContext.close();
+    }
+  });
+
+  test("hands control back to the native cursor while a project dialog is open", async ({
+    browser,
+  }) => {
+    const { context, page } = await openResponsivePage(browser, {
+      name: "cursor-dialog-handoff",
+      width: 1366,
+      height: 768,
+    });
+
+    try {
+      const trigger = page.locator('button[aria-haspopup="dialog"]').first();
+      await trigger.scrollIntoViewIfNeeded();
+      await trigger.hover();
+      await expect(page.locator("[data-signal-cursor]")).toHaveAttribute(
+        "data-cursor-mode",
+        "view",
+      );
+
+      await trigger.click();
+      const dialog = page.locator("dialog[open]");
+      await expect(dialog).toBeVisible();
+      await expect(page.locator("[data-signal-cursor]")).not.toHaveAttribute("data-visible", "");
+      await expect(page.locator("html")).not.toHaveAttribute("data-signal-cursor-active", "");
+      expect(await dialog.evaluate((element) => getComputedStyle(element).cursor)).not.toBe("none");
+
+      await dialog.getByRole("button", { name: "Close" }).click();
+      await page.evaluate(() => {
+        window.dispatchEvent(
+          new PointerEvent("pointermove", {
+            bubbles: true,
+            clientX: 180,
+            clientY: 180,
+            pointerType: "mouse",
+          }),
+        );
+      });
+      await expect(page.locator("html")).toHaveAttribute("data-signal-cursor-active", "");
+    } finally {
+      await context.close();
+    }
+  });
+
+  test("ignores compatibility mouse events after touch and reactivates only for a real mouse pointer", async ({
+    browser,
+    browserName,
+  }) => {
+    test.skip(browserName !== "chromium", "Hybrid pointer synthesis is covered once in Chromium");
+    const { context, page } = await openResponsivePage(browser, {
+      name: "cursor-hybrid-transition",
+      width: 1366,
+      height: 768,
+    });
+
+    try {
+      const cursor = page.locator("[data-signal-cursor]");
+      await page.mouse.move(20, 300);
+      await expect(cursor).toHaveAttribute("data-visible", "");
+
+      await page.evaluate(() => {
+        window.dispatchEvent(
+          new PointerEvent("pointerdown", {
+            bubbles: true,
+            clientX: 320,
+            clientY: 220,
+            pointerType: "touch",
+          }),
+        );
+        window.dispatchEvent(
+          new MouseEvent("mousemove", {
+            bubbles: true,
+            clientX: 322,
+            clientY: 222,
+          }),
+        );
+      });
+      await expect(cursor).not.toHaveAttribute("data-visible", "");
+      await expect(page.locator("html")).not.toHaveAttribute("data-signal-cursor-active", "");
+
+      await page.evaluate(() => {
+        window.dispatchEvent(
+          new PointerEvent("pointermove", {
+            bubbles: true,
+            clientX: 420,
+            clientY: 280,
+            pointerType: "mouse",
+          }),
+        );
+      });
+      await expect(cursor).toHaveAttribute("data-visible", "");
+      await expect(page.locator("html")).toHaveAttribute("data-signal-cursor-active", "");
+    } finally {
+      await context.close();
+    }
+  });
+
   test("stays out of layout and avoids media or geometry reads in the pointer hot path", async ({
     browser,
     browserName,
@@ -287,6 +436,8 @@ test.describe("signal cursor", () => {
         boundingRectCalls: 0,
         matchMediaCalls: 0,
         childListMutations: 0,
+        dotStyleMutations: 0,
+        projectQuerySelectorCalls: 0,
       };
 
       const nativeBoundingRect = Element.prototype.getBoundingClientRect;
@@ -304,6 +455,21 @@ test.describe("signal cursor", () => {
         }
         return nativeMatchMedia(query);
       };
+
+      const nativeQuerySelector = Element.prototype.querySelector;
+      Object.defineProperty(Element.prototype, "querySelector", {
+        configurable: true,
+        writable: true,
+        value(this: Element, selectors: string) {
+          if (
+            window.__cursorHotPathAudit?.active &&
+            this.matches("[data-project-card]")
+          ) {
+            window.__cursorHotPathAudit.projectQuerySelectorCalls += 1;
+          }
+          return nativeQuerySelector.call(this, selectors);
+        },
+      });
     });
     await context.route("https://api.fontshare.com/**", (route) => route.abort());
     const page = await context.newPage();
@@ -320,8 +486,15 @@ test.describe("signal cursor", () => {
           window.__cursorHotPathAudit.childListMutations += records.filter(
             ({ type }) => type === "childList",
           ).length;
+          window.__cursorHotPathAudit.dotStyleMutations += records.filter(
+            ({ type, target, attributeName }) =>
+              type === "attributes" &&
+              attributeName === "style" &&
+              target instanceof Element &&
+              target.matches("[data-cursor-dot]"),
+          ).length;
         });
-        observer.observe(cursor, { childList: true, subtree: true });
+        observer.observe(cursor, { attributes: true, childList: true, subtree: true });
 
         window.__cursorHotPathAudit!.active = true;
         for (let index = 0; index < 120; index += 1) {
@@ -345,6 +518,58 @@ test.describe("signal cursor", () => {
       expect(audit.boundingRectCalls, "cursor geometry should be cached or unnecessary").toBeLessThanOrEqual(2);
       expect(audit.matchMediaCalls, "pointer capability must be subscribed once, not queried per move").toBeLessThanOrEqual(1);
       expect(audit.childListMutations, "pointer movement must not recreate cursor nodes").toBe(0);
+      expect(
+        audit.dotStyleMutations,
+        "a synchronous pointer burst should coalesce to one dot transform write",
+      ).toBeLessThanOrEqual(1);
+
+      const projectCard = page.locator("[data-project-card]").first();
+      await projectCard.scrollIntoViewIfNeeded();
+      await page.evaluate(
+        () =>
+          new Promise<void>((resolve) => {
+            let stableFrames = 0;
+            let previousY = window.scrollY;
+            const settle = () => {
+              const currentY = window.scrollY;
+              stableFrames = Math.abs(currentY - previousY) < 0.25 ? stableFrames + 1 : 0;
+              previousY = currentY;
+              if (stableFrames >= 4) resolve();
+              else requestAnimationFrame(settle);
+            };
+            requestAnimationFrame(settle);
+          }),
+      );
+      const cardBox = await projectCard.boundingBox();
+      expect(cardBox).not.toBeNull();
+      const sweepTop = Math.max(72, cardBox!.y + 24);
+      const sweepBottom = Math.min(740, cardBox!.y + cardBox!.height - 24);
+      await page.mouse.move(8, 80);
+      await page.evaluate(() => {
+        const auditState = window.__cursorHotPathAudit!;
+        auditState.boundingRectCalls = 0;
+        auditState.projectQuerySelectorCalls = 0;
+        auditState.active = true;
+      });
+      for (let index = 0; index < 80; index += 1) {
+        const progress = index / 79;
+        await page.mouse.move(
+          cardBox!.x + 24 + (cardBox!.width - 48) * progress,
+          index % 2 === 0 ? sweepTop : sweepBottom,
+        );
+      }
+      const projectSweep = await page.evaluate(() => {
+        window.__cursorHotPathAudit!.active = false;
+        return { ...window.__cursorHotPathAudit! };
+      });
+      expect(
+        projectSweep.boundingRectCalls,
+        "one project hover session must reuse geometry instead of reading layout per descendant",
+      ).toBeLessThanOrEqual(4);
+      expect(
+        projectSweep.projectQuerySelectorCalls,
+        "one project hover session must not query the project subtree per pointer event",
+      ).toBeLessThanOrEqual(2);
 
       for (const point of [
         { x: 1, y: 1 },

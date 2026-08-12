@@ -40,8 +40,8 @@ export function ProjectVideoDemo({ demo }: ProjectVideoDemoProps) {
         onClick={openDialog}
         aria-haspopup="dialog"
         aria-label={demo.triggerLabel}
-        data-cursor="play"
-        data-cursor-tone="play"
+        data-cursor="view"
+        data-cursor-tone="project"
         className="group relative block aspect-[16/10] w-full overflow-hidden rounded-2xl border border-line bg-surface text-left transition-[border-color,transform] duration-300 hover:border-accent/50 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent active:scale-[0.99]"
       >
         <img
@@ -56,6 +56,16 @@ export function ProjectVideoDemo({ demo }: ProjectVideoDemoProps) {
           aria-hidden="true"
           className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/5 to-transparent"
         />
+        <span
+          aria-hidden="true"
+          data-cursor="play"
+          data-cursor-tone="play"
+          className="absolute left-4 top-4 grid size-10 place-items-center rounded-full border border-white/25 bg-black/55 text-white shadow-[0_8px_30px_rgba(0,0,0,0.28)] backdrop-blur-sm transition-[transform,background-color,border-color] duration-300 group-hover:scale-105 group-hover:border-accent/45 group-hover:bg-black/65"
+        >
+          <svg viewBox="0 0 16 16" className="ml-0.5 size-4" fill="none">
+            <path d="M5 3.35 12 8l-7 4.65V3.35Z" fill="currentColor" />
+          </svg>
+        </span>
         <span className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4">
           <span className="text-sm font-medium text-white">{demo.triggerLabel}</span>
           <span className="shrink-0 text-xs text-white/70">{demo.duration}</span>

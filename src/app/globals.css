@@ -1476,7 +1476,7 @@ html.lenis, html.lenis body { height: auto; }
   opacity: 0;
 }
 
-@media (any-hover: hover) and (any-pointer: fine) and (prefers-reduced-motion: no-preference) {
+@media (any-hover: hover) and (any-pointer: fine) and (prefers-reduced-motion: no-preference) and (forced-colors: none) {
   html[data-signal-cursor-active] body,
   html[data-signal-cursor-active] a,
   html[data-signal-cursor-active] button,

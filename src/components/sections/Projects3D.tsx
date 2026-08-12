@@ -59,11 +59,7 @@ function ProjectCard({ project }: { project: Project }) {
               </span>
               <span className="text-xs text-muted/60">{project.year}</span>
             </div>
-            <h3
-              data-cursor="view"
-              data-cursor-tone="project"
-              className="mt-3 text-2xl tracking-normal md:text-[2rem] md:leading-[1.05] md:tracking-tight"
-            >
+            <h3 className="mt-3 text-2xl tracking-normal md:text-[2rem] md:leading-[1.05] md:tracking-tight">
               {project.title}
             </h3>
             <div className="mt-5 flex flex-wrap gap-2">
@@ -189,8 +185,6 @@ export function Projects3D() {
               <div
                 key={p.index}
                 data-project-card
-                data-cursor="view"
-                data-cursor-tone="project"
                 className="project-card-3d"
               >
                 <ProjectCard project={p} />

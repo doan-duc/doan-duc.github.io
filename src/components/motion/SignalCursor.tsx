@@ -1,10 +1,15 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { useReducedMotion } from "framer-motion";
-import { usePointerEffectsEnabled } from "@/components/motion/use-pointer-effects-enabled";
+import { useEffect, useRef, useState } from "react";
+import { observeMediaQuery } from "@/lib/media-query";
 
 type CursorMode = "default" | "interactive" | "view" | "play" | "open" | "native";
+
+type PointerSample = {
+  x: number;
+  y: number;
+  target: EventTarget | null;
+};
 
 const cursorLabels: Readonly<Record<CursorMode, string>> = {
   default: "",
@@ -26,7 +31,14 @@ const nativeCursorSelector = [
   "[data-cursor-native]",
 ].join(",");
 
+const selectableTextSelector = "p,h1,h2,h3,h4,li,blockquote,code,pre";
 const interactiveSelector = "a,button,[role='button'],summary";
+const contextSelector = [
+  nativeCursorSelector,
+  "[data-cursor]",
+  interactiveSelector,
+  selectableTextSelector,
+].join(",");
 const validModes = new Set<CursorMode>(["view", "play", "open"]);
 
 function translateTo(x: number, y: number) {
@@ -35,25 +47,41 @@ function translateTo(x: number, y: number) {
 
 function resolveCursorMode(target: EventTarget | null) {
   if (!(target instanceof Element)) return { mode: "default" as CursorMode, tone: "signal" };
-
   if (target.closest(nativeCursorSelector)) {
     return { mode: "native" as CursorMode, tone: "signal" };
   }
 
   const explicitTarget = target.closest<HTMLElement>("[data-cursor]");
   const explicitMode = explicitTarget?.dataset.cursor as CursorMode | undefined;
-  if (explicitMode && validModes.has(explicitMode)) {
-    return {
-      mode: explicitMode,
-      tone: explicitTarget?.dataset.cursorTone ?? explicitMode,
-    };
+  if (explicitTarget && explicitMode && validModes.has(explicitMode)) {
+    return { mode: explicitMode, tone: explicitTarget.dataset.cursorTone ?? explicitMode };
   }
-
   if (target.closest(interactiveSelector)) {
     return { mode: "interactive" as CursorMode, tone: "signal" };
   }
-
+  if (target.closest(selectableTextSelector)) {
+    return { mode: "native" as CursorMode, tone: "signal" };
+  }
   return { mode: "default" as CursorMode, tone: "signal" };
+}
+
+/** Reactively enables the enhanced cursor only when the OS cursor remains safe to replace. */
+function useSignalCursorEnabled() {
+  const [enabled, setEnabled] = useState(false);
+
+  useEffect(() => {
+    const pointer = window.matchMedia("(any-hover: hover) and (any-pointer: fine)");
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const forcedColors = window.matchMedia("(forced-colors: active)");
+    const update = () => setEnabled(pointer.matches && !reducedMotion.matches && !forcedColors.matches);
+    const cleanups = [pointer, reducedMotion, forcedColors].map((query) =>
+      observeMediaQuery(query, update),
+    );
+    update();
+    return () => cleanups.forEach((cleanup) => cleanup());
+  }, []);
+
+  return enabled;
 }
 
 export function SignalCursor() {
@@ -63,9 +91,7 @@ export function SignalCursor() {
   const labelRef = useRef<HTMLSpanElement>(null);
   const trailRef = useRef<HTMLSpanElement>(null);
   const pulseRef = useRef<HTMLSpanElement>(null);
-  const pointerEffectsEnabled = usePointerEffectsEnabled();
-  const shouldReduceMotion = useReducedMotion();
-  const enabled = pointerEffectsEnabled && shouldReduceMotion === false;
+  const enabled = useSignalCursorEnabled();
 
   useEffect(() => {
     const documentRoot = document.documentElement;
@@ -82,6 +108,7 @@ export function SignalCursor() {
     const pulse = pulseRef.current;
     if (!root || !dot || !ring || !label || !trail || !pulse) return;
 
+    let latestSample: PointerSample | null = null;
     let targetX = 0;
     let targetY = 0;
     let ringX = 0;
@@ -89,177 +116,89 @@ export function SignalCursor() {
     let previousX = 0;
     let previousY = 0;
     let previousPointerTime = performance.now();
-    let lastPointerEventTime = 0;
-    let lastPointerEventTarget: EventTarget | null = null;
-    let lastPointerEventX = Number.NaN;
-    let lastPointerEventY = Number.NaN;
     let lastFrameTime = performance.now();
     let trailStrength = 0;
     let trailAngle = 0;
     let initialized = false;
     let frameId: number | null = null;
-    let contextProbeTimer: number | null = null;
-    let contextProbeAttempts = 0;
     let pulseAnimation: Animation | null = null;
     let lastMode: CursorMode = "default";
     let lastTone = "signal";
-    let lastContextTarget: EventTarget | null = null;
-    let cachedViewContainer: HTMLElement | null = null;
-    let cachedNestedZones: Array<{
-      mode: CursorMode;
-      tone: string;
-      left: number;
-      right: number;
-      top: number;
-      bottom: number;
-    }> = [];
+    let lastContextElement: Element | null = null;
+    let lastRawTarget: EventTarget | null = null;
+    let suppressMouseUntil = 0;
 
     const setNativeCursorActive = (active: boolean) => {
+      if (documentRoot.hasAttribute("data-signal-cursor-active") === active) return;
       documentRoot.toggleAttribute("data-signal-cursor-active", active);
     };
 
-    const resolveModeWithCachedZones = (
-      target: EventTarget | null,
-      x?: number,
-      y?: number,
-      refreshZones = false,
-    ) => {
+    const setVisible = (visible: boolean) => {
+      if (root.hasAttribute("data-visible") === visible) return;
+      root.toggleAttribute("data-visible", visible);
+    };
+
+    const cancelPulse = () => {
+      pulseAnimation?.cancel();
+      pulseAnimation = null;
+      pulse.removeAttribute("data-cursor-pulse-active");
+    };
+
+    const updateMode = (target: EventTarget | null, force = false) => {
+      if (!force && target === lastRawTarget) return;
+      lastRawTarget = target;
       const targetElement = target instanceof Element ? target : null;
-      const viewContainer = targetElement?.closest<HTMLElement>("[data-cursor='view']") ?? null;
-      if (viewContainer !== cachedViewContainer || refreshZones) {
-        cachedViewContainer = viewContainer;
-        cachedNestedZones = viewContainer
-          ? Array.from(
-              viewContainer.querySelectorAll<HTMLElement>(
-                "[data-cursor='play'],[data-cursor='open']",
-              ),
-            ).map((element) => {
-              const rect = element.getBoundingClientRect();
-              const mode = element.dataset.cursor as CursorMode;
-              return {
-                mode,
-                tone: element.dataset.cursorTone ?? mode,
-                left: rect.left - 8,
-                right: rect.right + 8,
-                top: rect.top - 8,
-                bottom: rect.bottom + 8,
-              };
-            })
-          : [];
+      const contextElement = targetElement?.closest(contextSelector) ?? null;
+      if (!force && contextElement === lastContextElement) return;
+      lastContextElement = contextElement;
+      const { mode, tone } = resolveCursorMode(target);
+      if (force || mode !== lastMode) {
+        lastMode = mode;
+        root.dataset.cursorMode = mode;
+        label.textContent = cursorLabels[mode];
+        root.toggleAttribute("data-cursor-native-active", mode === "native");
       }
-
-      if (x !== undefined && y !== undefined) {
-        const nestedZone = cachedNestedZones.find(
-          ({ left, right, top, bottom }) =>
-            x >= left && x <= right && y >= top && y <= bottom,
-        );
-        if (nestedZone) return { mode: nestedZone.mode, tone: nestedZone.tone };
+      if (force || tone !== lastTone) {
+        lastTone = tone;
+        root.dataset.cursorTone = tone;
       }
-
-      return resolveCursorMode(target);
     };
 
-    const updateMode = (
-      target: EventTarget | null,
-      force = false,
-      x?: number,
-      y?: number,
-    ) => {
-      if (!force && target === lastContextTarget && cachedNestedZones.length === 0) return;
-      const targetChanged = target !== lastContextTarget;
-      lastContextTarget = target;
-      const { mode, tone } = resolveModeWithCachedZones(target, x, y, targetChanged);
-      if (!force && mode === lastMode && tone === lastTone) return;
-
-      lastMode = mode;
-      lastTone = tone;
-      root.dataset.cursorMode = mode;
-      root.dataset.cursorTone = tone;
-      label.textContent = cursorLabels[mode];
-      root.toggleAttribute("data-cursor-native-active", mode === "native");
-    };
-
-    const drawFrame = (now: number) => {
-      const elapsed = Math.min(48, Math.max(1, now - lastFrameTime));
-      lastFrameTime = now;
-      const follow = 1 - Math.exp(-elapsed / 62);
-      ringX += (targetX - ringX) * follow;
-      ringY += (targetY - ringY) * follow;
-      trailStrength *= Math.exp(-elapsed / 92);
-
-      ring.style.transform = translateTo(ringX, ringY);
-      trail.style.opacity = `${Math.min(0.58, trailStrength * 0.58)}`;
-      trail.style.transform = [
-        `translate3d(${targetX}px, ${targetY}px, 0)`,
-        `rotate(${trailAngle}deg)`,
-        "translate3d(-54px, -50%, 0)",
-        `scaleX(${0.62 + trailStrength * 0.38})`,
-      ].join(" ");
-
-      const unsettled = Math.abs(targetX - ringX) + Math.abs(targetY - ringY) > 0.18;
-      if (unsettled || trailStrength > 0.012) {
-        frameId = requestAnimationFrame(drawFrame);
-      } else {
-        ringX = targetX;
-        ringY = targetY;
-        ring.style.transform = translateTo(ringX, ringY);
-        trail.style.opacity = "0";
+    const deactivate = () => {
+      latestSample = null;
+      setVisible(false);
+      setNativeCursorActive(false);
+      updateMode(null, true);
+      trail.style.opacity = "0";
+      cancelPulse();
+      if (frameId !== null) {
+        cancelAnimationFrame(frameId);
         frameId = null;
       }
     };
 
-    const requestCursorFrame = () => {
-      if (frameId !== null) return;
-      lastFrameTime = performance.now();
-      frameId = requestAnimationFrame(drawFrame);
-    };
+    const consumePointerSample = (now: number) => {
+      const sample = latestSample;
+      latestSample = null;
+      if (!sample) return;
 
-    const probeNestedContextAfterTilt = (target: EventTarget | null) => {
-      if (!(target instanceof Element)) return;
-      const viewContainer = target.closest<HTMLElement>("[data-cursor='view']");
-      if (
-        !viewContainer?.querySelector("[data-cursor='play'],[data-cursor='open']") ||
-        contextProbeTimer !== null
-      ) {
-        return;
-      }
-
-      contextProbeAttempts = 0;
-      const probe = () => {
-        const hitTarget = document.elementFromPoint(targetX, targetY);
-        const resolvedMode = resolveCursorMode(hitTarget).mode;
-        updateMode(hitTarget, true, targetX, targetY);
-        contextProbeAttempts += 1;
-        if (resolvedMode === "view" && contextProbeAttempts < 8) {
-          contextProbeTimer = window.setTimeout(probe, 80);
-        } else {
-          contextProbeTimer = null;
-        }
-      };
-      contextProbeTimer = window.setTimeout(probe, 80);
-    };
-
-    const updateCursorFromPointer = (
-      clientX: number,
-      clientY: number,
-      target: EventTarget | null,
-      pointerType: string,
-    ) => {
-      if (pointerType === "touch") {
-        root.removeAttribute("data-visible");
-        setNativeCursorActive(false);
-        return;
-      }
-
-      setNativeCursorActive(true);
-      targetX = clientX;
-      targetY = clientY;
+      targetX = sample.x;
+      targetY = sample.y;
       dot.style.transform = translateTo(targetX, targetY);
-      root.setAttribute("data-visible", "");
-      updateMode(target, false, targetX, targetY);
-      probeNestedContextAfterTilt(target);
+      updateMode(sample.target);
+      if (lastMode === "native") {
+        ringX = targetX;
+        ringY = targetY;
+        ring.style.transform = translateTo(ringX, ringY);
+        trailStrength = 0;
+        trail.style.opacity = "0";
+        setVisible(false);
+        setNativeCursorActive(false);
+      } else {
+        setNativeCursorActive(true);
+        setVisible(true);
+      }
 
-      const now = performance.now();
       if (!initialized) {
         initialized = true;
         ringX = targetX;
@@ -282,35 +221,71 @@ export function SignalCursor() {
       previousX = targetX;
       previousY = targetY;
       previousPointerTime = now;
+    };
+
+    const drawFrame = (now: number) => {
+      const elapsed = Math.min(48, Math.max(1, now - lastFrameTime));
+      lastFrameTime = now;
+      consumePointerSample(now);
+
+      const follow = 1 - Math.exp(-elapsed / 62);
+      ringX += (targetX - ringX) * follow;
+      ringY += (targetY - ringY) * follow;
+      trailStrength *= Math.exp(-elapsed / 92);
+      ring.style.transform = translateTo(ringX, ringY);
+      trail.style.opacity = `${Math.min(0.58, trailStrength * 0.58)}`;
+      trail.style.transform = [
+        `translate3d(${targetX}px, ${targetY}px, 0)`,
+        `rotate(${trailAngle}deg)`,
+        "translate3d(-54px, -50%, 0)",
+        `scaleX(${0.62 + trailStrength * 0.38})`,
+      ].join(" ");
+
+      const unsettled = Math.abs(targetX - ringX) + Math.abs(targetY - ringY) > 0.18;
+      if (latestSample || unsettled || trailStrength > 0.012) {
+        frameId = requestAnimationFrame(drawFrame);
+      } else {
+        ringX = targetX;
+        ringY = targetY;
+        ring.style.transform = translateTo(ringX, ringY);
+        trail.style.opacity = "0";
+        frameId = null;
+      }
+    };
+
+    const requestCursorFrame = () => {
+      if (frameId !== null) return;
+      lastFrameTime = performance.now();
+      frameId = requestAnimationFrame(drawFrame);
+    };
+
+    const queuePointer = (x: number, y: number, target: EventTarget | null) => {
+      latestSample = { x, y, target };
       requestCursorFrame();
     };
 
     const handlePointerMove = (event: PointerEvent) => {
-      lastPointerEventTime = performance.now();
-      lastPointerEventTarget = event.target;
-      lastPointerEventX = event.clientX;
-      lastPointerEventY = event.clientY;
-      updateCursorFromPointer(
-        event.clientX,
-        event.clientY,
-        event.target,
-        event.pointerType,
-      );
+      if (event.pointerType === "touch") {
+        suppressMouseUntil = performance.now() + 800;
+        deactivate();
+        return;
+      }
+      queuePointer(event.clientX, event.clientY, event.target);
     };
 
     const handleMouseMove = (event: MouseEvent) => {
-      const duplicatePointerEvent =
-        performance.now() - lastPointerEventTime < 8 &&
-        event.target === lastPointerEventTarget &&
-        event.clientX === lastPointerEventX &&
-        event.clientY === lastPointerEventY;
-      if (duplicatePointerEvent) return;
-      updateCursorFromPointer(event.clientX, event.clientY, event.target, "mouse");
+      if (performance.now() < suppressMouseUntil || "PointerEvent" in window) return;
+      queuePointer(event.clientX, event.clientY, event.target);
     };
 
     const handlePointerDown = (event: PointerEvent) => {
-      if (event.pointerType === "touch" || lastMode === "native") return;
-      pulseAnimation?.cancel();
+      if (event.pointerType === "touch") {
+        suppressMouseUntil = performance.now() + 800;
+        deactivate();
+        return;
+      }
+      if (lastMode === "native") return;
+      cancelPulse();
       pulse.setAttribute("data-cursor-pulse-active", "");
       const position = `translate3d(${event.clientX}px, ${event.clientY}px, 0) translate(-50%, -50%)`;
       pulseAnimation = pulse.animate(
@@ -327,46 +302,41 @@ export function SignalCursor() {
       };
     };
 
-    const hideCursor = () => {
-      root.removeAttribute("data-visible");
+    const handleClick = (event: MouseEvent) => {
+      const trigger = event.target instanceof Element
+        ? event.target.closest("button[aria-haspopup='dialog']")
+        : null;
+      if (trigger) deactivate();
     };
 
-    const hideCursorOutsideViewport = (event: MouseEvent) => {
-      if (event.relatedTarget) return;
-      hideCursor();
+    const hideOutsideViewport = (event: MouseEvent) => {
+      if (!event.relatedTarget) deactivate();
     };
-
     const handleVisibility = () => {
-      if (document.hidden) {
-        root.removeAttribute("data-visible");
-        setNativeCursorActive(false);
-      }
+      if (document.hidden) deactivate();
     };
 
-    const resetContextForWheel = () => updateMode(null, true);
-
-    documentRoot.setAttribute("data-signal-cursor-active", "");
     updateMode(null, true);
     window.addEventListener("pointermove", handlePointerMove, { passive: true });
     window.addEventListener("mousemove", handleMouseMove, { passive: true });
     window.addEventListener("pointerdown", handlePointerDown, { passive: true });
-    window.addEventListener("mouseout", hideCursorOutsideViewport, { passive: true });
-    window.addEventListener("blur", hideCursor, { passive: true });
-    window.addEventListener("wheel", resetContextForWheel, { passive: true });
+    window.addEventListener("click", handleClick, { passive: true });
+    window.addEventListener("mouseout", hideOutsideViewport, { passive: true });
+    window.addEventListener("blur", deactivate, { passive: true });
+    window.addEventListener("wheel", deactivate, { passive: true });
     document.addEventListener("visibilitychange", handleVisibility);
 
     return () => {
-      documentRoot.removeAttribute("data-signal-cursor-active");
+      deactivate();
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("pointerdown", handlePointerDown);
-      window.removeEventListener("mouseout", hideCursorOutsideViewport);
-      window.removeEventListener("blur", hideCursor);
-      window.removeEventListener("wheel", resetContextForWheel);
+      window.removeEventListener("click", handleClick);
+      window.removeEventListener("mouseout", hideOutsideViewport);
+      window.removeEventListener("blur", deactivate);
+      window.removeEventListener("wheel", deactivate);
       document.removeEventListener("visibilitychange", handleVisibility);
-      if (frameId !== null) cancelAnimationFrame(frameId);
-      if (contextProbeTimer !== null) window.clearTimeout(contextProbeTimer);
-      pulseAnimation?.cancel();
+      cancelPulse();
     };
   }, [enabled]);
 
