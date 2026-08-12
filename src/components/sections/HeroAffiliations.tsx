@@ -29,6 +29,8 @@ export function HeroAffiliations({ animate = false }: HeroAffiliationsProps) {
           data-edabk-affiliation={
             affiliation.id === "edabk" ? "" : undefined
           }
+          data-cursor="open"
+          data-cursor-tone={affiliation.id}
           href={affiliation.url}
           target="_blank"
           rel="noreferrer"

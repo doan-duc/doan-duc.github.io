@@ -3,6 +3,7 @@ import "./globals.css";
 
 import SmoothScroll from "@/components/providers/SmoothScroll";
 import { ScrollProgress } from "@/components/motion/ScrollProgress";
+import { SignalCursor } from "@/components/motion/SignalCursor";
 import { Nav } from "@/components/layout/Nav";
 import { Footer } from "@/components/layout/Footer";
 import { site } from "@/lib/site";
@@ -43,6 +44,7 @@ export default function RootLayout({
             <span className="aurora-blob aurora-3" />
           </div>
           <ScrollProgress />
+          <SignalCursor />
           <Nav />
           <main className="relative z-[1]">{children}</main>
           <Footer />

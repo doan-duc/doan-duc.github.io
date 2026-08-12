@@ -32,6 +32,22 @@ function distance(left: Point, right: Point) {
 
 async function expectCursorLabel(page: Page, target: Locator, label: string) {
   await target.scrollIntoViewIfNeeded();
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) => {
+        const deadline = performance.now() + 2_000;
+        let previousY = window.scrollY;
+        let stableFrames = 0;
+        const sample = () => {
+          const currentY = window.scrollY;
+          stableFrames = Math.abs(currentY - previousY) < 0.25 ? stableFrames + 1 : 0;
+          previousY = currentY;
+          if (stableFrames >= 4 || performance.now() >= deadline) resolve();
+          else requestAnimationFrame(sample);
+        };
+        requestAnimationFrame(sample);
+      }),
+  );
   await target.hover();
 
   const cursorLabel = page.locator("[data-cursor-label]");

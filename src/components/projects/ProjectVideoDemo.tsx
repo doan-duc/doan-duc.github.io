@@ -40,6 +40,8 @@ export function ProjectVideoDemo({ demo }: ProjectVideoDemoProps) {
         onClick={openDialog}
         aria-haspopup="dialog"
         aria-label={demo.triggerLabel}
+        data-cursor="play"
+        data-cursor-tone="play"
         className="group relative block aspect-[16/10] w-full overflow-hidden rounded-2xl border border-line bg-surface text-left transition-[border-color,transform] duration-300 hover:border-accent/50 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent active:scale-[0.99]"
       >
         <img
@@ -62,6 +64,7 @@ export function ProjectVideoDemo({ demo }: ProjectVideoDemoProps) {
 
       <dialog
         ref={dialogRef}
+        data-cursor-native=""
         aria-labelledby={titleId}
         className="project-demo-dialog"
         onClose={pauseVideo}
