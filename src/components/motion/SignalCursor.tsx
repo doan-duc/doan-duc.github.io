@@ -168,6 +168,7 @@ export function SignalCursor() {
     const deactivate = () => {
       if (inactive && frameId === null && !latestSample && !pulseAnimation) return;
       inactive = true;
+      initialized = false;
       latestSample = null;
       setVisible(false);
       setNativeCursorActive(false);
@@ -185,23 +186,31 @@ export function SignalCursor() {
       latestSample = null;
       if (!sample) return;
 
+      updateMode(sample.target);
+      if (lastMode === "native") {
+        const needsNativeHandoff =
+          !inactive ||
+          root.hasAttribute("data-visible") ||
+          documentRoot.hasAttribute("data-signal-cursor-active") ||
+          pulseAnimation !== null;
+        if (needsNativeHandoff) {
+          inactive = true;
+          initialized = false;
+          trailStrength = 0;
+          setVisible(false);
+          setNativeCursorActive(false);
+          trail.style.opacity = "0";
+          cancelPulse();
+        }
+        return;
+      }
+
       targetX = sample.x;
       targetY = sample.y;
       inactive = false;
       dot.style.transform = translateTo(targetX, targetY);
-      updateMode(sample.target);
-      if (lastMode === "native") {
-        ringX = targetX;
-        ringY = targetY;
-        ring.style.transform = translateTo(ringX, ringY);
-        trailStrength = 0;
-        trail.style.opacity = "0";
-        setVisible(false);
-        setNativeCursorActive(false);
-      } else {
-        setNativeCursorActive(true);
-        setVisible(true);
-      }
+      setNativeCursorActive(true);
+      setVisible(true);
 
       if (!initialized) {
         initialized = true;
@@ -231,6 +240,10 @@ export function SignalCursor() {
       const elapsed = Math.min(48, Math.max(1, now - lastFrameTime));
       lastFrameTime = now;
       consumePointerSample(now);
+      if (inactive) {
+        frameId = null;
+        return;
+      }
 
       const follow = 1 - Math.exp(-elapsed / 62);
       ringX += (targetX - ringX) * follow;
@@ -328,6 +341,7 @@ export function SignalCursor() {
     window.addEventListener("mouseout", hideOutsideViewport, { passive: true });
     window.addEventListener("blur", deactivate, { passive: true });
     window.addEventListener("wheel", deactivate, { passive: true });
+    window.addEventListener("scroll", deactivate, { passive: true });
     document.addEventListener("visibilitychange", handleVisibility);
 
     return () => {
@@ -339,6 +353,7 @@ export function SignalCursor() {
       window.removeEventListener("mouseout", hideOutsideViewport);
       window.removeEventListener("blur", deactivate);
       window.removeEventListener("wheel", deactivate);
+      window.removeEventListener("scroll", deactivate);
       document.removeEventListener("visibilitychange", handleVisibility);
       cancelPulse();
     };

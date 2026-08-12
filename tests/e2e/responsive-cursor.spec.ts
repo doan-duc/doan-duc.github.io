@@ -438,7 +438,7 @@ test.describe("signal cursor", () => {
     }
   });
 
-  test("keeps touch and wheel deactivation idempotent during native scrolling", async ({
+  test("keeps scroll, touch, and wheel deactivation idempotent", async ({
     browser,
     browserName,
   }) => {
@@ -451,6 +451,20 @@ test.describe("signal cursor", () => {
 
     try {
       await page.mouse.move(20, 300);
+      await expect(page.locator("[data-signal-cursor]")).toHaveAttribute("data-visible", "");
+      await page.evaluate(() => window.scrollBy({ top: 120, behavior: "instant" }));
+      await expect(page.locator("[data-signal-cursor]")).not.toHaveAttribute("data-visible", "");
+      await expect(page.locator("html")).not.toHaveAttribute("data-signal-cursor-active", "");
+
+      await page.evaluate(() => {
+        window.dispatchEvent(
+          new PointerEvent("pointermove", {
+            pointerType: "mouse",
+            clientX: 20,
+            clientY: 300,
+          }),
+        );
+      });
       await expect(page.locator("[data-signal-cursor]")).toHaveAttribute("data-visible", "");
       const mutations = await page.evaluate(async () => {
         const root = document.querySelector<HTMLElement>("[data-signal-cursor]")!;
