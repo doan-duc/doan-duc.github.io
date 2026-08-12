@@ -572,6 +572,38 @@ html.lenis, html.lenis body { height: auto; }
   transform-style: preserve-3d;
 }
 
+.tilt-card-glare {
+  position: absolute;
+  z-index: 0;
+  top: -34%;
+  bottom: -34%;
+  left: 14%;
+  right: 14%;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(34, 211, 238, 0.2) 0%,
+    rgba(34, 211, 238, 0.08) 32%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+@media (max-width: 1023px), (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .tilt-card-glare {
+    display: none;
+  }
+}
+
+.hero-affiliation-card--hust .tilt-card-glare {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(227, 38, 54, 0.18) 0%,
+    rgba(227, 38, 54, 0.07) 32%,
+    transparent 70%
+  );
+}
+
 .hero-affiliation-card::before {
   position: absolute;
   right: 18px;
@@ -627,6 +659,8 @@ html.lenis, html.lenis body { height: auto; }
 }
 
 .hero-affiliation-logo {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex: none;
   align-items: center;
@@ -666,6 +700,8 @@ html.lenis, html.lenis body { height: auto; }
 }
 
 .hero-affiliation-copy {
+  position: relative;
+  z-index: 1;
   min-width: 0;
   transform: translateZ(12px);
 }
@@ -741,6 +777,7 @@ html.lenis, html.lenis body { height: auto; }
   color: var(--color-muted);
   transform: translateZ(24px);
   transition: border-color 0.3s ease, color 0.3s ease;
+  z-index: 2;
 }
 
 .hero-affiliation-card:hover .hero-affiliation-arrow {
@@ -1055,6 +1092,25 @@ html.lenis, html.lenis body { height: auto; }
   transform-style: preserve-3d;
 }
 
+.tilt-card {
+  backface-visibility: hidden;
+  transform-origin: center center;
+  transform-style: preserve-3d;
+}
+
+/* Promote only while a fine pointer is actively driving a 3D surface. The
+   short release window keeps the return spring on the compositor without
+   reserving GPU memory for every card while the page is idle. */
+@media (hover: hover) and (pointer: fine) {
+  .tilt-card[data-tilt-active] {
+    will-change: transform;
+  }
+
+  .tilt-card[data-tilt-active] .tilt-card-glare {
+    will-change: transform, opacity;
+  }
+}
+
 .pinned-section {
   position: relative;
   width: 100%;
@@ -1103,6 +1159,23 @@ html.lenis, html.lenis body { height: auto; }
 /* 3D project card in card-stack */
 .project-card-3d {
   transform-style: preserve-3d;
+}
+
+.project-card-3d .tilt-card-glare {
+  top: -18%;
+  right: 5%;
+  bottom: auto;
+  left: auto;
+  width: min(58%, 620px);
+  height: min(78%, 520px);
+  border-radius: 999px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(34, 211, 238, 0.16) 0%,
+    rgba(59, 130, 246, 0.085) 36%,
+    rgba(139, 92, 246, 0.045) 54%,
+    transparent 74%
+  );
 }
 
 /* Featured research phase panel */

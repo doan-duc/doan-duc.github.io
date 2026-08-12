@@ -63,14 +63,20 @@ async function openInstrumentedDesktop(
   return { context, page };
 }
 
-async function auditPointerSweep(page: Page, selector: string) {
+async function auditPointerSweep(
+  page: Page,
+  selector: string,
+  eventType: "mousemove" | "pointermove" = "mousemove",
+) {
   const target = page.locator(selector).first();
   await target.scrollIntoViewIfNeeded();
   await target.hover({ position: { x: 8, y: 8 } });
+  await page.waitForTimeout(400);
 
-  return target.evaluate(async (element) => {
+  return target.evaluate(async (element, eventType) => {
     const nativeRect = element.getBoundingClientRect;
     const bounds = nativeRect.call(element);
+    const transformBeforeSweep = getComputedStyle(element).transform;
     const audit = (window as InstrumentedWindow).__motionAudit;
     let rectReads = 0;
     Object.defineProperty(element, "getBoundingClientRect", {
@@ -85,25 +91,106 @@ async function auditPointerSweep(page: Page, selector: string) {
     try {
       for (let step = 0; step < 180; step += 1) {
         const progress = step / 179;
+        const init = {
+          bubbles: true,
+          clientX: bounds.left + 4 + (bounds.width - 8) * progress,
+          clientY:
+            bounds.top + bounds.height / 2 + Math.sin(progress * Math.PI * 4) * 4,
+          view: window,
+        };
         element.dispatchEvent(
-          new MouseEvent("mousemove", {
-            bubbles: true,
-            clientX: bounds.left + 4 + (bounds.width - 8) * progress,
-            clientY:
-              bounds.top + bounds.height / 2 + Math.sin(progress * Math.PI * 4) * 4,
-            view: window,
-          }),
+          eventType === "pointermove"
+            ? new PointerEvent("pointermove", {
+                ...init,
+                pointerId: 1,
+                pointerType: "mouse",
+                isPrimary: true,
+              })
+            : new MouseEvent("mousemove", init),
         );
       }
 
       await new Promise<void>((resolve) =>
         requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
       );
-      return { rectReads, ...audit.snapshot() };
+      return {
+        rectReads,
+        transformBeforeSweep,
+        transform: getComputedStyle(element).transform,
+        ...audit.snapshot(),
+      };
     } finally {
       Reflect.deleteProperty(element, "getBoundingClientRect");
     }
+  }, eventType);
+}
+
+async function readTransformMatrix(page: Page, selector: string) {
+  return page.locator(selector).first().evaluate((element) => {
+    const matrix = new DOMMatrixReadOnly(getComputedStyle(element).transform);
+    return [
+      matrix.m11,
+      matrix.m12,
+      matrix.m13,
+      matrix.m14,
+      matrix.m21,
+      matrix.m22,
+      matrix.m23,
+      matrix.m24,
+      matrix.m31,
+      matrix.m32,
+      matrix.m33,
+      matrix.m34,
+      matrix.m41,
+      matrix.m42,
+      matrix.m43,
+      matrix.m44,
+    ];
   });
+}
+
+function matrixDistance(left: number[], right: number[]) {
+  return Math.hypot(...left.map((value, index) => value - right[index]));
+}
+
+async function measureTiltStepResponse(page: Page, selector: string) {
+  const target = page.locator(selector).first();
+  await target.scrollIntoViewIfNeeded();
+  const attempts: Array<{ fullTravel: number; progressAt120ms: number }> = [];
+
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const initialBounds = await target.boundingBox();
+    if (!initialBounds) throw new Error(`Unable to measure ${selector}`);
+
+    const y = Math.min(initialBounds.height / 2, 180);
+    await target.hover({ position: { x: initialBounds.width * 0.1, y } });
+    await page.waitForTimeout(500);
+    const start = await readTransformMatrix(page, selector);
+
+    const activeBounds = await target.boundingBox();
+    if (!activeBounds) throw new Error(`Unable to remeasure ${selector}`);
+    await page.mouse.move(
+      activeBounds.x + activeBounds.width * 0.9,
+      activeBounds.y + Math.min(activeBounds.height / 2, 180),
+    );
+    await page.waitForTimeout(120);
+    const responsive = await readTransformMatrix(page, selector);
+    await page.waitForTimeout(500);
+    const settled = await readTransformMatrix(page, selector);
+    const fullTravel = matrixDistance(start, settled);
+    const response = {
+      fullTravel,
+      progressAt120ms:
+        fullTravel === 0 ? 0 : matrixDistance(start, responsive) / fullTravel,
+    };
+    attempts.push(response);
+    if (response.fullTravel > 0.05) return response;
+
+    await page.mouse.move(0, 0);
+    await page.waitForTimeout(100);
+  }
+
+  return attempts.sort((left, right) => right.fullTravel - left.fullTravel)[0];
 }
 
 async function startFrameProbe(page: Page) {
@@ -216,8 +303,16 @@ test.describe("motion smoothness budgets", () => {
           magnetic.mediaQueryReads,
           `${viewport.name}: Magnetic must cache pointer capability`,
         ).toBeLessThanOrEqual(1);
+        expect(
+          magnetic.transform,
+          `${viewport.name}: Magnetic instrumentation must drive the live transform`,
+        ).not.toBe(magnetic.transformBeforeSweep);
 
-        const tilt = await auditPointerSweep(page, "[data-project-card] > div");
+        const tilt = await auditPointerSweep(
+          page,
+          "[data-project-card] > div",
+          "pointermove",
+        );
         expect(
           tilt.rectReads,
           `${viewport.name}: TiltCard must cache geometry for a hover session`,
@@ -226,9 +321,176 @@ test.describe("motion smoothness budgets", () => {
           tilt.mediaQueryReads,
           `${viewport.name}: TiltCard must cache pointer capability`,
         ).toBeLessThanOrEqual(1);
+        expect(
+          tilt.transform,
+          `${viewport.name}: TiltCard instrumentation must drive the live transform`,
+        ).not.toBe(tilt.transformBeforeSweep);
       } finally {
         await context.close();
       }
+    }
+  });
+
+  test("fine-pointer 3D cards promote only for the active hover lifecycle", async ({
+    browser,
+    browserName,
+  }) => {
+    test.skip(browserName !== "chromium", "Compositor lifecycle is exercised once in Chromium");
+
+    const { context, page } = await openInstrumentedDesktop(browser, {
+      width: 1366,
+      height: 768,
+    });
+    try {
+      for (const surface of [
+        {
+          name: "hero affiliation",
+          selector: ".hero-affiliation-surface-motion",
+        },
+        {
+          name: "selected-work project",
+          selector: "[data-project-card] > div",
+        },
+      ]) {
+        const target = page.locator(surface.selector).first();
+        await target.scrollIntoViewIfNeeded();
+        await page.mouse.move(0, 0);
+        expect(
+          await target.evaluate((element) => getComputedStyle(element).willChange),
+          `${surface.name}: resting surface must not reserve a GPU layer`,
+        ).toBe("auto");
+
+        await target.hover({ position: { x: 12, y: 12 } });
+        await page.evaluate(
+          () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve())),
+        );
+        expect(
+          await target.evaluate((element) => getComputedStyle(element).willChange),
+          `${surface.name}: active tilt should be compositor-promoted`,
+        ).toContain("transform");
+
+        await page.mouse.move(0, 0);
+        await page.waitForTimeout(550);
+        expect(
+          await target.evaluate((element) => getComputedStyle(element).willChange),
+          `${surface.name}: promotion should be released after the return spring settles`,
+        ).toBe("auto");
+      }
+    } finally {
+      await context.close();
+    }
+  });
+
+  test("3D tilt follows the pointer promptly on affiliations and selected work", async ({
+    browser,
+    browserName,
+  }) => {
+    test.skip(browserName !== "chromium", "Pointer response timing runs once in Chromium");
+
+    const { context, page } = await openInstrumentedDesktop(browser, {
+      width: 1366,
+      height: 768,
+    });
+    try {
+      for (const surface of [
+        {
+          name: "hero affiliation",
+          selector: ".hero-affiliation-surface-motion",
+        },
+        {
+          name: "selected-work project",
+          selector: "[data-project-card] > div",
+        },
+      ]) {
+        const response = await measureTiltStepResponse(page, surface.selector);
+        expect(
+          response.fullTravel,
+          `${surface.name}: pointer travel should produce visible 3D depth`,
+        ).toBeGreaterThan(0.05);
+        expect(
+          response.progressAt120ms,
+          `${surface.name}: spring should cover at least 65% of its travel within 120ms`,
+        ).toBeGreaterThanOrEqual(0.65);
+      }
+    } finally {
+      await context.close();
+    }
+  });
+
+  test("3D card lighting follows the pointer and fades after hover", async ({
+    browser,
+    browserName,
+  }) => {
+    test.skip(browserName !== "chromium", "Pointer-follow lighting runs once in Chromium");
+
+    const { context, page } = await openInstrumentedDesktop(browser, {
+      width: 1366,
+      height: 768,
+    });
+    try {
+      for (const surface of [
+        {
+          name: "hero affiliation",
+          selector: "[data-edabk-affiliation]",
+        },
+        {
+          name: "selected-work project",
+          selector: "[data-project-card]",
+        },
+      ]) {
+        const card = page.locator(surface.selector).first();
+        await card.scrollIntoViewIfNeeded();
+        const hoverTarget = card.locator("[data-tilt-card]").first();
+        const glare = card.locator("[data-tilt-glare]");
+        await expect(
+          glare,
+          `${surface.name}: card should expose a dedicated depth-light layer`,
+        ).toHaveCount(1);
+
+        const bounds = await hoverTarget.boundingBox();
+        if (!bounds) throw new Error(`Unable to measure ${surface.name}`);
+        const sampleY = Math.min(bounds.height * 0.3, 180);
+        await hoverTarget.hover({
+          position: { x: bounds.width * 0.15, y: sampleY },
+        });
+        await page.waitForTimeout(140);
+        const left = await glare.evaluate((element) => ({
+          opacity: Number.parseFloat(getComputedStyle(element).opacity),
+          transform: getComputedStyle(element).transform,
+        }));
+
+        const activeBounds = await hoverTarget.boundingBox();
+        if (!activeBounds) throw new Error(`Unable to remeasure ${surface.name}`);
+        await page.mouse.move(
+          activeBounds.x + activeBounds.width * 0.85,
+          activeBounds.y + Math.min(activeBounds.height * 0.7, 360),
+        );
+        await page.waitForTimeout(140);
+        const right = await glare.evaluate((element) => ({
+          opacity: Number.parseFloat(getComputedStyle(element).opacity),
+          transform: getComputedStyle(element).transform,
+        }));
+
+        expect(
+          left.opacity,
+          `${surface.name}: depth light should become visible on hover`,
+        ).toBeGreaterThan(0.35);
+        expect(
+          right.transform,
+          `${surface.name}: depth light should track pointer travel`,
+        ).not.toBe(left.transform);
+
+        await page.mouse.move(0, 0);
+        await expect
+          .poll(() =>
+            glare.evaluate((element) =>
+              Number.parseFloat(getComputedStyle(element).opacity),
+            ),
+          )
+          .toBeLessThan(0.05);
+      }
+    } finally {
+      await context.close();
     }
   });
 
@@ -296,6 +558,9 @@ test.describe("motion smoothness budgets", () => {
               "none"
             : "none";
           const grain = document.querySelector<HTMLElement>("#grain");
+          const visibleGlare = Array.from(
+            document.querySelectorAll<HTMLElement>("[data-tilt-glare]"),
+          ).filter((element) => getComputedStyle(element).display !== "none").length;
 
           return {
             coarsePointer: matchMedia("(pointer: coarse)").matches,
@@ -303,6 +568,7 @@ test.describe("motion smoothness budgets", () => {
             promoted,
             backdrop,
             grainDisplay: grain ? getComputedStyle(grain).display : "none",
+            visibleGlare,
           };
         });
 
@@ -311,6 +577,7 @@ test.describe("motion smoothness budgets", () => {
         expect(policy.promoted, `${viewport.name}: persistent compositor layers`).toEqual([]);
         expect(policy.backdrop, `${viewport.name}: glass blur`).toBe("none");
         expect(policy.grainDisplay, `${viewport.name}: fixed grain paint`).toBe("none");
+        expect(policy.visibleGlare, `${viewport.name}: pointer-only depth lighting`).toBe(0);
       } finally {
         await context.close();
       }

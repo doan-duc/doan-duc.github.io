@@ -8,9 +8,9 @@ type HeroAffiliationsProps = {
 };
 
 const affiliationSpring = {
-  stiffness: 105,
-  damping: 20,
-  mass: 0.7,
+  stiffness: 320,
+  damping: 21,
+  mass: 0.28,
 };
 
 export function HeroAffiliations({ animate = false }: HeroAffiliationsProps) {
@@ -39,9 +39,10 @@ export function HeroAffiliations({ animate = false }: HeroAffiliationsProps) {
             className="hero-affiliation-surface"
           >
             <TiltCard
-              max={3.25}
-              hoverScale={1.008}
+              max={6}
+              hoverScale={1.012}
               spring={affiliationSpring}
+              glare
               className="hero-affiliation-surface-motion"
             >
               <span
