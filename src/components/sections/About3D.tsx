@@ -80,6 +80,7 @@ export function About3D() {
           duration: DUR.slow,
           stagger: 0.12,
           ease: EASE.enter,
+          immediateRender: false,
           scrollTrigger: {
             trigger: "[data-about-body]",
             start: START.reveal,
@@ -110,6 +111,7 @@ export function About3D() {
           y: 40,
           duration: DUR.slow,
           ease: EASE.enter,
+          immediateRender: false,
           scrollTrigger: {
             trigger: "[data-about-focus]",
             start: START.reveal,
@@ -166,6 +168,7 @@ export function About3D() {
           duration: DUR.slow,
           stagger: 0.12,
           ease: EASE.enter,
+          immediateRender: false,
           scrollTrigger: {
             trigger: "[data-about-body]",
             start: START.reveal,
@@ -200,6 +203,7 @@ export function About3D() {
           clearProps: "transform,opacity",
           duration: DUR.slow,
           ease: EASE.enter,
+          immediateRender: false,
           scrollTrigger: {
             trigger: "[data-about-focus]",
             start: START.reveal,

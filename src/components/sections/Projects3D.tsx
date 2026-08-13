@@ -126,6 +126,7 @@ export function Projects3D() {
             scale: 0.95,
             duration: DUR.slow,
             ease: EASE.enter,
+            immediateRender: false,
             scrollTrigger: {
               trigger: card,
               start: START.reveal,
@@ -153,6 +154,7 @@ export function Projects3D() {
             force3D: true,
             duration: DUR.slow,
             ease: EASE.enter,
+            immediateRender: false,
             scrollTrigger: {
               trigger: card,
               start: START.reveal,

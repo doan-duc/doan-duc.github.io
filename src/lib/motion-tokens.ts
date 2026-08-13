@@ -52,3 +52,12 @@ export const SPRING = {
 
 /** Scrub window for the flow-mode research panels (a range, not a threshold). */
 export const FLOW_RANGE = { start: "top 96%", end: "top 54%" } as const;
+
+/**
+ * Scrub window for the word wipe. Both ends key off the block's TOP so tall
+ * paragraphs behave like short ones, and the wipe completes by the time the
+ * block's top reaches the middle of the viewport — parked at any natural
+ * reading position, the copy is fully lit; only the lower half of the screen
+ * is "not read yet" territory.
+ */
+export const WIPE_RANGE = { start: "top 92%", end: "top 60%" } as const;

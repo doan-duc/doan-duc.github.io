@@ -17,9 +17,10 @@ async function settleCard(page: Page, index: number) {
   await trigger.evaluate((element) =>
     element.scrollIntoView({ block: "center", inline: "center", behavior: "auto" }),
   );
-  // Let the entrance reveal finish; mid-flight the card is still transformed.
-  // Entrances are transform-only (word wipes own opacity) and clear their
-  // transform on complete, so identity transform = fully settled.
+  // Let the entrance finish. The tween renders nothing until its trigger
+  // fires (immediateRender: false), so give the trigger a beat to start,
+  // then wait for the transform to settle back to identity.
+  await page.waitForTimeout(400);
   await page.waitForFunction(
     () => {
       const card = document.querySelector<HTMLElement>("[data-project-card]");

@@ -45,6 +45,7 @@ export function Skills3D() {
             scale: 0.94,
             duration: DUR.slow,
             ease: EASE.enter,
+            immediateRender: false,
             scrollTrigger: {
               trigger: panel,
               start: START.reveal,
@@ -73,6 +74,7 @@ export function Skills3D() {
             clearProps: "transform",
             duration: DUR.slow,
             ease: EASE.enter,
+            immediateRender: false,
             scrollTrigger: { trigger: panel, start: START.reveal, once: true },
           });
         });

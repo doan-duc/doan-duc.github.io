@@ -9,7 +9,7 @@ import {
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useIsoLayoutEffect } from "@/lib/use-iso-layout-effect";
-import { REST, START } from "@/lib/motion-tokens";
+import { REST, WIPE_RANGE } from "@/lib/motion-tokens";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -46,8 +46,8 @@ export function ScrollRevealText({
   children,
   as,
   className,
-  start = START.reveal,
-  end = "bottom 60%",
+  start = WIPE_RANGE.start,
+  end = WIPE_RANGE.end,
   ...rest
 }: ScrollRevealTextProps) {
   const Tag = (as ?? "p") as ElementType;

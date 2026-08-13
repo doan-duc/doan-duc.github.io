@@ -80,6 +80,7 @@ export function Achievements3D() {
             y: 24,
             duration: DUR.slow,
             ease: EASE.enter,
+            immediateRender: false,
             scrollTrigger: {
               trigger: node,
               start: START.reveal,
@@ -124,6 +125,7 @@ export function Achievements3D() {
             clearProps: "transform",
             duration: DUR.slow,
             ease: EASE.enter,
+            immediateRender: false,
             scrollTrigger: { trigger: node, start: START.reveal, once: true },
           });
         });
