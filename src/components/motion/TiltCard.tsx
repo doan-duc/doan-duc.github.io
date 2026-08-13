@@ -37,7 +37,7 @@ const touchPressScale = 0.992;
 export function TiltCard({
   children,
   className,
-  max = 8,
+  max = 5.5,
   hoverScale = 1.012,
   spring = defaultSpring,
   glare = false,

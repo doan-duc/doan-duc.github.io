@@ -45,7 +45,7 @@ function ProjectVisualSlot({ project }: { project: Project }) {
 
 function ProjectCard({ project }: { project: Project }) {
   return (
-    <TiltCard max={8.5} hoverScale={1.014} glare className="[transform-style:preserve-3d]">
+    <TiltCard max={5.5} hoverScale={1.011} glare className="[transform-style:preserve-3d]">
       <div className="glass-3d relative z-[1] rounded-3xl p-7 md:p-12">
         <div className="grid gap-10 lg:grid-cols-12 lg:gap-8">
           {/* Identity */}

@@ -262,8 +262,8 @@ html.lenis, html.lenis body { height: auto; }
   z-index: -1;
   width: 19rem;
   height: 19rem;
-  left: -8rem;
-  bottom: -8rem;
+  left: 0;
+  bottom: 0;
   border-radius: 999px;
   background: rgba(34, 211, 238, 0.08);
   filter: blur(70px);
@@ -491,7 +491,7 @@ html.lenis, html.lenis body { height: auto; }
 
 @media (min-width: 960px) {
   .about-intro-grid {
-    grid-template-columns: minmax(17rem, 4fr) minmax(0, 8fr);
+    grid-template-columns: minmax(20rem, 4fr) minmax(0, 8fr);
   }
 
   .about-identity {
@@ -1314,6 +1314,15 @@ html.lenis, html.lenis body { height: auto; }
   background: var(--color-base);
   z-index: 2;
   box-shadow: 0 0 12px rgba(34, 211, 238, 0.25);
+}
+
+/* ===========================================================================
+   SCROLL-SCRUBBED WORD REVEAL
+   Words are their own inline-block boxes so opacity animates per word while
+   the spaces between them stay real text nodes and wrapping is untouched.
+   =========================================================================== */
+.reveal-word {
+  display: inline-block;
 }
 
 /* ===========================================================================

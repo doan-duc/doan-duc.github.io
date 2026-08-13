@@ -8,6 +8,7 @@ import { about, researchFocus } from "@/lib/content";
 import { Container } from "@/components/ui/Container";
 import { EcgWaveform } from "@/components/ui/EcgWaveform";
 import { AboutSignalInstrument } from "@/components/sections/AboutSignalInstrument";
+import { ScrollRevealText } from "@/components/motion/ScrollRevealText";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -69,10 +70,10 @@ export function About3D() {
           },
         });
 
-        // Body paragraphs reveal deeper, staggered.
+        // Body paragraphs reveal deeper, staggered. Opacity is left to the
+        // per-word scroll wipe so the two do not fade the same pixels twice.
         gsap.from(gsap.utils.toArray("[data-about-body]"), {
           z: -200,
-          opacity: 0,
           rotateX: 3,
           y: 36,
           duration: 1,
@@ -156,7 +157,6 @@ export function About3D() {
         gsap.from(gsap.utils.toArray("[data-about-body]"), {
           z: -140,
           rotateX: 4,
-          opacity: 0,
           y: 36,
           scale: 0.98,
           force3D: true,
@@ -266,13 +266,13 @@ export function About3D() {
 
               <div className="about-story-body preserve-3d">
                 {about.body.map((p, i) => (
-                  <p
+                  <ScrollRevealText
                     key={i}
                     data-about-body
                     className="body-copy"
                   >
                     {p}
-                  </p>
+                  </ScrollRevealText>
                 ))}
               </div>
             </div>
