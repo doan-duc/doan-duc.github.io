@@ -18,16 +18,8 @@ test.describe("nav glass", () => {
     try {
       const glass = page.locator(".nav-glass");
       await expect(glass).toHaveCount(1);
-      expect(
-        await glass.evaluate((element) => Number(getComputedStyle(element).opacity)),
-        "transparent over the hero",
-      ).toBe(0);
 
-      await page.mouse.wheel(0, 600);
-      await expect
-        .poll(() => glass.evaluate((element) => Number(getComputedStyle(element).opacity)))
-        .toBeGreaterThan(0.95);
-
+      // The glass is permanent — the frost is live even over the hero…
       const material = await glass.evaluate((element) => {
         const style = getComputedStyle(element);
         // The build may emit only the -webkit- prefixed property (LightningCSS
@@ -39,8 +31,19 @@ test.describe("nav glass", () => {
           borderBottom: style.borderBottomWidth,
         };
       });
-      expect(material.backdropFilter, "frost is live at laptop widths").toContain("blur");
+      expect(material.backdropFilter, "frost is live from the first frame").toContain("blur");
       expect(material.borderBottom).toBe("1px");
+
+      // …while the deepen layer (darker tint + hairline + lift) only
+      // crossfades in once content scrolls beneath the bar.
+      const deepenOpacity = () =>
+        glass.evaluate((element) =>
+          Number(getComputedStyle(element, "::after").opacity),
+        );
+      expect(await deepenOpacity(), "light material over the hero").toBe(0);
+
+      await page.mouse.wheel(0, 600);
+      await expect.poll(deepenOpacity).toBeGreaterThan(0.95);
 
       // Scroll back the way a user does — wheel up until the top. (A direct
       // scrollTo would fight Lenis, which owns the scroll after the first
@@ -54,11 +57,7 @@ test.describe("nav glass", () => {
           { timeout: 10_000 },
         )
         .toBe(0);
-      await expect
-        .poll(() => glass.evaluate((element) => Number(getComputedStyle(element).opacity)), {
-          timeout: 8_000,
-        })
-        .toBe(0);
+      await expect.poll(deepenOpacity, { timeout: 8_000 }).toBe(0);
     } finally {
       await context.close();
     }

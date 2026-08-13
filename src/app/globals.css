@@ -1536,9 +1536,26 @@ html.lenis, html.lenis body { height: auto; }
   inset: 0;
   z-index: -1;
   pointer-events: none;
+  /* The glass is permanent: the frost is always live (aurora and hero signal
+     lines blur softly beneath the bar from the first frame). Scrolling only
+     DEEPENS the material — the ::after layer carries the darker tint,
+     hairline, and lift shadow, and crossfades in past the hero. */
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  background: linear-gradient(
+    180deg,
+    rgba(19, 21, 26, 0.28),
+    rgba(10, 10, 10, 0.2)
+  );
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+.nav-glass::after {
+  content: "";
+  position: absolute;
+  inset: -1px 0;
   opacity: 0;
   transition: opacity 500ms var(--ease-out-expo);
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
   background: linear-gradient(180deg, var(--glass-tint-top), var(--glass-tint-bottom));
   border-bottom: 1px solid var(--glass-hairline);
   box-shadow:
@@ -1546,7 +1563,7 @@ html.lenis, html.lenis body { height: auto; }
     0 12px 32px -18px rgba(0, 0, 0, 0.55);
 }
 
-header[data-scrolled] .nav-glass {
+header[data-scrolled] .nav-glass::after {
   opacity: 1;
 }
 
@@ -1592,6 +1609,10 @@ header[data-scrolled] .nav-glass {
     backdrop-filter: none;
     background: rgba(10, 10, 10, 0.97);
   }
+
+  .nav-glass::after {
+    content: none;
+  }
 }
 
 @media (forced-colors: active) {
@@ -1601,6 +1622,10 @@ header[data-scrolled] .nav-glass {
     background: Canvas;
     border-bottom: 1px solid CanvasText;
     box-shadow: none;
+  }
+
+  .nav-glass::after {
+    content: none;
   }
 }
 
