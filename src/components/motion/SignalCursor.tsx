@@ -111,13 +111,10 @@ export function SignalCursor() {
     let latestSample: PointerSample | null = null;
     let targetX = 0;
     let targetY = 0;
-    let pointerX = 0;
-    let pointerY = 0;
     let ringX = 0;
     let ringY = 0;
     let previousX = 0;
     let previousY = 0;
-    let hasPointerPosition = false;
     let previousPointerTime = performance.now();
     let lastFrameTime = performance.now();
     let trailStrength = 0;
@@ -131,7 +128,6 @@ export function SignalCursor() {
     let lastRawTarget: EventTarget | null = null;
     let suppressMouseUntil = 0;
     let inactive = true;
-    let scrollSyncTimer: number | null = null;
 
     const setNativeCursorActive = (active: boolean) => {
       if (documentRoot.hasAttribute("data-signal-cursor-active") === active) return;
@@ -194,7 +190,6 @@ export function SignalCursor() {
       if (lastMode === "native") {
         previousX = sample.x;
         previousY = sample.y;
-        hasPointerPosition = true;
         const needsNativeHandoff =
           !inactive ||
           root.hasAttribute("data-visible") ||
@@ -214,7 +209,6 @@ export function SignalCursor() {
 
       targetX = sample.x;
       targetY = sample.y;
-      hasPointerPosition = true;
       inactive = false;
       dot.style.transform = translateTo(targetX, targetY);
       setNativeCursorActive(true);
@@ -284,17 +278,7 @@ export function SignalCursor() {
       frameId = requestAnimationFrame(drawFrame);
     };
 
-    const cancelScrollSync = () => {
-      if (scrollSyncTimer === null) return;
-      window.clearTimeout(scrollSyncTimer);
-      scrollSyncTimer = null;
-    };
-
     const queuePointer = (x: number, y: number, target: EventTarget | null) => {
-      cancelScrollSync();
-      pointerX = x;
-      pointerY = y;
-      hasPointerPosition = true;
       latestSample = { x, y, target };
       requestCursorFrame();
     };
@@ -344,18 +328,6 @@ export function SignalCursor() {
       if (trigger) deactivate();
     };
 
-    const handleScroll = () => {
-      const canResync = hasPointerPosition;
-      deactivate();
-      cancelScrollSync();
-      if (!canResync) return;
-      scrollSyncTimer = window.setTimeout(() => {
-        scrollSyncTimer = null;
-        const target = document.elementFromPoint(pointerX, pointerY);
-        if (target) queuePointer(pointerX, pointerY, target);
-      }, 80);
-    };
-
     const hideOutsideViewport = (event: MouseEvent) => {
       if (!event.relatedTarget) deactivate();
     };
@@ -371,7 +343,7 @@ export function SignalCursor() {
     window.addEventListener("mouseout", hideOutsideViewport, { passive: true });
     window.addEventListener("blur", deactivate, { passive: true });
     window.addEventListener("wheel", deactivate, { passive: true });
-    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("scroll", deactivate, { passive: true });
     document.addEventListener("visibilitychange", handleVisibility);
 
     return () => {
@@ -383,9 +355,8 @@ export function SignalCursor() {
       window.removeEventListener("mouseout", hideOutsideViewport);
       window.removeEventListener("blur", deactivate);
       window.removeEventListener("wheel", deactivate);
-      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("scroll", deactivate);
       document.removeEventListener("visibilitychange", handleVisibility);
-      cancelScrollSync();
       cancelPulse();
     };
   }, [enabled]);

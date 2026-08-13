@@ -35,23 +35,22 @@ function distance(left: Point, right: Point) {
 }
 
 async function expectCursorLabel(page: Page, target: Locator, label: string) {
-  await target.scrollIntoViewIfNeeded();
+  const previousScrollBehavior = await target.evaluate((element) => {
+    const root = document.documentElement;
+    const previous = root.style.scrollBehavior;
+    root.style.scrollBehavior = "auto";
+    element.scrollIntoView({ block: "center", inline: "center", behavior: "auto" });
+    return previous;
+  });
   await page.evaluate(
     () =>
-      new Promise<void>((resolve) => {
-        const deadline = performance.now() + 2_000;
-        let previousY = window.scrollY;
-        let stableFrames = 0;
-        const sample = () => {
-          const currentY = window.scrollY;
-          stableFrames = Math.abs(currentY - previousY) < 0.25 ? stableFrames + 1 : 0;
-          previousY = currentY;
-          if (stableFrames >= 4 || performance.now() >= deadline) resolve();
-          else requestAnimationFrame(sample);
-        };
-        requestAnimationFrame(sample);
-      }),
+      new Promise<void>((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+      ),
   );
+  await page.evaluate((previous) => {
+    document.documentElement.style.scrollBehavior = previous;
+  }, previousScrollBehavior);
   await target.hover();
 
   const cursorLabel = page.locator("[data-cursor-label]");
@@ -364,23 +363,7 @@ test.describe("signal cursor", () => {
 
     try {
       const trigger = page.locator('button[aria-haspopup="dialog"]').first();
-      await trigger.scrollIntoViewIfNeeded();
-      await page.evaluate(
-        () =>
-          new Promise<void>((resolve) => {
-            let stableFrames = 0;
-            let previousY = window.scrollY;
-            const sample = () => {
-              const currentY = window.scrollY;
-              stableFrames = Math.abs(currentY - previousY) < 0.25 ? stableFrames + 1 : 0;
-              previousY = currentY;
-              if (stableFrames >= 4) resolve();
-              else requestAnimationFrame(sample);
-            };
-            requestAnimationFrame(sample);
-          }),
-      );
-      await trigger.hover();
+      await expectCursorLabel(page, trigger, "VIEW");
       await expect(page.locator("[data-signal-cursor]")).toHaveAttribute(
         "data-cursor-mode",
         "view",
@@ -470,10 +453,8 @@ test.describe("signal cursor", () => {
       await expect(page.locator("[data-signal-cursor]")).toHaveAttribute("data-visible", "");
       await page.mouse.move(20, 740);
       await page.evaluate(() => window.scrollBy({ top: 120, behavior: "instant" }));
-      await expect(page.locator("[data-signal-cursor]")).toHaveAttribute(
-        "data-cursor-mode",
-        "default",
-      );
+      await expect(page.locator("[data-signal-cursor]")).not.toHaveAttribute("data-visible", "");
+      await expect(page.locator("html")).not.toHaveAttribute("data-signal-cursor-active", "");
       await expect(page.locator("[data-cursor-label]")).toHaveText("");
 
       await page.evaluate(() => {
