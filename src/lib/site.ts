@@ -14,7 +14,11 @@ export const site = {
   available: "AI / Embedded Systems student",
 
   // Portrait: full natural color anchor. Swap at /public/images/profile.jpg.
-  portrait: { src: "/images/profile.jpg", alt: "Portrait of Duc Doan Sinh" },
+  portrait: {
+    src: "/images/profile.jpg",
+    webpSrc: "/images/profile.webp",
+    alt: "Portrait of Duc Doan Sinh",
+  },
 
   email: "doansinhduc@gmail.com",
   universityEmail: "Duc.DS234000@sis.hust.edu.vn",

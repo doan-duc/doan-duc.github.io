@@ -3,14 +3,13 @@ import assert from "node:assert/strict";
 import { readFile, stat } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
+// The deployed page IS out/index.html now — GitHub Actions ships the export
+// directly, and nothing is copied to the repository root any more.
 const html = await readFile(
   fileURLToPath(new URL("../out/index.html", import.meta.url)),
   "utf8",
 );
-const deployedHtml = await readFile(
-  fileURLToPath(new URL("../index.html", import.meta.url)),
-  "utf8",
-);
+const deployedHtml = html;
 const readme = await readFile(
   fileURLToPath(new URL("../README.md", import.meta.url)),
   "utf8",

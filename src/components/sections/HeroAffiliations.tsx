@@ -2,15 +2,10 @@ import Image from "next/image";
 import { site } from "@/lib/site";
 import { ArrowUpRight } from "@/components/ui/icons";
 import { TiltCard } from "@/components/motion/TiltCard";
+import { SPRING } from "@/lib/motion-tokens";
 
 type HeroAffiliationsProps = {
   animate?: boolean;
-};
-
-const affiliationSpring = {
-  stiffness: 320,
-  damping: 21,
-  mass: 0.28,
 };
 
 export function HeroAffiliations({ animate = false }: HeroAffiliationsProps) {
@@ -18,13 +13,13 @@ export function HeroAffiliations({ animate = false }: HeroAffiliationsProps) {
     <aside
       data-hero-affiliations=""
       data-affiliation-motion="spring-3d"
-      data-hero-stat={animate ? "" : undefined}
       aria-label="Academic and research affiliations"
       className="hero-affiliations"
     >
       {site.affiliations.map((affiliation) => (
         <a
           key={affiliation.id}
+          data-hero-stat={animate ? "" : undefined}
           data-hust-affiliation={affiliation.id === "hust" ? "" : undefined}
           data-edabk-affiliation={
             affiliation.id === "edabk" ? "" : undefined
@@ -43,7 +38,7 @@ export function HeroAffiliations({ animate = false }: HeroAffiliationsProps) {
             <TiltCard
               max={6}
               hoverScale={1.012}
-              spring={affiliationSpring}
+              spring={SPRING.snappy}
               glare
               className="hero-affiliation-surface-motion"
             >

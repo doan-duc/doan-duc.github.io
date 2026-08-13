@@ -43,20 +43,12 @@ test.describe("responsive motion policies", () => {
 
         expect(motion.animations, `${viewport.name}: full ambient motion`).not.toContain("none");
         expect(motion.animations, `${viewport.name}: every motion surface exists`).not.toContain(null);
-        expect(motion.lenisActive, `${viewport.name}: Lenis starts lazily`).toBe(false);
-        if (
-          browserName === "chromium" &&
-          motion.wheelCapable &&
-          !("touch" in viewport && viewport.touch)
-        ) {
-          await page.mouse.wheel(0, 40);
-          await expect
-            .poll(
-              () => page.evaluate(() => document.documentElement.classList.contains("lenis")),
-              { message: `${viewport.name}: wheel intent boots Lenis` },
-            )
-            .toBe(true);
-        }
+        // Lenis boots eagerly on wheel-capable devices (one scroll system per
+        // session); touch-first devices never construct it.
+        expect(
+          motion.lenisActive,
+          `${viewport.name}: Lenis presence matches wheel capability`,
+        ).toBe(motion.wheelCapable);
         expect(motion.perspective, `${viewport.name}: perspective`).not.toBe("none");
         expect(motion.projectTransformStyle, `${viewport.name}: project depth`).toBe("preserve-3d");
       } finally {
@@ -78,19 +70,39 @@ test.describe("responsive motion policies", () => {
     });
 
     try {
-      const sample = () =>
+      // Hero-region loops run at the top of the page.
+      const sampleHero = () =>
         page.evaluate(() => ({
           aurora: getComputedStyle(document.querySelector<HTMLElement>(".aurora-1")!).transform,
           ecg: getComputedStyle(document.querySelector<HTMLElement>(".ecg-animate")!).transform,
-          marquee: getComputedStyle(document.querySelector<HTMLElement>(".marquee-track")!).transform,
         }));
-      const before = await sample();
+      const before = await sampleHero();
       await page.waitForTimeout(350);
-      const after = await sample();
+      const after = await sampleHero();
 
       expect(after.aurora, "aurora transform progresses").not.toBe(before.aurora);
       expect(after.ecg, "ECG transform progresses").not.toBe(before.ecg);
-      expect(after.marquee, "marquee transform progresses").not.toBe(before.marquee);
+
+      // Off-screen ambient loops sleep (AmbientGate); the marquee only runs
+      // once its section is near the viewport.
+      const marquee = page.locator(".marquee-track");
+      expect(
+        await marquee.evaluate((element) => getComputedStyle(element).animationPlayState),
+        "marquee sleeps while far off-screen",
+      ).toBe("paused");
+
+      await marquee.scrollIntoViewIfNeeded();
+      await expect
+        .poll(() => marquee.evaluate((element) => getComputedStyle(element).animationPlayState))
+        .toBe("running");
+      const marqueeBefore = await marquee.evaluate(
+        (element) => getComputedStyle(element).transform,
+      );
+      await page.waitForTimeout(350);
+      const marqueeAfter = await marquee.evaluate(
+        (element) => getComputedStyle(element).transform,
+      );
+      expect(marqueeAfter, "marquee transform progresses in view").not.toBe(marqueeBefore);
     } finally {
       await context.close();
     }
@@ -286,7 +298,7 @@ test.describe("responsive motion policies", () => {
         }
       ).__touchListenerRecords = touchListenerRecords;
     });
-    await context.route("https://api.fontshare.com/**", (route) => route.abort());
+    await context.route("**/fonts/**", (route) => route.abort());
 
     const page = await context.newPage();
     try {
@@ -309,7 +321,10 @@ test.describe("responsive motion policies", () => {
           (record) => record.target === "window" && record.passive !== true,
         ).length,
       }));
-      expect(initial.lenis, "Lenis should not boot before input intent").toBe(false);
+      // A hybrid device has a fine pointer, so Lenis is eagerly active; the
+      // contract under test is that TOUCH input immediately hands scrolling
+      // back to the platform.
+      expect(initial.lenis, "Lenis boots eagerly on a wheel-capable hybrid").toBe(true);
 
       const client = await context.newCDPSession(page);
       await client.send("Input.dispatchTouchEvent", {
@@ -324,7 +339,7 @@ test.describe("responsive motion policies", () => {
       await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(100);
       expect(
         await page.evaluate(() => document.documentElement.classList.contains("lenis")),
-        "touch input should not opt into Lenis",
+        "touch input must tear Lenis down and stay native",
       ).toBe(false);
       expect(
         await page.evaluate(
@@ -337,7 +352,7 @@ test.describe("responsive motion policies", () => {
               (record) => record.target === "window" && record.passive !== true,
             ).length,
         ),
-        "touch input should not add Lenis non-passive touch listeners",
+        "touch input must not add further non-passive touch listeners",
       ).toBe(initial.nonPassiveTouch);
 
       await page.mouse.wheel(0, 1);
@@ -398,7 +413,9 @@ test.describe("responsive motion policies", () => {
 
       expect(results.zoom).toEqual({ accepted: true, defaultPrevented: false });
       expect(results.horizontal).toEqual({ accepted: true, defaultPrevented: false });
-      expect(results.lenis, "browser-control wheel gestures must not boot Lenis").toBe(false);
+      // Lenis is eagerly active on fine-pointer devices; what matters is that
+      // it leaves zoom and horizontal gestures to the browser (asserted above).
+      expect(results.lenis, "Lenis runs eagerly on fine-pointer devices").toBe(true);
     } finally {
       await context.close();
     }
@@ -716,7 +733,7 @@ test.describe("responsive motion policies", () => {
         };
       });
 
-      await context.route("https://api.fontshare.com/**", (route) => route.abort());
+      await context.route("**/fonts/**", (route) => route.abort());
 
       const page = await context.newPage();
       try {
@@ -730,6 +747,25 @@ test.describe("responsive motion policies", () => {
         });
         const target = page.locator(selector).first();
         await target.scrollIntoViewIfNeeded();
+        // Let the section entrance settle — hovering a coordinate read while
+        // the element is still translating misses it and no pointer event
+        // ever re-fires.
+        await target.evaluate(
+          (element) =>
+            new Promise<void>((resolve) => {
+              let stable = 0;
+              let last = "";
+              const tick = () => {
+                const rect = element.getBoundingClientRect();
+                const key = `${Math.round(rect.x)},${Math.round(rect.y)}`;
+                stable = key === last ? stable + 1 : 0;
+                last = key;
+                if (stable >= 6) resolve();
+                else requestAnimationFrame(tick);
+              };
+              requestAnimationFrame(tick);
+            }),
+        );
         const box = await target.boundingBox();
         expect(box, `${selector}: pointer target`).not.toBeNull();
         await page.mouse.move(box!.x + box!.width - 4, box!.y + 4);

@@ -1,6 +1,45 @@
 @import "tailwindcss";
 
 /* ===========================================================================
+   DISPLAY TYPEFACE — self-hosted
+   Clash Display ships from our own origin (public/fonts, Fontshare FF EULA,
+   see public/fonts/LICENSE-FFL.txt). The previous render-blocking Fontshare
+   stylesheet made first paint depend on a third-party origin, and its
+   fallback chain listed a font that was never loaded — so slow networks got
+   a different typeface per OS. The two fallback faces below are
+   metric-adjusted (size-adjust computed against Clash Display @600) so the
+   swap barely moves layout, and headline line-wraps hold while loading.
+   =========================================================================== */
+@font-face {
+  font-family: "Clash Display";
+  src: url("/fonts/ClashDisplay-Variable.woff2") format("woff2");
+  font-weight: 200 700;
+  font-display: swap;
+}
+
+/* size-adjust is the MINIMUM Clash/fallback width ratio across the site's
+   headline strings (binding: "Duc Doan"), so fallback text is never wider
+   than the real face — a wider fallback would wrap the hero name inside its
+   single-line reveal mask and clip headings. Slightly narrower is safe. */
+@font-face {
+  font-family: "Clash Display Fallback";
+  src: local("Segoe UI");
+  size-adjust: 108.02%;
+  ascent-override: 82.39%;
+  descent-override: 23.14%;
+  line-gap-override: 8.33%;
+}
+
+@font-face {
+  font-family: "Clash Display Fallback Arial";
+  src: local("Arial");
+  size-adjust: 105.87%;
+  ascent-override: 84.07%;
+  descent-override: 23.61%;
+  line-gap-override: 8.5%;
+}
+
+/* ===========================================================================
    DESIGN TOKENS
    👉 Accent is signal cyan. Used SPARINGLY: section labels, active nav, link
       hover, tag pills, scroll progress bar. Never on buttons or body text.
@@ -20,9 +59,25 @@
   --grad-blue: #3b82f6;
   --grad-violet: #8b5cf6;
 
-  --font-display: "Clash Display", "Geist", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: "Geist", "Aptos", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Clash Display", "Clash Display Fallback", "Clash Display Fallback Arial", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Aptos", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Motion tokens — CSS twins of src/lib/motion-tokens.ts. --ease-enter is
+     the power3.out curve; --ease-out-expo stays for hover micro-reactions. */
+  --motion-fast: 0.5s;
+  --motion-standard: 0.9s;
+  --ease-enter: cubic-bezier(0.33, 1, 0.68, 1);
+
+  /* Glass material tokens (nav + mobile overlay). saturate() is what lets the
+     aurora colors bloom through the frost on a near-black page. */
+  --glass-blur: 16px;
+  --glass-blur-compact: 10px;
+  --glass-saturate: 1.45;
+  --glass-tint-top: rgba(19, 21, 26, 0.6);
+  --glass-tint-bottom: rgba(10, 10, 10, 0.52);
+  --glass-hairline: rgba(255, 255, 255, 0.08);
+  --glass-specular: rgba(255, 255, 255, 0.055);
 }
 
 /* ===========================================================================
@@ -36,7 +91,15 @@
     color: var(--color-ink);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
-    scroll-behavior: smooth;
+    /* Fine-pointer devices are Lenis-managed from first paint (eager boot in
+       SmoothScroll); a global smooth here would run a SECOND scroll system.
+       Touch devices keep native smooth anchor jumps. */
+  }
+
+  @media (hover: none) {
+    html {
+      scroll-behavior: smooth;
+    }
   }
 
   body {
@@ -67,6 +130,12 @@
     color: #fff;
   }
 
+  /* Reserve the scrollbar column so opening the mobile menu (body scroll
+     lock) cannot shift the page sideways on classic-scrollbar platforms. */
+  html {
+    scrollbar-gutter: stable;
+  }
+
   ::-webkit-scrollbar { width: 10px; }
   ::-webkit-scrollbar-track { background: var(--color-base); }
   ::-webkit-scrollbar-thumb {
@@ -75,6 +144,15 @@
     border: 3px solid var(--color-base);
   }
   ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.18); }
+
+  /* Firefox: thin dark scrollbar, closing most of the ~7px width difference
+     against the styled WebKit one (all vw-based sizes shift by that width). */
+  @supports (scrollbar-width: thin) {
+    html {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.1) var(--color-base);
+    }
+  }
 }
 
 /* ===========================================================================
@@ -105,7 +183,7 @@ html.lenis, html.lenis body { height: auto; }
   width: clamp(280px, 29vmax, 860px);
   height: clamp(280px, 29vmax, 860px);
   background: radial-gradient(circle, rgba(34, 211, 238, 0.19), transparent 70%);
-  animation: aurora-1 64s var(--ease-out-expo) infinite;
+  animation: aurora-1 64s ease-in-out -8s infinite;
 }
 .aurora-2 {
   top: 7vh;
@@ -113,15 +191,15 @@ html.lenis, html.lenis body { height: auto; }
   width: clamp(260px, 27vmax, 800px);
   height: clamp(260px, 27vmax, 800px);
   background: radial-gradient(circle, rgba(59, 130, 246, 0.16), transparent 70%);
-  animation: aurora-2 72s var(--ease-out-expo) infinite;
+  animation: aurora-2 72s ease-in-out -21s infinite;
 }
 .aurora-3 {
-  right: 12vw;
+  right: clamp(3rem, 12vw, 18rem);
   bottom: -12vmax;
   width: clamp(320px, 33vmax, 920px);
   height: clamp(320px, 33vmax, 920px);
   background: radial-gradient(circle, rgba(139, 92, 246, 0.16), transparent 70%);
-  animation: aurora-3 80s var(--ease-out-expo) infinite;
+  animation: aurora-3 80s ease-in-out -34s infinite;
 }
 
 @keyframes aurora-1 {
@@ -156,21 +234,26 @@ html.lenis, html.lenis body { height: auto; }
     linear-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
   background-size: 44px 44px;
-  -webkit-mask-image: radial-gradient(circle at 42% 46%, black 0%, transparent 68%);
-  mask-image: radial-gradient(circle at 42% 46%, black 0%, transparent 68%);
+  /* Mask focus tracks the content column (≤1152px), not the raw viewport,
+     so the lit region stays behind the headline on very wide screens. */
+  -webkit-mask-image: radial-gradient(circle at min(42%, calc(50% - 9rem)) 46%, black 0%, transparent 68%);
+  mask-image: radial-gradient(circle at min(42%, calc(50% - 9rem)) 46%, black 0%, transparent 68%);
 }
 
 .hero-stage {
   position: relative;
   width: min(100%, 520px);
-  min-height: 520px;
   margin-left: auto;
   isolation: isolate;
 }
 
+/* Normal flow + aspect-ratio: the old four-sided `inset` fully constrained
+   the box, so `aspect-ratio` was silently ignored and the portrait's crop
+   changed with every viewport width between 1024 and 1232px. In flow the
+   crop is identical on every machine. */
 .hero-portrait-panel {
-  position: absolute;
-  inset: 28px 46px 34px 46px;
+  position: relative;
+  margin: 28px 46px 34px;
   aspect-ratio: 4 / 5;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.16);
@@ -260,13 +343,21 @@ html.lenis, html.lenis body { height: auto; }
   content: "";
   position: absolute;
   z-index: -1;
-  width: 19rem;
-  height: 19rem;
-  left: 0;
-  bottom: 0;
+  /* Pre-computed soft glow: a radial gradient is rasterised once, while the
+     old blur(70px) filter re-rendered a 19rem circle on every repaint. The
+     box is oversized so the falloff matches the blurred original. */
+  width: 34rem;
+  height: 34rem;
+  left: -7.5rem;
+  bottom: -7.5rem;
   border-radius: 999px;
-  background: rgba(34, 211, 238, 0.08);
-  filter: blur(70px);
+  background: radial-gradient(
+    circle,
+    rgba(34, 211, 238, 0.07) 0%,
+    rgba(34, 211, 238, 0.045) 38%,
+    rgba(34, 211, 238, 0.015) 62%,
+    transparent 78%
+  );
   pointer-events: none;
 }
 
@@ -1079,11 +1170,50 @@ html.lenis, html.lenis body { height: auto; }
   background: var(--color-surface);
   color: var(--color-ink);
   box-shadow: 0 32px 100px rgba(0, 0, 0, 0.58);
+  /* Open/close choreography — pure CSS. `allow-discrete` keeps display/overlay
+     until the exit transition ends, so close() animates out symmetrically.
+     Browsers without @starting-style degrade to the old instant show. */
+  opacity: 0;
+  transform: translateY(16px) scale(0.97);
+  transition:
+    opacity var(--motion-fast) var(--ease-enter),
+    transform var(--motion-fast) var(--ease-enter),
+    overlay var(--motion-fast) allow-discrete,
+    display var(--motion-fast) allow-discrete;
+}
+
+.project-demo-dialog[open] {
+  opacity: 1;
+  transform: none;
+}
+
+@starting-style {
+  .project-demo-dialog[open] {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
 }
 
 .project-demo-dialog::backdrop {
+  background: rgba(0, 0, 0, 0);
+  backdrop-filter: blur(0px);
+  transition:
+    background var(--motion-fast) ease,
+    backdrop-filter var(--motion-fast) ease,
+    overlay var(--motion-fast) allow-discrete,
+    display var(--motion-fast) allow-discrete;
+}
+
+.project-demo-dialog[open]::backdrop {
   background: rgba(0, 0, 0, 0.78);
   backdrop-filter: blur(10px);
+}
+
+@starting-style {
+  .project-demo-dialog[open]::backdrop {
+    background: rgba(0, 0, 0, 0);
+    backdrop-filter: blur(0px);
+  }
 }
 
 .project-demo-shell {
@@ -1122,16 +1252,28 @@ html.lenis, html.lenis body { height: auto; }
 }
 
 @media (prefers-reduced-transparency: reduce) {
-  .project-demo-dialog::backdrop {
+  .project-demo-dialog[open]::backdrop {
     background: rgba(0, 0, 0, 0.92);
     backdrop-filter: none;
   }
 }
 
-/* Infinite marquee row (skill pills). */
+/* Infinite marquee row (skill pills). The explicit toggle is the ONE pause
+   mechanism — a :hover pause shadowed it and made its state unobservable. */
 .marquee-track { animation: marquee 38s linear infinite; }
-.marquee-track:hover { animation-play-state: paused; }
 .marquee-track[data-paused] { animation-play-state: paused; }
+
+/* Ambient loops sleep while their region is far off-screen (AmbientGate).
+   play-state preserves phase, so nothing visibly jumps on resume. The paused
+   attribute lands on SMALL dedicated wrappers, never on a whole section —
+   toggling it on a large subtree forces a wide style invalidation mid-scroll. */
+[data-ambient-paused]:is(.hero-glow) {
+  animation-play-state: paused;
+}
+
+[data-ambient-paused] :is(.ecg-animate, .marquee-track, .about-signal-layer, .about-signal-trace-flow) {
+  animation-play-state: paused;
+}
 @media (hover: none), (pointer: coarse) {
   .marquee-toggle { opacity: 0.78; }
 }
@@ -1164,10 +1306,16 @@ html.lenis, html.lenis body { height: auto; }
   transform-style: preserve-3d;
 }
 
+/* The wrapper supplies perspective but must stay flat. When it also declared
+   `transform-style: preserve-3d` it became a 3D rendering context wrapping a
+   3D-transformed child, and Chromium then stopped hit-testing into that child:
+   every link and button inside a hovered card went dead, which is what made the
+   project demo impossible to open. The card itself keeps preserve-3d, so the
+   glare and inner depth are unchanged. */
 .tilt-card-hit-area {
   width: 100%;
   height: 100%;
-  transform-style: preserve-3d;
+  perspective: 900px;
 }
 
 /* Promote only while a fine pointer is actively driving a 3D surface. The
@@ -1197,7 +1345,6 @@ html.lenis, html.lenis body { height: auto; }
   );
   border: 1px solid rgba(255, 255, 255, 0.09);
   backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   border-radius: 20px;
   backface-visibility: hidden;
   transition: border-color 0.5s ease, box-shadow 0.5s ease;
@@ -1210,10 +1357,27 @@ html.lenis, html.lenis body { height: auto; }
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
-/* At ultrawide pixel counts, live backdrop sampling is far more expensive than
-   the card motion itself. A denser translucent gradient preserves the glass
-   read while leaving the full transform/opacity animation budget untouched. */
-@media (min-width: 3000px) {
+/* Backdrop sampling cost scales with viewport area, so blur is tiered:
+   full 16px below 1536, 12px on 1536–2199, and a dense translucent gradient
+   with no live sampling from 2200 up. 2560-class desktops previously kept the
+   full-price blur — exactly where the scroll frame budget had no headroom. */
+@media (min-width: 1536px) and (max-width: 2199px) {
+  .glass-3d {
+    backdrop-filter: blur(12px);
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 2199px) {
+  /* The decorative phase numerals carry a 40px-blurred 272px glyph each;
+     half the radius reads identically at a quarter of the filter cost, and
+     paint containment keeps the glow inside its own panel. */
+  .phase-panel-3d .blur-2xl {
+    filter: blur(24px);
+    contain: paint;
+  }
+}
+
+@media (min-width: 2200px) {
   .glass-3d {
     background: linear-gradient(
       135deg,
@@ -1221,17 +1385,18 @@ html.lenis, html.lenis body { height: auto; }
       rgba(11, 13, 18, 0.84) 100%
     );
     backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-  }
-
-  .hero-glow,
-  .about-signal-stage::before {
-    filter: none !important;
   }
 
   .phase-panel-3d .blur-2xl {
     filter: none;
     opacity: 0.16;
+  }
+}
+
+@media (min-width: 3000px) {
+  .hero-glow,
+  .about-signal-stage::before {
+    filter: none !important;
   }
 }
 
@@ -1287,9 +1452,21 @@ html.lenis, html.lenis body { height: auto; }
 }
 
 /* 3D timeline connector */
+/* Dot and connector centre on ONE line: half the rail gutter. Fixed px
+   offsets previously drifted 24→64px apart as the responsive padding grew. */
+.timeline-rail {
+  --timeline-gutter: 1.5rem;
+}
+@media (min-width: 640px) {
+  .timeline-rail { --timeline-gutter: 3rem; }
+}
+@media (min-width: 768px) {
+  .timeline-rail { --timeline-gutter: 4rem; }
+}
+
 .timeline-connector-3d {
   position: absolute;
-  left: 23px;
+  left: calc(var(--timeline-gutter, 3rem) / 2 - 1px);
   top: 0;
   bottom: 0;
   width: 2px;
@@ -1305,7 +1482,8 @@ html.lenis, html.lenis body { height: auto; }
 
 .timeline-dot-3d {
   position: absolute;
-  left: 16px;
+  /* The node sits after the rail gutter; pull the dot back to the rail line. */
+  left: calc(var(--timeline-gutter, 3rem) / -2 - 8px);
   top: 28px;
   width: 16px;
   height: 16px;
@@ -1314,6 +1492,137 @@ html.lenis, html.lenis body { height: auto; }
   background: var(--color-base);
   z-index: 2;
   box-shadow: 0 0 12px rgba(34, 211, 238, 0.25);
+}
+
+/* ===========================================================================
+   FEATURED PIN LAYOUT
+   The pinned research layout is decided HERE, under the exact media query the
+   component's JS gate uses (tests/featured-gate.test.mjs keeps them in sync).
+   Baking it into CSS means the server HTML lays out correctly before
+   hydration on every machine — no flow→pinned re-layout jump on slow devices.
+   =========================================================================== */
+@media (min-width: 1024px) and (min-height: 600px) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  #featured {
+    min-height: 100dvh;
+    overflow-y: hidden;
+  }
+
+  #featured .featured-container {
+    padding-block: 0;
+  }
+
+  /* min(58vh, 520px) with a floor keeps the stage inside 600px-tall
+     viewports, where the old 58vh + 17rem numerals clipped. */
+  #featured [data-featured-stage] {
+    height: min(58vh, 520px);
+    min-height: 360px;
+  }
+
+  #featured [data-phase] {
+    position: absolute;
+    inset: 0;
+    margin-top: 0;
+  }
+}
+
+/* ===========================================================================
+   NAV GLASS
+   Frosted-glass header. The blurred layer is exactly nav-sized (never a
+   full-viewport sample), the filter is constant, and only the layer's opacity
+   crossfades when the page scrolls — the cheap way to "materialise" glass.
+   =========================================================================== */
+.nav-glass {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 500ms var(--ease-out-expo);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  background: linear-gradient(180deg, var(--glass-tint-top), var(--glass-tint-bottom));
+  border-bottom: 1px solid var(--glass-hairline);
+  box-shadow:
+    inset 0 1px 0 var(--glass-specular),
+    0 12px 32px -18px rgba(0, 0, 0, 0.55);
+}
+
+header[data-scrolled] .nav-glass {
+  opacity: 1;
+}
+
+/* Mobile navigation overlay: same material, compact blur tier. */
+.nav-overlay-glass {
+  background: rgba(10, 10, 10, 0.88);
+  backdrop-filter: blur(var(--glass-blur-compact)) saturate(var(--glass-saturate));
+}
+
+/* Perf tiers — same policy as .glass-3d: blur cost scales with viewport. */
+@media (max-width: 1023px), (pointer: coarse) {
+  .nav-glass {
+    backdrop-filter: blur(var(--glass-blur-compact)) saturate(var(--glass-saturate));
+  }
+}
+
+@media (min-width: 2200px) {
+  .nav-glass {
+    backdrop-filter: blur(12px) saturate(var(--glass-saturate));
+  }
+}
+
+@media (min-width: 3000px) {
+  .nav-glass {
+    backdrop-filter: none;
+    background: linear-gradient(180deg, rgba(22, 25, 31, 0.92), rgba(10, 11, 14, 0.88));
+  }
+}
+
+/* Fallbacks: glass must never leave a transparent bar over scrolling text. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .nav-glass {
+    background: linear-gradient(180deg, rgba(16, 18, 23, 0.97), rgba(10, 10, 10, 0.95));
+  }
+  .nav-overlay-glass {
+    background: rgba(10, 10, 10, 0.97);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .nav-glass,
+  .nav-overlay-glass {
+    backdrop-filter: none;
+    background: rgba(10, 10, 10, 0.97);
+  }
+}
+
+@media (forced-colors: active) {
+  .nav-glass,
+  .nav-overlay-glass {
+    backdrop-filter: none;
+    background: Canvas;
+    border-bottom: 1px solid CanvasText;
+    box-shadow: none;
+  }
+}
+
+
+/* ===========================================================================
+   SECTION HEADER SIGNAL RULE
+   The header's bottom rule is a flat SVG baseline carrying one ECG beat —
+   drawn left→right by the header timeline. It replaces the old border-b.
+   =========================================================================== */
+.section-header-rule {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 20px;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.section-header-rule path {
+  stroke: color-mix(in srgb, var(--color-accent) 35%, var(--color-line));
+  stroke-width: 1;
 }
 
 /* ===========================================================================
@@ -1566,7 +1875,6 @@ html.lenis, html.lenis body { height: auto; }
 @media (max-width: 1023px), (pointer: coarse) {
   .glass-3d {
     backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
   }
 }
 
@@ -1583,10 +1891,8 @@ html.lenis, html.lenis body { height: auto; }
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
-  #aurora::after,
   .aurora-1, .aurora-2, .aurora-3,
   .hero-glow { animation: none; }
-  #aurora::after,
   .aurora-1, .aurora-2, .aurora-3,
   .hero-glow { will-change: auto !important; }
   .perspective-scene {

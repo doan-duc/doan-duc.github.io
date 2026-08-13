@@ -3,6 +3,7 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { motion, useMotionValue, useReducedMotion, useSpring } from "framer-motion";
 import { usePointerEffectsEnabled } from "@/components/motion/use-pointer-effects-enabled";
+import { SPRING } from "@/lib/motion-tokens";
 
 /** Magnetic pull — element drifts toward the pointer on hover, springs back. */
 export function Magnetic({
@@ -18,8 +19,8 @@ export function Magnetic({
   const boundsRef = useRef<DOMRect | null>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
-  const sx = useSpring(x, { stiffness: 200, damping: 15 });
-  const sy = useSpring(y, { stiffness: 200, damping: 15 });
+  const sx = useSpring(x, SPRING.snappy);
+  const sy = useSpring(y, SPRING.snappy);
 
   function move(e: React.PointerEvent) {
     if (shouldReduceMotion || !pointerEffectsEnabled) return;

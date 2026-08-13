@@ -1,6 +1,7 @@
 "use client";
 
 import { TiltCard } from "@/components/motion/TiltCard";
+import { SPRING } from "@/lib/motion-tokens";
 
 const signalLayers = [
   { id: "signal", label: "Signal", action: "Sense" },
@@ -8,24 +9,19 @@ const signalLayers = [
   { id: "system", label: "System", action: "Deploy" },
 ] as const;
 
-const instrumentSpring = {
-  stiffness: 105,
-  damping: 20,
-  mass: 0.7,
-};
-
 /** A compact visual model of the portfolio's signal-to-system through-line. */
 export function AboutSignalInstrument() {
   return (
     <div
       data-about-signal-stack="spring-3d"
+      data-ambient=""
       className="about-signal-instrument"
     >
       <TiltCard
         className="about-signal-tilt"
         max={4}
         hoverScale={1.012}
-        spring={instrumentSpring}
+        spring={SPRING.heavy}
       >
         <div
           className="about-signal-stage"

@@ -379,7 +379,7 @@ test.describe("signal cursor", () => {
       forcedColors: "active",
       reducedMotion: "no-preference",
     });
-    await forcedColorsContext.route("https://api.fontshare.com/**", (route) => route.abort());
+    await forcedColorsContext.route("**/fonts/**", (route) => route.abort());
     const forcedColorsPage = await forcedColorsContext.newPage();
 
     try {
@@ -611,7 +611,7 @@ test.describe("signal cursor", () => {
         },
       });
     });
-    await context.route("https://api.fontshare.com/**", (route) => route.abort());
+    await context.route("**/fonts/**", (route) => route.abort());
     const page = await context.newPage();
 
     try {

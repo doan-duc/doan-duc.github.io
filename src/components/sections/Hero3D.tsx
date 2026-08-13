@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useRef } from "react";
 import { gsap } from "gsap";
 import { useIsoLayoutEffect } from "@/lib/use-iso-layout-effect";
@@ -11,6 +10,7 @@ import { Magnetic } from "@/components/motion/Magnetic";
 import { useSmoothScroll } from "@/components/providers/SmoothScroll";
 import { EcgWaveform } from "@/components/ui/EcgWaveform";
 import { HeroAffiliations } from "@/components/sections/HeroAffiliations";
+import { DUR, EASE } from "@/lib/motion-tokens";
 
 /**
  * Hero section: clean entrance animation only, no pin / no 3D scroll-out.
@@ -24,22 +24,22 @@ export function Hero3D() {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const ctx = gsap.context(() => {
-      const enter = gsap.timeline({ defaults: { ease: "power4.out" } });
+      const enter = gsap.timeline({ defaults: { ease: EASE.enter } });
       enter
-        .from("[data-hero-kicker]", { y: 14, opacity: 0, duration: 0.65 })
+        .from("[data-hero-kicker]", { y: 14, opacity: 0, duration: DUR.fast })
         .from(
           "[data-hero-line]",
-          { yPercent: 110, opacity: 0, duration: 0.95, stagger: 0.08 },
+          { yPercent: 110, opacity: 0, duration: DUR.standard, stagger: 0.08 },
           "-=0.3",
         )
         .from(
           "[data-hero-sub]",
-          { y: 26, opacity: 0, duration: 0.9 },
+          { y: 26, opacity: 0, duration: DUR.standard },
           "-=0.55",
         )
         .from(
           "[data-hero-btns]",
-          { y: 26, opacity: 0, duration: 0.9 },
+          { y: 26, opacity: 0, duration: DUR.standard },
           "-=0.7",
         )
         .from(
@@ -49,8 +49,7 @@ export function Hero3D() {
             z: -24,
             rotateX: -7,
             opacity: 0,
-            duration: 1.05,
-            ease: "power3.out",
+            duration: DUR.standard,
             stagger: 0.1,
             transformOrigin: "50% 100%",
             transformPerspective: 900,
@@ -59,7 +58,7 @@ export function Hero3D() {
         )
         .from(
           portraitRef.current,
-          { y: 24, opacity: 0, scale: 0.98, duration: 0.9 },
+          { y: 24, opacity: 0, scale: 0.98, duration: DUR.standard },
           "-=0.85",
         );
     }, sectionRef);
@@ -77,6 +76,7 @@ export function Hero3D() {
 
       {/* Subtle ECG waveform layer */}
       <div
+        data-ambient=""
         className="pointer-events-none absolute inset-0 z-0"
         aria-hidden="true"
       >
@@ -91,10 +91,13 @@ export function Hero3D() {
         />
       </div>
 
-      {/* Hero glow */}
+      {/* Hero glow — anchored to the content column, not the viewport, so it
+          stays behind the name on ultrawide screens instead of drifting into
+          the empty margin. */}
       <div
         aria-hidden
-        className="hero-glow pointer-events-none absolute bottom-[20%] left-[3%] -z-0 h-[36vw] max-h-[520px] w-[36vw] max-w-[520px] rounded-full"
+        data-ambient=""
+        className="hero-glow pointer-events-none absolute bottom-[20%] left-[max(3%,calc(50%-36rem))] -z-0 h-[36vw] max-h-[520px] w-[36vw] max-w-[520px] rounded-full"
         style={{
           background:
             "radial-gradient(circle, rgba(34,211,238,0.34) 0%, rgba(34,211,238,0.1) 38%, transparent 68%)",
@@ -116,10 +119,7 @@ export function Hero3D() {
               {site.available} in {site.location}
             </p>
 
-            <h1
-              data-hero-heading
-              className="mt-7 max-w-[860px] text-[clamp(3.2rem,8.6vw,8rem)] font-semibold leading-[0.9] tracking-display md:leading-[0.88]"
-            >
+            <h1 className="mt-7 max-w-[860px] text-[clamp(3.2rem,8.6vw,8rem)] font-semibold leading-[0.9] tracking-display md:leading-[0.88]">
               <span className="block overflow-hidden">
                 <span data-hero-line className="block">
                   Duc Doan
@@ -164,18 +164,24 @@ export function Hero3D() {
             </div>
           </div>
 
-          {/* Portrait */}
+          {/* Portrait — plain <picture>: with `images.unoptimized` next/image
+              emits no srcset anyway, and the webp variant is ~40% smaller for
+              the desktop LCP element. */}
           <div ref={portraitRef} className="hidden lg:block">
             <div className="hero-stage">
               <div className="hero-portrait-panel">
-                <Image
-                  src={site.portrait.src}
-                  alt={site.portrait.alt}
-                  fill
-                  priority
-                  sizes="360px"
-                  className="object-cover"
-                />
+                <picture>
+                  <source srcSet={site.portrait.webpSrc} type="image/webp" />
+                  <img
+                    src={site.portrait.src}
+                    alt={site.portrait.alt}
+                    width={551}
+                    height={709}
+                    fetchPriority="high"
+                    decoding="async"
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                </picture>
               </div>
             </div>
           </div>

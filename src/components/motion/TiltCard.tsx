@@ -10,23 +10,12 @@ import {
 } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { usePointerEffectsEnabled } from "@/components/motion/use-pointer-effects-enabled";
+import { SPRING } from "@/lib/motion-tokens";
 
 type TiltSpring = {
   stiffness: number;
   damping: number;
   mass: number;
-};
-
-const defaultSpring: TiltSpring = {
-  stiffness: 300,
-  damping: 20,
-  mass: 0.3,
-};
-
-const glareSpring: TiltSpring = {
-  stiffness: 280,
-  damping: 24,
-  mass: 0.3,
 };
 
 const layerReleaseDelayMs = 480;
@@ -39,7 +28,7 @@ export function TiltCard({
   className,
   max = 5.5,
   hoverScale = 1.012,
-  spring = defaultSpring,
+  spring = SPRING.snappy,
   glare = false,
 }: {
   children: ReactNode;
@@ -64,7 +53,7 @@ export function TiltCard({
   const scale = useSpring(scaleTarget, spring);
   const glareX = useTransform(px, [-0.5, 0.5], [-52, 52]);
   const glareY = useTransform(py, [-0.5, 0.5], [-24, 24]);
-  const glareOpacity = useSpring(glareOpacityTarget, glareSpring);
+  const glareOpacity = useSpring(glareOpacityTarget, SPRING.snappy);
 
   function clearLayerReleaseTimer() {
     if (layerReleaseTimerRef.current === null) return;
@@ -201,7 +190,6 @@ export function TiltCard({
           rotateX,
           rotateY,
           scale,
-          transformPerspective: 900,
           transformStyle: "preserve-3d",
           backfaceVisibility: "hidden",
         }}

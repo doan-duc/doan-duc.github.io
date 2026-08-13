@@ -2,6 +2,9 @@ import { site, navLinks } from "@/lib/site";
 import { Container } from "@/components/ui/Container";
 import { Github, Linkedin, Mail } from "@/components/ui/icons";
 
+/** Evaluated once at build time — the correct semantic for a static export. */
+const BUILD_YEAR = new Date().getFullYear();
+
 export function Footer() {
   return (
     <footer className="relative z-[1] border-t border-line py-14">
@@ -57,7 +60,7 @@ export function Footer() {
       </Container>
 
       <Container className="mt-12 flex flex-col gap-2 border-t border-line pt-6 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
-        <span>&copy; {new Date().getFullYear()} {site.name}. All rights reserved.</span>
+        <span>&copy; {BUILD_YEAR} {site.name}. All rights reserved.</span>
       </Container>
     </footer>
   );

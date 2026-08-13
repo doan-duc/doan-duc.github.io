@@ -109,7 +109,16 @@ portfolio/
 
 ## Deploy
 
-- **Vercel (recommended):** import the repo, no config needed.
-- **GitHub Pages (static export):** `output: "export"` and unoptimized images are
-  already enabled. Run `npm run build`, then publish `out/`. This repository also
-  keeps a copy of that export at the repository root for branch-based Pages hosting.
+- **GitHub Pages via Actions (this repo's setup):** every push to `main` runs
+  [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) — install,
+  typecheck, `next build`, the fast static content tests, then deploys `out/`
+  directly with `actions/deploy-pages`. The deployed site is byte-identical to
+  the export the test suites exercise; nothing is ever copied to the repo root.
+  - **One-time setup:** repo Settings → Pages → Build and deployment → Source:
+    **GitHub Actions**. Flip this before (or immediately after) pushing the
+    workflow — branch-based hosting no longer works because the root carries no
+    export.
+  - `tests/repo-hygiene.test.mjs` fails the build if export artifacts ever
+    reappear at the repository root, if `out/` mixes build ids, or if the
+    exported CSS loses shipped features.
+- **Vercel (alternative):** import the repo, no config needed.

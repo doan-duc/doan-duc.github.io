@@ -302,7 +302,7 @@ export const recognition: Award[] = [
 
 export const recognitionMoments: RecognitionMoment[] = [
   {
-    src: "/images/Yasuda_Auditorium.png",
+    src: "/images/Yasuda_Auditorium.jpg",
     webpSrc: "/images/Yasuda_Auditorium.webp",
     alt: "Yasuda Auditorium, University of Tokyo",
     caption: "Yasuda Auditorium, University of Tokyo",

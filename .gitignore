@@ -3,9 +3,22 @@
 /out/
 /build
 /dist
-/video/*
-!/video/16cam-jetson-demo.mp4
-!/video/osco-demo.mp4
+# Local source recordings only — the served copies live in /public/video.
+/video/
+
+# Export artifacts must never be committed at the root again; GitHub Actions
+# deploys straight from out/ (see .github/workflows/deploy.yml).
+/_next/
+/index.html
+/404.html
+/_not-found.html
+/_not-found/
+/index.txt
+/_not-found.txt
+/__next.*.txt
+/.nojekyll
+/images/
+/files/
 .DS_Store
 *.pem
 Thumbs.db

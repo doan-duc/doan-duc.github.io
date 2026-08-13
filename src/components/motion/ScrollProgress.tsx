@@ -1,15 +1,15 @@
 "use client";
 
-import { motion, useScroll, useSpring } from "framer-motion";
+import { motion, useReducedMotion, useScroll, useSpring } from "framer-motion";
+import { SPRING } from "@/lib/motion-tokens";
 
 /** Top progress bar, filled with the cyan→violet atmosphere gradient. */
 export function ScrollProgress() {
   const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, {
-    stiffness: 140,
-    damping: 30,
-    mass: 0.25,
-  });
+  const shouldReduceMotion = useReducedMotion();
+  const smoothed = useSpring(scrollYProgress, SPRING.heavy);
+  // Reduced motion keeps the position readout but stops the spring physics.
+  const scaleX = shouldReduceMotion ? scrollYProgress : smoothed;
 
   return (
     <motion.div

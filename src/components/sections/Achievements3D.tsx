@@ -8,6 +8,8 @@ import { recognition, recognitionMoments } from "@/lib/content";
 import { Container } from "@/components/ui/Container";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Reveal } from "@/components/motion/Reveal";
+import { ScrollRevealText } from "@/components/motion/ScrollRevealText";
+import { DEPTH, DUR, EASE, START } from "@/lib/motion-tokens";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -49,39 +51,42 @@ export function Achievements3D() {
         gsap.set([lineRef.current, "[data-achievement-node]"], { clearProps: "all" });
       });
 
-      /* ── Desktop: 3D depth reveals ───────────────────────────────── */
+      /* ── Desktop: 3D depth reveals. Every node hangs off the same left
+            rail, so they all hinge the same way (no alternation), and they
+            hold ScrollRevealText — transform-only, the wipe owns opacity. ── */
       mm.add("(min-width: 1024px) and (prefers-reduced-motion: no-preference)", () => {
         // Timeline connector draws
         if (lineRef.current) {
           gsap.from(lineRef.current, {
             scaleY: 0,
             transformOrigin: "top center",
-            duration: 1.5,
-            ease: "power2.out",
+            duration: DUR.slow,
+            ease: EASE.enter,
             scrollTrigger: {
               trigger: lineRef.current,
-              start: "top 80%",
+              start: START.reveal,
               once: true,
             },
           });
         }
 
-        // Each node reveals from depth with alternating rotateY
         const nodes = gsap.utils.toArray<HTMLElement>(
           "[data-achievement-node]",
         );
-        nodes.forEach((node, i) => {
+        nodes.forEach((node) => {
           gsap.from(node, {
-            z: -150,
-            rotateY: i % 2 === 0 ? 3 : -3,
-            opacity: 0,
-            x: i % 2 === 0 ? -30 : 30,
-            duration: 1.2,
-            ease: "power3.out",
+            z: DEPTH.shallow,
+            rotateY: 2.5,
+            y: 24,
+            duration: DUR.slow,
+            ease: EASE.enter,
             scrollTrigger: {
               trigger: node,
-              start: "top 85%",
+              start: START.reveal,
               once: true,
+            },
+            onComplete: () => {
+              gsap.set(node, { clearProps: "transform" });
             },
           });
         });
@@ -95,11 +100,11 @@ export function Achievements3D() {
             transformOrigin: "top center",
             force3D: true,
             clearProps: "transform",
-            duration: 1.5,
-            ease: "power2.out",
+            duration: DUR.slow,
+            ease: EASE.enter,
             scrollTrigger: {
               trigger: lineRef.current,
-              start: "top 88%",
+              start: START.reveal,
               once: true,
             },
           });
@@ -108,19 +113,18 @@ export function Achievements3D() {
         const nodes = gsap.utils.toArray<HTMLElement>(
           "[data-achievement-node]",
         );
-        nodes.forEach((node, i) => {
+        nodes.forEach((node) => {
           gsap.from(node, {
-            z: -160,
+            z: DEPTH.shallow,
             rotateX: 3,
-            rotateY: i % 2 === 0 ? 5 : -5,
-            opacity: 0,
+            rotateY: 2.5,
             y: 38,
             scale: 0.97,
             force3D: true,
-            clearProps: "transform,opacity",
-            duration: 1.15,
-            ease: "power3.out",
-            scrollTrigger: { trigger: node, start: "top 88%", once: true },
+            clearProps: "transform",
+            duration: DUR.slow,
+            ease: EASE.enter,
+            scrollTrigger: { trigger: node, start: START.reveal, once: true },
           });
         });
       });
@@ -143,7 +147,7 @@ export function Achievements3D() {
           />
 
           {/* Timeline */}
-          <div className="relative mt-10 preserve-3d pl-6 sm:pl-12 md:pl-16">
+          <div className="timeline-rail relative mt-10 preserve-3d pl-6 sm:pl-12 md:pl-16">
             <div ref={lineRef} className="timeline-connector-3d" />
 
             {recognition.map((a) => (
@@ -163,9 +167,9 @@ export function Achievements3D() {
                   <h3 className="mt-3 text-xl tracking-normal md:text-2xl md:tracking-tight">
                     {a.title}
                   </h3>
-                  <p className="body-copy mt-3 max-w-lg text-[15px]">
+                  <ScrollRevealText className="body-copy mt-3 max-w-lg text-[15px]">
                     {a.description}
-                  </p>
+                  </ScrollRevealText>
                 </div>
               </div>
             ))}

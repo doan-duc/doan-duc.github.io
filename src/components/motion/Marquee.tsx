@@ -4,12 +4,12 @@ import { useState } from "react";
 import { skillMarquee } from "@/lib/content";
 import { Tag } from "@/components/ui/Tag";
 
-/** One slow, infinite marquee row of skill pills (pauses on hover). */
+/** One slow, infinite marquee row of skill pills (explicit pause toggle). */
 export function Marquee() {
   const [paused, setPaused] = useState(false);
   const items = [...skillMarquee, ...skillMarquee];
   return (
-    <div className="group/marquee relative overflow-hidden py-1 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
+    <div data-ambient="" className="group/marquee relative overflow-hidden py-1 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
       <div
         className="marquee-track flex w-max gap-3"
         data-paused={paused ? "" : undefined}

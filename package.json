@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "test": "npm run build && npm run test:static && npm run test:responsive:run && npm run test:performance",
-    "test:static": "node --test tests/project-videos.test.mjs tests/projects-content.test.mjs tests/capabilities-content.test.mjs tests/recognition-content.test.mjs tests/contact-cv-removal.test.mjs tests/contact-footer-copy.test.mjs tests/hero-hust-affiliation.test.mjs tests/about-copy.test.mjs tests/current-focus.test.mjs",
+    "test:static": "node --test tests/project-videos.test.mjs tests/projects-content.test.mjs tests/capabilities-content.test.mjs tests/recognition-content.test.mjs tests/contact-cv-removal.test.mjs tests/contact-footer-copy.test.mjs tests/hero-hust-affiliation.test.mjs tests/about-copy.test.mjs tests/current-focus.test.mjs tests/repo-hygiene.test.mjs tests/motion-tokens.test.mjs tests/featured-gate.test.mjs",
     "test:responsive": "npm run build && npm run test:responsive:run && npm run test:performance",
     "test:responsive:run": "playwright test --config playwright.responsive.config.ts",
     "test:responsive:smoke": "npm run build && playwright test --config playwright.responsive.config.ts --project=chromium --grep @smoke",

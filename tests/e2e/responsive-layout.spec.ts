@@ -194,14 +194,79 @@ test.describe("responsive geometry", () => {
     }
   });
 
-  test("remains readable when the external display font is unavailable", async ({ browser }) => {
-    for (const viewport of crossEngineViewports.filter(({ width }) => [320, 390, 768, 1366].includes(width))) {
+  test("pinned research content is never clipped vertically on short desktops", async ({
+    browser,
+    browserName,
+  }) => {
+    test.skip(browserName !== "chromium", "Pinned-stage geometry runs once in Chromium");
+    // The layout audit only detects horizontal issues; the pinned stage is the
+    // one place where vertical clipping bit real 600–768px-tall machines.
+    for (const viewport of [
+      { name: "min-pin-height", width: 1366, height: 641 },
+      { name: "short-laptop", width: 1280, height: 720 },
+      { name: "win-125", width: 1093, height: 614, dpr: 1.25 },
+    ]) {
+      const { context, page } = await openResponsivePage(browser, viewport);
+      try {
+        const mode = await page
+          .locator("#featured")
+          .getAttribute("data-featured-motion");
+        if (mode !== "pinned") continue; // gate says flow — nothing to clip
+
+        await page.evaluate(() => {
+          document.documentElement.style.scrollBehavior = "auto";
+          document.getElementById("featured")!.scrollIntoView({ behavior: "instant" });
+        });
+        await page.waitForTimeout(400);
+
+        const clipped = await page.evaluate(() => {
+          const section = document.getElementById("featured")!;
+          const sectionRect = section.getBoundingClientRect();
+          const offenders: string[] = [];
+          // Foreground phase copy must sit inside the section's vertical box.
+          for (const node of section.querySelectorAll<HTMLElement>(
+            "[data-phase] p, [data-phase] .text-sm",
+          )) {
+            const rect = node.getBoundingClientRect();
+            if (rect.height === 0) continue; // hidden inactive panel
+            if (rect.top < sectionRect.top - 1 || rect.bottom > sectionRect.bottom + 1) {
+              offenders.push(
+                `${node.tagName}@${Math.round(rect.top)}..${Math.round(rect.bottom)} vs section ${Math.round(sectionRect.top)}..${Math.round(sectionRect.bottom)}`,
+              );
+            }
+          }
+          return offenders;
+        });
+        expect(clipped, `${viewport.name}: phase copy escapes the pinned stage`).toEqual([]);
+      } finally {
+        await context.close();
+      }
+    }
+  });
+
+  test("remains readable when the display font is unavailable", async ({ browser }) => {
+    for (const viewport of crossEngineViewports.filter(({ width }) => [320, 390, 768, 1366, 1920].includes(width))) {
       const { context, page } = await openResponsivePage(browser, viewport, {
         reducedMotion: true,
         blockExternalFonts: true,
       });
       try {
         await expectNoLayoutIssues(page, `fallback-font ${viewport.width}x${viewport.height}`);
+
+        // Each hero name line sits inside a single-line overflow mask; if the
+        // fallback face runs wider than Clash Display the name wraps inside
+        // the mask and the reveal breaks. The metric-adjusted fallbacks must
+        // keep every line to one line box.
+        const heroLines = page.locator("[data-hero-line]");
+        const lineCount = await heroLines.count();
+        expect(lineCount).toBeGreaterThan(0);
+        for (let index = 0; index < lineCount; index += 1) {
+          const single = await heroLines.nth(index).evaluate((element) => {
+            const lineHeight = Number.parseFloat(getComputedStyle(element).lineHeight);
+            return element.getClientRects().length <= 1 || element.scrollHeight <= lineHeight * 1.4;
+          });
+          expect(single, `hero line ${index} must not wrap under fallback metrics`).toBe(true);
+        }
       } finally {
         await context.close();
       }

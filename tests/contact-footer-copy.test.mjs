@@ -3,8 +3,9 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
+// The deployed page IS out/index.html now — the root export copy is gone.
 const pages = await Promise.all(
-  ["../out/index.html", "../index.html"].map(async (relativePath) => ({
+  ["../out/index.html"].map(async (relativePath) => ({
     relativePath,
     html: await readFile(
       fileURLToPath(new URL(relativePath, import.meta.url)),

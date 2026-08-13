@@ -9,6 +9,8 @@ import { Container } from "@/components/ui/Container";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Tag } from "@/components/ui/Tag";
 import { Marquee } from "@/components/motion/Marquee";
+import { ScrollRevealText } from "@/components/motion/ScrollRevealText";
+import { DEPTH, DUR, EASE, START } from "@/lib/motion-tokens";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -29,23 +31,27 @@ export function Skills3D() {
         gsap.set("[data-skill-panel]", { clearProps: "all" });
       });
 
-      /* ── Desktop: parallax depth reveals ──────────────────────────── */
+      /* ── Desktop: parallax depth reveals. Panels hold ScrollRevealText,
+            so entrances are transform-only — the word wipe owns opacity. ── */
       mm.add("(min-width: 1024px) and (prefers-reduced-motion: no-preference)", () => {
         const panels = gsap.utils.toArray<HTMLElement>("[data-skill-panel]");
-        const depths = [-250, -350, -200, -400];
+        const depths = [DEPTH.mid, DEPTH.deep, DEPTH.mid, DEPTH.deep];
 
         panels.forEach((panel, i) => {
           gsap.from(panel, {
             z: depths[i % depths.length],
-            opacity: 0,
             rotateY: i % 2 === 0 ? -2.4 : 2.4,
+            y: 40,
             scale: 0.94,
-            duration: 1.4,
-            ease: "power3.out",
+            duration: DUR.slow,
+            ease: EASE.enter,
             scrollTrigger: {
               trigger: panel,
-              start: "top 88%",
+              start: START.reveal,
               once: true,
+            },
+            onComplete: () => {
+              gsap.set(panel, { clearProps: "transform" });
             },
           });
         });
@@ -54,21 +60,20 @@ export function Skills3D() {
       /* ── Mobile: alternating 3D depth reveals ───────────────────── */
       mm.add("(max-width: 1023px) and (prefers-reduced-motion: no-preference)", () => {
         const panels = gsap.utils.toArray<HTMLElement>("[data-skill-panel]");
-        const depths = [-180, -240, -160, -220];
+        const depths = [DEPTH.shallow, DEPTH.mid, DEPTH.shallow, DEPTH.mid];
 
         panels.forEach((panel, i) => {
           gsap.from(panel, {
             z: depths[i % depths.length],
             rotateX: 3,
             rotateY: i % 2 === 0 ? -4 : 4,
-            opacity: 0,
             y: 38,
             scale: 0.94,
             force3D: true,
-            clearProps: "transform,opacity",
-            duration: 1.2,
-            ease: "power3.out",
-            scrollTrigger: { trigger: panel, start: "top 88%", once: true },
+            clearProps: "transform",
+            duration: DUR.slow,
+            ease: EASE.enter,
+            scrollTrigger: { trigger: panel, start: START.reveal, once: true },
           });
         });
       });
@@ -100,7 +105,7 @@ export function Skills3D() {
                 <h3 className="text-2xl tracking-normal md:text-3xl md:tracking-tight">
                   {c.title}
                 </h3>
-                <p className="body-copy mt-3">{c.blurb}</p>
+                <ScrollRevealText className="body-copy mt-3">{c.blurb}</ScrollRevealText>
                 <div className="mt-6 flex flex-wrap gap-2">
                   {c.skills.map((s) => (
                     <Tag key={s}>{s}</Tag>

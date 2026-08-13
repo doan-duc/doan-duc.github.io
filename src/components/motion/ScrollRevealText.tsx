@@ -9,20 +9,19 @@ import {
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useIsoLayoutEffect } from "@/lib/use-iso-layout-effect";
+import { REST, START } from "@/lib/motion-tokens";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
 /** Resting dimness of an unread word. Low enough to read as "not yet here". */
-const restOpacity = 0.12;
+const restOpacity = REST.dim;
 /**
- * Word tween length against the gap between words: the ratio is how many words
- * sit mid-fade at once, so the leading edge reads as a soft wipe rather than a
- * row of switches flicking on.
+ * How many words sit mid-fade at once. The leading edge reads as a soft wipe
+ * rather than a row of switches flicking on.
  */
-const wordDuration = 0.6;
-const wordStagger = 0.4;
+const softness = 1.6;
 
 type ScrollRevealTextProps = Omit<
   ComponentPropsWithoutRef<"p">,
@@ -47,7 +46,7 @@ export function ScrollRevealText({
   children,
   as,
   className,
-  start = "top 85%",
+  start = START.reveal,
   end = "bottom 60%",
   ...rest
 }: ScrollRevealTextProps) {
@@ -64,21 +63,64 @@ export function ScrollRevealText({
     );
     if (words.length === 0) return;
 
+    // A staggered tween per word means GSAP re-evaluates every word on every
+    // tick — hundreds of child tweens across the page, all through a scroll.
+    // The wipe is a pure function of progress, so drive it directly and touch
+    // only the handful of words whose opacity actually moved this frame.
+    const total = words.length;
+    const written = new Array<number>(total).fill(Number.NaN);
+    let previousHead = Number.NaN;
+
+    const opacityAt = (index: number, head: number) => {
+      const ramp = (head - index) / softness;
+      const eased = ramp <= 0 ? 0 : ramp >= 1 ? 1 : ramp;
+      return restOpacity + (1 - restOpacity) * eased;
+    };
+
+    const writeWord = (index: number, head: number) => {
+      const next = Math.round(opacityAt(index, head) * 100) / 100;
+      if (written[index] === next) return;
+      written[index] = next;
+      words[index].style.opacity = `${next}`;
+    };
+
+    const applyProgress = (progress: number) => {
+      const head = progress * (total + softness);
+      if (Number.isNaN(previousHead)) {
+        for (let index = 0; index < total; index += 1) writeWord(index, head);
+        previousHead = head;
+        return;
+      }
+      // Only the band the leading edge swept since the last frame can differ.
+      const low = Math.max(0, Math.floor(Math.min(head, previousHead) - softness) - 1);
+      const high = Math.min(total - 1, Math.ceil(Math.max(head, previousHead)) + 1);
+      for (let index = low; index <= high; index += 1) writeWord(index, head);
+      previousHead = head;
+    };
+
     const ctx = gsap.context(() => {
-      gsap.fromTo(
-        words,
-        { opacity: restOpacity },
-        {
-          opacity: 1,
-          ease: "none",
-          duration: wordDuration,
-          stagger: wordStagger,
-          scrollTrigger: { trigger: element, start, end, scrub: true },
-        },
-      );
+      ScrollTrigger.create({
+        trigger: element,
+        start,
+        end,
+        scrub: true,
+        // The research section pins, which inserts spacer height and moves
+        // everything below it. These triggers must recompute after that pin has
+        // resolved, or every block below inherits stale start/end and sits
+        // permanently lit.
+        refreshPriority: -1,
+        onUpdate: (self) => applyProgress(self.progress),
+        // Past either edge the trigger stops updating, so settle the ends.
+        onLeave: () => applyProgress(1),
+        onLeaveBack: () => applyProgress(0),
+      });
+      applyProgress(0);
     }, ref);
 
-    return () => ctx.revert();
+    return () => {
+      ctx.revert();
+      for (const word of words) word.style.removeProperty("opacity");
+    };
   }, []);
 
   const words = children.split(/\s+/).filter(Boolean);

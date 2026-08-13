@@ -20,7 +20,15 @@ export const crossEngineViewports: ResponsiveViewport[] = [
   { name: "tablet-landscape", width: 1024, height: 768, touch: true, dpr: 2 },
   { name: "tablet-air-landscape", width: 1180, height: 820, touch: true, dpr: 2 },
   { name: "short-laptop", width: 1280, height: 720 },
+  { name: "wide-laptop", width: 1280, height: 800 },
   { name: "laptop", width: 1366, height: 768 },
+  // Real-world machines the old matrix missed: browser chrome eats ~130px of
+  // a 768-tall laptop, Windows 125% scaling is the most common desktop
+  // configuration on earth, and no desktop fixture exercised DPR > 1 at all.
+  { name: "laptop-real-chrome", width: 1366, height: 641 },
+  { name: "win-125-scaled", width: 1093, height: 614, dpr: 1.25 },
+  { name: "desktop-hidpi-125", width: 1536, height: 864, dpr: 1.25 },
+  { name: "macbook-2x", width: 1440, height: 900, dpr: 2 },
   { name: "desktop", width: 1920, height: 1080 },
   { name: "large-desktop", width: 2560, height: 1440 },
   { name: "ultrawide", width: 3440, height: 1440 },
@@ -68,7 +76,7 @@ export function widthSweep() {
   for (let width = 320; width <= 2560; width += 16) widths.add(width);
   for (let width = 2624; width <= 3840; width += 64) widths.add(width);
 
-  for (const boundary of [420, 560, 640, 720, 768, 899, 900, 960, 1023, 1024, 1152, 1280, 1536, 1920, 2560, 3440, 3840]) {
+  for (const boundary of [420, 560, 640, 720, 768, 899, 900, 960, 1023, 1024, 1152, 1232, 1280, 1536, 1920, 2199, 2200, 2560, 2999, 3000, 3440, 3840]) {
     widths.add(boundary - 1);
     widths.add(boundary);
     widths.add(boundary + 1);
@@ -112,7 +120,9 @@ export async function openResponsivePage(
   );
 
   if (options.blockExternalFonts) {
-    await context.route("https://api.fontshare.com/**", (route) => route.abort());
+    // The display face is self-hosted now; blocking it simulates a visitor
+    // whose font request fails or is still in flight (metric fallbacks shown).
+    await context.route("**/fonts/**", (route) => route.abort());
   }
 
   const page = await context.newPage();

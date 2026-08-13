@@ -48,7 +48,7 @@ async function openInstrumentedDesktop(
     };
   });
 
-  await context.route("https://api.fontshare.com/**", (route) => route.abort());
+  await context.route("**/fonts/**", (route) => route.abort());
 
   const page = await context.newPage();
   await page.goto("/", { waitUntil: "domcontentloaded" });

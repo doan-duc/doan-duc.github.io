@@ -3,6 +3,7 @@
 import { site } from "@/lib/site";
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/motion/Reveal";
+import { DepthReveal } from "@/components/motion/DepthReveal";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { ArrowUpRight, Github, Linkedin, Mail } from "@/components/ui/icons";
 
@@ -14,15 +15,17 @@ export function Contact() {
           <span className="kicker">Contact</span>
         </Reveal>
 
-        <Reveal>
+        {/* The finale enters from the deep plane — a bookend to the hero:
+            the page opens and closes with its only two deep-tier objects. */}
+        <DepthReveal depth="deep">
           <h2 className="mt-7 text-[clamp(2.75rem,9vw,8rem)] leading-[0.9] tracking-display">
             Relentless practice
             <br />
             builds mastery.
           </h2>
-        </Reveal>
+        </DepthReveal>
 
-        <Reveal className="mt-10 flex flex-wrap items-center gap-4">
+        <DepthReveal depth="shallow" className="mt-10 flex flex-wrap items-center gap-4">
           <Magnetic>
             <a
               href={`mailto:${site.email}`}
@@ -32,9 +35,9 @@ export function Contact() {
               <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </a>
           </Magnetic>
-        </Reveal>
+        </DepthReveal>
 
-        <Reveal stagger className="mt-16 grid gap-px overflow-hidden rounded-2xl border border-line sm:grid-cols-3">
+        <DepthReveal depth="shallow" stagger className="mt-16 grid gap-px overflow-hidden rounded-2xl border border-line sm:grid-cols-3">
           <a href={site.github} target="_blank" rel="noreferrer" className="group flex items-center justify-between bg-white/[0.02] px-6 py-5 transition-colors hover:bg-white/[0.04]">
             <span className="flex items-center gap-3 text-ink"><Github className="h-5 w-5" /> GitHub</span>
             <ArrowUpRight className="h-4 w-4 text-muted transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -47,7 +50,7 @@ export function Contact() {
             <span className="flex items-center gap-3 text-ink"><Mail className="h-5 w-5" /> University</span>
             <ArrowUpRight className="h-4 w-4 text-muted transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </a>
-        </Reveal>
+        </DepthReveal>
       </Container>
     </section>
   );

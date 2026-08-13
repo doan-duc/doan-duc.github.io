@@ -42,13 +42,13 @@ export function ProjectVideoDemo({ demo }: ProjectVideoDemoProps) {
         aria-label={demo.triggerLabel}
         data-cursor="view"
         data-cursor-tone="project"
-        className="group relative block aspect-[16/10] w-full overflow-hidden rounded-2xl border border-line bg-surface text-left transition-[border-color,transform] duration-300 hover:border-accent/50 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent active:scale-[0.99]"
+        className="group relative block aspect-video w-full overflow-hidden rounded-2xl border border-line bg-surface text-left transition-[border-color,transform] duration-300 hover:border-accent/50 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent active:scale-[0.99]"
       >
         <img
           src={demo.poster}
           alt=""
           width={960}
-          height={600}
+          height={540}
           loading="lazy"
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.025]"
         />

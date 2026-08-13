@@ -10,6 +10,8 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Tag } from "@/components/ui/Tag";
 import { ArrowUpRight } from "@/components/ui/icons";
 import { TiltCard } from "@/components/motion/TiltCard";
+import { ScrollRevealText } from "@/components/motion/ScrollRevealText";
+import { DEPTH, DUR, EASE, START } from "@/lib/motion-tokens";
 import { ProjectVideoDemo } from "@/components/projects/ProjectVideoDemo";
 
 if (typeof window !== "undefined") {
@@ -21,7 +23,7 @@ function Phase({ label, children }: { label: string; children: string }) {
   return (
     <div>
       <div className="meta-label">{label}</div>
-      <p className="body-copy mt-2">{children}</p>
+      <ScrollRevealText className="body-copy mt-2">{children}</ScrollRevealText>
     </div>
   );
 }
@@ -45,7 +47,7 @@ function ProjectVisualSlot({ project }: { project: Project }) {
 
 function ProjectCard({ project }: { project: Project }) {
   return (
-    <TiltCard max={5.5} hoverScale={1.011} glare className="[transform-style:preserve-3d]">
+    <TiltCard max={3.5} hoverScale={1.008} glare className="[transform-style:preserve-3d]">
       <div className="glass-3d relative z-[1] rounded-3xl p-7 md:p-12">
         <div className="grid gap-10 lg:grid-cols-12 lg:gap-8">
           {/* Identity */}
@@ -109,25 +111,28 @@ export function Projects3D() {
         gsap.set("[data-project-card]", { clearProps: "all" });
       });
 
-      /* ── Desktop: individual 3D depth reveals ────────────────────── */
+      /* ── Desktop: individual 3D depth reveals. Cards hold ScrollRevealText,
+            so the entrance is transform-only — the word wipe owns opacity. ── */
       mm.add("(min-width: 1024px) and (prefers-reduced-motion: no-preference)", () => {
         const cards = gsap.utils.toArray<HTMLElement>(
           stackRef.current!.querySelectorAll("[data-project-card]"),
         );
         cards.forEach((card, i) => {
           gsap.from(card, {
-            z: -300,
+            z: DEPTH.deep,
             rotateX: 4,
             rotateY: i % 2 === 0 ? -3 : 3,
-            opacity: 0,
             y: 60,
             scale: 0.95,
-            duration: 1.3,
-            ease: "power3.out",
+            duration: DUR.slow,
+            ease: EASE.enter,
             scrollTrigger: {
               trigger: card,
-              start: "top 85%",
+              start: START.reveal,
               once: true,
+            },
+            onComplete: () => {
+              gsap.set(card, { clearProps: "transform" });
             },
           });
         });
@@ -140,22 +145,21 @@ export function Projects3D() {
         );
         cards.forEach((card, i) => {
           gsap.from(card, {
-            z: -220,
+            z: DEPTH.mid,
             rotateX: 6,
             rotateY: i % 2 === 0 ? -0.5 : 0.5,
-            opacity: 0,
             y: 58,
             scale: 0.94,
             force3D: true,
-            duration: 1.2,
-            ease: "power3.out",
+            duration: DUR.slow,
+            ease: EASE.enter,
             scrollTrigger: {
               trigger: card,
-              start: "top 88%",
+              start: START.reveal,
               once: true,
             },
             onComplete: () => {
-              gsap.set(card, { clearProps: "transform,opacity" });
+              gsap.set(card, { clearProps: "transform" });
             },
           });
         });

@@ -4,32 +4,34 @@ import { useRef, type ElementType, type ReactNode } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useIsoLayoutEffect } from "@/lib/use-iso-layout-effect";
-import { DUR, EASE, START } from "@/lib/motion-tokens";
+import { DEPTH, DUR, EASE, START } from "@/lib/motion-tokens";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-type RevealProps = {
+type DepthRevealProps = {
   children: ReactNode;
   as?: ElementType;
   className?: string;
+  /** Depth tier the block settles forward from. */
+  depth?: keyof typeof DEPTH;
+  /** Stagger direct children instead of moving the block as one object. */
   stagger?: boolean;
-  y?: number;
-  delay?: number;
-  start?: string;
 };
 
-/** GSAP reveal-on-scroll (opacity + translateY), optional staggered children. */
-export function Reveal({
+/**
+ * Reveal-from-depth: the block settles forward out of z-space with a slight
+ * hinge — the same physical event as every 3D section entrance, packaged for
+ * places without their own GSAP context (e.g. the Contact finale).
+ */
+export function DepthReveal({
   children,
   as,
   className,
+  depth = "shallow",
   stagger = false,
-  y = 32,
-  delay = 0,
-  start = START.reveal,
-}: RevealProps) {
+}: DepthRevealProps) {
   const Tag = (as ?? "div") as ElementType;
   const ref = useRef<HTMLElement>(null);
 
@@ -39,17 +41,20 @@ export function Reveal({
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const ctx = gsap.context(() => {
-      const targets = stagger
-        ? (gsap.utils.toArray(el.children) as Element[])
-        : el;
+      const targets = stagger ? (gsap.utils.toArray(el.children) as Element[]) : el;
       gsap.from(targets, {
+        z: DEPTH[depth],
+        rotateX: 4,
+        y: 32,
         opacity: 0,
-        y,
-        duration: DUR.standard,
+        transformPerspective: 900,
+        duration: DUR.slow,
         ease: EASE.enter,
-        delay,
         stagger: stagger ? 0.09 : 0,
-        scrollTrigger: { trigger: el, start, once: true },
+        scrollTrigger: { trigger: el, start: START.reveal, once: true },
+        onComplete: () => {
+          gsap.set(targets, { clearProps: "transform" });
+        },
       });
     }, ref);
 

@@ -16,6 +16,11 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
+/** Single source for scroll tuning. lerp 0.1 keeps the luxurious settle on a
+ *  discrete wheel while shortening the tail that read as lag on trackpads. */
+const LERP = 0.1;
+const WHEEL_MULTIPLIER = 0.85;
+
 type LenisContextValue = {
   scrollTo: (
     target: string | number | HTMLElement,
@@ -27,9 +32,12 @@ const LenisContext = createContext<LenisContextValue>({ scrollTo: () => {} });
 export const useSmoothScroll = () => useContext(LenisContext);
 
 /**
- * Lenis registers non-passive touch listeners when constructed, so keep it lazy.
- * Touch-first devices stay native; mouse/wheel intent opts into smooth wheel
- * scrolling without removing any visual animation.
+ * Lenis boots eagerly on wheel-capable, motion-tolerant devices, so the whole
+ * session runs ONE scroll system. (The old lazy bootstrap replayed the first
+ * wheel event by hand — its deltaMode guess made the first notch travel ~2×
+ * further in Chrome than Firefox, and until it fired, UA smooth-scroll and
+ * Lenis coexisted.) Touch-first devices never construct it; a touch pointer
+ * on a hybrid device tears it down to keep native touch scrolling.
  */
 export default function SmoothScroll({ children }: { children: ReactNode }) {
   const lenisRef = useRef<Lenis | null>(null);
@@ -38,7 +46,6 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const wheelCapable = window.matchMedia("(any-hover: hover) and (any-pointer: fine)");
     let stopLenis: (() => void) | undefined;
-    let stopWheelBootstrap: (() => void) | undefined;
 
     const destroyLenis = () => {
       stopLenis?.();
@@ -50,10 +57,10 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
       if (lenisRef.current) return lenisRef.current;
       if (reduceMotion.matches || !wheelCapable.matches) return null;
       const lenis = new Lenis({
-        lerp: 0.08,
+        lerp: LERP,
         smoothWheel: true,
         syncTouch: false,
-        wheelMultiplier: 0.85,
+        wheelMultiplier: WHEEL_MULTIPLIER,
         touchMultiplier: 1,
       });
       lenisRef.current = lenis;
@@ -77,77 +84,41 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
       return lenis;
     };
 
-    const stopBootstrap = () => {
-      stopWheelBootstrap?.();
-      stopWheelBootstrap = undefined;
-    };
-
     const bootstrap = () => {
-      stopBootstrap();
-
       if (reduceMotion.matches || !wheelCapable.matches) {
         destroyLenis();
         ScrollTrigger.refresh();
         return;
       }
-
-      const startFromWheel = (event: WheelEvent) => {
-        if (
-          event.defaultPrevented ||
-          !event.cancelable ||
-          event.ctrlKey ||
-          event.metaKey ||
-          event.deltaY === 0 ||
-          Math.abs(event.deltaX) > Math.abs(event.deltaY)
-        ) {
-          return;
-        }
-        const lenis = startLenis();
-        stopBootstrap();
-        if (!lenis) return;
-
-        event.preventDefault();
-        const unit =
-          event.deltaMode === WheelEvent.DOM_DELTA_LINE
-            ? 16
-            : event.deltaMode === WheelEvent.DOM_DELTA_PAGE
-              ? window.innerHeight
-              : 1;
-        const destination = Math.max(
-          0,
-          Math.min(
-            document.documentElement.scrollHeight - window.innerHeight,
-            window.scrollY + event.deltaY * unit * 0.85,
-          ),
-        );
-        lenis.scrollTo(destination, { duration: 1.15 });
-      };
-
-      window.addEventListener("wheel", startFromWheel, {
-        capture: true,
-        passive: false,
-      });
-      stopWheelBootstrap = () => {
-        window.removeEventListener("wheel", startFromWheel, { capture: true });
-      };
+      startLenis();
     };
 
     const handlePointerDown = (event: PointerEvent) => {
       if (event.pointerType === "touch") {
+        // A hybrid device being used by touch: keep scrolling native.
         destroyLenis();
-        bootstrap();
         return;
       }
       if (event.pointerType === "mouse" || event.pointerType === "pen") {
         startLenis();
-        stopBootstrap();
       }
+    };
+
+    // Re-arm after a touch teardown the moment the user returns to the wheel.
+    // Passive and replay-free: the notch that re-boots Lenis scrolls natively,
+    // every subsequent one is interpolated.
+    const handleWheel = (event: WheelEvent) => {
+      if (lenisRef.current) return;
+      if (event.ctrlKey || event.metaKey) return;
+      if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
+      startLenis();
     };
 
     window.addEventListener("pointerdown", handlePointerDown, {
       capture: true,
       passive: true,
     });
+    window.addEventListener("wheel", handleWheel, { passive: true });
     bootstrap();
     const stopObservers = [reduceMotion, wheelCapable].map((query) =>
       observeMediaQuery(query, () => {
@@ -159,7 +130,7 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
     return () => {
       stopObservers.forEach((stopObserving) => stopObserving());
       window.removeEventListener("pointerdown", handlePointerDown, { capture: true });
-      stopBootstrap();
+      window.removeEventListener("wheel", handleWheel);
       destroyLenis();
     };
   }, []);

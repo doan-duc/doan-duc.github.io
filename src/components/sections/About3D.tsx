@@ -9,6 +9,7 @@ import { Container } from "@/components/ui/Container";
 import { EcgWaveform } from "@/components/ui/EcgWaveform";
 import { AboutSignalInstrument } from "@/components/sections/AboutSignalInstrument";
 import { ScrollRevealText } from "@/components/motion/ScrollRevealText";
+import { DEPTH, DUR, EASE, SCRUB, START } from "@/lib/motion-tokens";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -42,30 +43,30 @@ export function About3D() {
       mm.add("(min-width: 1024px) and (prefers-reduced-motion: no-preference)", () => {
         // The identity arrives as one physical object before the story resolves.
         gsap.from("[data-about-identity]", {
-          x: -44,
-          z: -140,
+          z: DEPTH.shallow,
           rotateY: -8,
           opacity: 0,
-          duration: 1.25,
-          ease: "power3.out",
+          y: 28,
+          duration: DUR.slow,
+          ease: EASE.enter,
           scrollTrigger: {
             trigger: "[data-about-identity]",
-            start: "top 82%",
+            start: START.reveal,
             once: true,
           },
         });
 
         // Lead text reveal from depth.
         gsap.from("[data-about-lead]", {
-          z: -150,
+          z: DEPTH.mid,
           opacity: 0,
           rotateX: 4,
           y: 40,
-          duration: 1.2,
-          ease: "power3.out",
+          duration: DUR.slow,
+          ease: EASE.enter,
           scrollTrigger: {
             trigger: "[data-about-lead]",
-            start: "top 82%",
+            start: START.reveal,
             once: true,
           },
         });
@@ -73,15 +74,15 @@ export function About3D() {
         // Body paragraphs reveal deeper, staggered. Opacity is left to the
         // per-word scroll wipe so the two do not fade the same pixels twice.
         gsap.from(gsap.utils.toArray("[data-about-body]"), {
-          z: -200,
+          z: DEPTH.mid,
           rotateX: 3,
           y: 36,
-          duration: 1,
+          duration: DUR.slow,
           stagger: 0.12,
-          ease: "power3.out",
+          ease: EASE.enter,
           scrollTrigger: {
             trigger: "[data-about-body]",
-            start: "top 85%",
+            start: START.reveal,
             once: true,
           },
         });
@@ -97,30 +98,31 @@ export function About3D() {
               trigger: sectionRef.current,
               start: "top bottom",
               end: "bottom top",
-              scrub: true,
+              scrub: SCRUB.smooth,
             },
           },
         );
 
-        // Research-focus block
+        // Research-focus block wraps ScrollRevealText — transform-only, the
+        // word wipe owns opacity.
         gsap.from("[data-about-focus]", {
-          z: -120,
-          opacity: 0,
+          z: DEPTH.shallow,
           y: 40,
-          duration: 1.1,
-          ease: "power3.out",
+          duration: DUR.slow,
+          ease: EASE.enter,
           scrollTrigger: {
             trigger: "[data-about-focus]",
-            start: "top 85%",
+            start: START.reveal,
             once: true,
           },
         });
       });
 
-      /* ── Mobile: touch-scroll 3D reveals ────────────────────────── */
+      /* ── Mobile: touch-scroll 3D reveals (one depth tier shallower —
+            the 900px perspective renders the same z visibly stronger) ── */
       mm.add("(max-width: 1023px) and (prefers-reduced-motion: no-preference)", () => {
         gsap.from("[data-about-identity]", {
-          z: -140,
+          z: DEPTH.shallow,
           rotateX: 4,
           rotateY: -2.5,
           opacity: 0,
@@ -128,45 +130,45 @@ export function About3D() {
           scale: 0.96,
           force3D: true,
           clearProps: "transform,opacity",
-          duration: 1.15,
-          ease: "power3.out",
+          duration: DUR.slow,
+          ease: EASE.enter,
           scrollTrigger: {
             trigger: "[data-about-identity]",
-            start: "top 88%",
+            start: START.reveal,
             once: true,
           },
         });
 
         gsap.from("[data-about-lead]", {
-          z: -160,
+          z: DEPTH.shallow,
           rotateX: 5,
           opacity: 0,
           y: 42,
           scale: 0.97,
           force3D: true,
           clearProps: "transform,opacity",
-          duration: 1.15,
-          ease: "power3.out",
+          duration: DUR.slow,
+          ease: EASE.enter,
           scrollTrigger: {
             trigger: "[data-about-lead]",
-            start: "top 85%",
+            start: START.reveal,
             once: true,
           },
         });
 
         gsap.from(gsap.utils.toArray("[data-about-body]"), {
-          z: -140,
+          z: DEPTH.shallow,
           rotateX: 4,
           y: 36,
           scale: 0.98,
           force3D: true,
           clearProps: "transform,opacity",
-          duration: 1.05,
+          duration: DUR.slow,
           stagger: 0.12,
-          ease: "power3.out",
+          ease: EASE.enter,
           scrollTrigger: {
             trigger: "[data-about-body]",
-            start: "top 88%",
+            start: START.reveal,
             once: true,
           },
         });
@@ -183,24 +185,24 @@ export function About3D() {
               trigger: sectionRef.current,
               start: "top bottom",
               end: "bottom top",
-              scrub: 0.45,
+              scrub: SCRUB.smooth,
             },
           },
         );
 
+        // Wraps ScrollRevealText — transform-only.
         gsap.from("[data-about-focus]", {
-          z: -140,
+          z: DEPTH.shallow,
           rotateX: 4,
-          opacity: 0,
           y: 38,
           scale: 0.97,
           force3D: true,
           clearProps: "transform,opacity",
-          duration: 1.1,
-          ease: "power3.out",
+          duration: DUR.slow,
+          ease: EASE.enter,
           scrollTrigger: {
             trigger: "[data-about-focus]",
-            start: "top 88%",
+            start: START.reveal,
             once: true,
           },
         });
@@ -219,6 +221,7 @@ export function About3D() {
       {/* ECG waveform ambient layer */}
       <div
         data-about-waves
+        data-ambient=""
         className="pointer-events-none absolute inset-0 z-0 preserve-3d"
         aria-hidden="true"
       >
@@ -296,9 +299,9 @@ export function About3D() {
                   <h4 className="text-xl tracking-normal text-ink md:text-2xl md:tracking-tight">
                     {focus.title}
                   </h4>
-                  <p className="body-copy mt-4 text-[15px] md:text-[16px]">
+                  <ScrollRevealText className="body-copy mt-4 text-[15px] md:text-[16px]">
                     {focus.body}
-                  </p>
+                  </ScrollRevealText>
                 </article>
               ))}
             </div>

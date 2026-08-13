@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 import SmoothScroll from "@/components/providers/SmoothScroll";
+import { AmbientGate } from "@/components/motion/AmbientGate";
 import { ScrollProgress } from "@/components/motion/ScrollProgress";
 import { SignalCursor } from "@/components/motion/SignalCursor";
 import { Nav } from "@/components/layout/Nav";
@@ -30,11 +31,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen bg-base text-ink antialiased">
-        {/* Display typeface from Fontshare, hoisted to <head>. */}
+        {/* Self-hosted display typeface — preloaded so headings never swap late. */}
         <link
-          rel="stylesheet"
-          href="https://api.fontshare.com/v2/css?f[]=clash-display@600,500,700,400&display=swap"
-          precedence="default"
+          rel="preload"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+          href="/fonts/ClashDisplay-Variable.woff2"
         />
 
         <SmoothScroll>
@@ -44,6 +47,7 @@ export default function RootLayout({
             <span className="aurora-blob aurora-3" />
           </div>
           <ScrollProgress />
+          <AmbientGate />
           <SignalCursor />
           <Nav />
           <main className="relative z-[1]">{children}</main>
