@@ -111,6 +111,8 @@ export function SignalCursor() {
     let latestSample: PointerSample | null = null;
     let targetX = 0;
     let targetY = 0;
+    let pointerX = 0;
+    let pointerY = 0;
     let ringX = 0;
     let ringY = 0;
     let previousX = 0;
@@ -129,7 +131,7 @@ export function SignalCursor() {
     let lastRawTarget: EventTarget | null = null;
     let suppressMouseUntil = 0;
     let inactive = true;
-    let scrollSyncFrame: number | null = null;
+    let scrollSyncTimer: number | null = null;
 
     const setNativeCursorActive = (active: boolean) => {
       if (documentRoot.hasAttribute("data-signal-cursor-active") === active) return;
@@ -282,7 +284,17 @@ export function SignalCursor() {
       frameId = requestAnimationFrame(drawFrame);
     };
 
+    const cancelScrollSync = () => {
+      if (scrollSyncTimer === null) return;
+      window.clearTimeout(scrollSyncTimer);
+      scrollSyncTimer = null;
+    };
+
     const queuePointer = (x: number, y: number, target: EventTarget | null) => {
+      cancelScrollSync();
+      pointerX = x;
+      pointerY = y;
+      hasPointerPosition = true;
       latestSample = { x, y, target };
       requestCursorFrame();
     };
@@ -333,15 +345,15 @@ export function SignalCursor() {
     };
 
     const handleScroll = () => {
+      const canResync = hasPointerPosition;
       deactivate();
-      if (!hasPointerPosition || scrollSyncFrame !== null) return;
-      const pointerX = previousX;
-      const pointerY = previousY;
-      scrollSyncFrame = requestAnimationFrame(() => {
-        scrollSyncFrame = null;
+      cancelScrollSync();
+      if (!canResync) return;
+      scrollSyncTimer = window.setTimeout(() => {
+        scrollSyncTimer = null;
         const target = document.elementFromPoint(pointerX, pointerY);
         if (target) queuePointer(pointerX, pointerY, target);
-      });
+      }, 80);
     };
 
     const hideOutsideViewport = (event: MouseEvent) => {
@@ -373,7 +385,7 @@ export function SignalCursor() {
       window.removeEventListener("wheel", deactivate);
       window.removeEventListener("scroll", handleScroll);
       document.removeEventListener("visibilitychange", handleVisibility);
-      if (scrollSyncFrame !== null) cancelAnimationFrame(scrollSyncFrame);
+      cancelScrollSync();
       cancelPulse();
     };
   }, [enabled]);

@@ -470,8 +470,11 @@ test.describe("signal cursor", () => {
       await expect(page.locator("[data-signal-cursor]")).toHaveAttribute("data-visible", "");
       await page.mouse.move(20, 740);
       await page.evaluate(() => window.scrollBy({ top: 120, behavior: "instant" }));
-      await expect(page.locator("[data-signal-cursor]")).not.toHaveAttribute("data-visible", "");
-      await expect(page.locator("html")).not.toHaveAttribute("data-signal-cursor-active", "");
+      await expect(page.locator("[data-signal-cursor]")).toHaveAttribute(
+        "data-cursor-mode",
+        "default",
+      );
+      await expect(page.locator("[data-cursor-label]")).toHaveText("");
 
       await page.evaluate(() => {
         window.dispatchEvent(
