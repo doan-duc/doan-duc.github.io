@@ -56,6 +56,7 @@ async function expectCursorLabel(page: Page, target: Locator, label: string) {
 
   const cursorLabel = page.locator("[data-cursor-label]");
   await expect(cursorLabel).toHaveText(label);
+  await expect(page.locator("[data-signal-cursor]")).toHaveAttribute("data-visible", "");
   await expect
     .poll(() => cursorLabel.evaluate((element) => Number.parseFloat(getComputedStyle(element).opacity)))
     .toBeGreaterThan(0.5);
@@ -364,6 +365,21 @@ test.describe("signal cursor", () => {
     try {
       const trigger = page.locator('button[aria-haspopup="dialog"]').first();
       await trigger.scrollIntoViewIfNeeded();
+      await page.evaluate(
+        () =>
+          new Promise<void>((resolve) => {
+            let stableFrames = 0;
+            let previousY = window.scrollY;
+            const sample = () => {
+              const currentY = window.scrollY;
+              stableFrames = Math.abs(currentY - previousY) < 0.25 ? stableFrames + 1 : 0;
+              previousY = currentY;
+              if (stableFrames >= 4) resolve();
+              else requestAnimationFrame(sample);
+            };
+            requestAnimationFrame(sample);
+          }),
+      );
       await trigger.hover();
       await expect(page.locator("[data-signal-cursor]")).toHaveAttribute(
         "data-cursor-mode",
@@ -452,6 +468,7 @@ test.describe("signal cursor", () => {
     try {
       await page.mouse.move(20, 300);
       await expect(page.locator("[data-signal-cursor]")).toHaveAttribute("data-visible", "");
+      await page.mouse.move(20, 740);
       await page.evaluate(() => window.scrollBy({ top: 120, behavior: "instant" }));
       await expect(page.locator("[data-signal-cursor]")).not.toHaveAttribute("data-visible", "");
       await expect(page.locator("html")).not.toHaveAttribute("data-signal-cursor-active", "");

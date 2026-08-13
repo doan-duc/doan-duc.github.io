@@ -115,6 +115,7 @@ export function SignalCursor() {
     let ringY = 0;
     let previousX = 0;
     let previousY = 0;
+    let hasPointerPosition = false;
     let previousPointerTime = performance.now();
     let lastFrameTime = performance.now();
     let trailStrength = 0;
@@ -128,6 +129,7 @@ export function SignalCursor() {
     let lastRawTarget: EventTarget | null = null;
     let suppressMouseUntil = 0;
     let inactive = true;
+    let scrollSyncFrame: number | null = null;
 
     const setNativeCursorActive = (active: boolean) => {
       if (documentRoot.hasAttribute("data-signal-cursor-active") === active) return;
@@ -188,6 +190,9 @@ export function SignalCursor() {
 
       updateMode(sample.target);
       if (lastMode === "native") {
+        previousX = sample.x;
+        previousY = sample.y;
+        hasPointerPosition = true;
         const needsNativeHandoff =
           !inactive ||
           root.hasAttribute("data-visible") ||
@@ -207,6 +212,7 @@ export function SignalCursor() {
 
       targetX = sample.x;
       targetY = sample.y;
+      hasPointerPosition = true;
       inactive = false;
       dot.style.transform = translateTo(targetX, targetY);
       setNativeCursorActive(true);
@@ -326,6 +332,18 @@ export function SignalCursor() {
       if (trigger) deactivate();
     };
 
+    const handleScroll = () => {
+      deactivate();
+      if (!hasPointerPosition || scrollSyncFrame !== null) return;
+      const pointerX = previousX;
+      const pointerY = previousY;
+      scrollSyncFrame = requestAnimationFrame(() => {
+        scrollSyncFrame = null;
+        const target = document.elementFromPoint(pointerX, pointerY);
+        if (target) queuePointer(pointerX, pointerY, target);
+      });
+    };
+
     const hideOutsideViewport = (event: MouseEvent) => {
       if (!event.relatedTarget) deactivate();
     };
@@ -341,7 +359,7 @@ export function SignalCursor() {
     window.addEventListener("mouseout", hideOutsideViewport, { passive: true });
     window.addEventListener("blur", deactivate, { passive: true });
     window.addEventListener("wheel", deactivate, { passive: true });
-    window.addEventListener("scroll", deactivate, { passive: true });
+    window.addEventListener("scroll", handleScroll, { passive: true });
     document.addEventListener("visibilitychange", handleVisibility);
 
     return () => {
@@ -353,8 +371,9 @@ export function SignalCursor() {
       window.removeEventListener("mouseout", hideOutsideViewport);
       window.removeEventListener("blur", deactivate);
       window.removeEventListener("wheel", deactivate);
-      window.removeEventListener("scroll", deactivate);
+      window.removeEventListener("scroll", handleScroll);
       document.removeEventListener("visibilitychange", handleVisibility);
+      if (scrollSyncFrame !== null) cancelAnimationFrame(scrollSyncFrame);
       cancelPulse();
     };
   }, [enabled]);
