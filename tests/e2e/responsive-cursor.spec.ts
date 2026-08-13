@@ -34,23 +34,42 @@ function distance(left: Point, right: Point) {
   return Math.hypot(left.x - right.x, left.y - right.y);
 }
 
+/** The cursor re-reads its context while the page scrolls, so settle first. */
+function waitForScrollIdle(page: Page) {
+  return page.evaluate(
+    () =>
+      new Promise<void>((resolve) => {
+        let stableFrames = 0;
+        let previousY = window.scrollY;
+        const settle = () => {
+          stableFrames = Math.abs(window.scrollY - previousY) < 0.25 ? stableFrames + 1 : 0;
+          previousY = window.scrollY;
+          if (stableFrames >= 6) resolve();
+          else requestAnimationFrame(settle);
+        };
+        requestAnimationFrame(settle);
+      }),
+  );
+}
+
 async function expectCursorLabel(page: Page, target: Locator, label: string) {
-  const previousScrollBehavior = await target.evaluate((element) => {
+  // Approach every target from outside the 3D cards. Chromium hit-tests the
+  // interior of a tilted preserve-3d subtree unreliably — the point resolves to
+  // the `.tilt-card-hit-area` wrapper — so arriving while a previously hovered
+  // card is still tilted can miss the target. At rest the hit test is correct.
+  await page.mouse.move(2, 2);
+  // Every scroll in this helper has to be instant: a smooth scroll still
+  // settling after hover() drags the target out from under a fixed pointer.
+  const previousScrollBehavior = await page.evaluate(() => {
     const root = document.documentElement;
     const previous = root.style.scrollBehavior;
     root.style.scrollBehavior = "auto";
-    element.scrollIntoView({ block: "center", inline: "center", behavior: "auto" });
     return previous;
   });
-  await page.evaluate(
-    () =>
-      new Promise<void>((resolve) =>
-        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
-      ),
+  await target.evaluate((element) =>
+    element.scrollIntoView({ block: "center", inline: "center", behavior: "auto" }),
   );
-  await page.evaluate((previous) => {
-    document.documentElement.style.scrollBehavior = previous;
-  }, previousScrollBehavior);
+  await waitForScrollIdle(page);
   await target.hover();
 
   const cursorLabel = page.locator("[data-cursor-label]");
@@ -59,6 +78,10 @@ async function expectCursorLabel(page: Page, target: Locator, label: string) {
   await expect
     .poll(() => cursorLabel.evaluate((element) => Number.parseFloat(getComputedStyle(element).opacity)))
     .toBeGreaterThan(0.5);
+
+  await page.evaluate((previous) => {
+    document.documentElement.style.scrollBehavior = previous;
+  }, previousScrollBehavior);
 }
 
 test.describe("signal cursor", () => {
@@ -85,17 +108,21 @@ test.describe("signal cursor", () => {
         return {
           overlayPointerEvents: overlay ? getComputedStyle(overlay).pointerEvents : null,
           overlayPosition: overlay ? getComputedStyle(overlay).position : null,
+          rootCursor: getComputedStyle(document.documentElement).cursor,
           bodyCursor: getComputedStyle(document.body).cursor,
           paragraphCursor: paragraph ? getComputedStyle(paragraph).cursor : null,
+          paragraphUserSelect: paragraph ? getComputedStyle(paragraph).userSelect : null,
           interactiveCursor: interactive ? getComputedStyle(interactive).cursor : null,
         };
       });
 
       expect(policy.overlayPointerEvents).toBe("none");
       expect(policy.overlayPosition).toBe("fixed");
+      expect(policy.rootCursor).toBe("none");
       expect(policy.bodyCursor).toBe("none");
       expect(policy.interactiveCursor).toBe("none");
-      expect(policy.paragraphCursor).toBe("text");
+      expect(policy.paragraphCursor).toBe("none");
+      expect(policy.paragraphUserSelect, "text must stay selectable").not.toBe("none");
 
       const mediaPolicy = await page.evaluate(() => ({
         forcedColorsActive: matchMedia("(forced-colors: active)").matches,
@@ -103,10 +130,31 @@ test.describe("signal cursor", () => {
       }));
       expect(mediaPolicy).toEqual({ forcedColorsActive: false, forcedColorsNone: true });
 
+      // The reported defect: a stray element falls back to a platform cursor
+      // (arrow, I-beam, help) while the overlay is on screen.
+      const leaks = await page.evaluate(() => {
+        const nativeRegion = "dialog,video,audio,iframe,embed,object,input,textarea,select,option,[contenteditable='true'],[data-cursor-native]";
+        const offenders: Array<{ tag: string; cursor: string; className: string }> = [];
+        for (const element of Array.from(document.querySelectorAll("*"))) {
+          if (element.closest(nativeRegion)) continue;
+          const { cursor } = getComputedStyle(element);
+          if (cursor === "none") continue;
+          offenders.push({
+            tag: element.tagName.toLowerCase(),
+            cursor,
+            className: element.getAttribute("class") ?? "",
+          });
+          if (offenders.length >= 6) break;
+        }
+        return offenders;
+      });
+      expect(leaks, "no element may fall back to a platform cursor").toEqual([]);
+
       const paragraph = page.locator("main p").first();
       await paragraph.hover();
-      await expect(cursor).toHaveAttribute("data-cursor-native-active", "");
-      await expect(cursor).not.toHaveAttribute("data-visible", "");
+      await expect(cursor).toHaveAttribute("data-cursor-mode", "text");
+      await expect(cursor).not.toHaveAttribute("data-cursor-native-active", "");
+      await expect(cursor).toHaveAttribute("data-visible", "");
     } finally {
       await context.close();
     }
@@ -369,7 +417,11 @@ test.describe("signal cursor", () => {
         "view",
       );
 
-      await page.locator('[data-cursor="play"]').first().click();
+      // Activate by keyboard. A mouse press on this card is unreliable in
+      // Chromium — inside the tilted preserve-3d subtree the point resolves to
+      // the `.tilt-card-hit-area` wrapper rather than the trigger — and this
+      // test is about the cursor handoff, not about how the dialog is opened.
+      await trigger.press("Enter");
       const dialog = page.locator("dialog[open]");
       await expect(dialog).toBeVisible();
       await expect(page.locator("[data-signal-cursor]")).not.toHaveAttribute("data-visible", "");
@@ -437,7 +489,7 @@ test.describe("signal cursor", () => {
     }
   });
 
-  test("keeps scroll, touch, and wheel deactivation idempotent", async ({
+  test("keeps the overlay owned across scrolling and stays idempotent for touch bursts", async ({
     browser,
     browserName,
   }) => {
@@ -452,10 +504,18 @@ test.describe("signal cursor", () => {
       await page.mouse.move(20, 300);
       await expect(page.locator("[data-signal-cursor]")).toHaveAttribute("data-visible", "");
       await page.mouse.move(20, 740);
-      await page.evaluate(() => window.scrollBy({ top: 120, behavior: "instant" }));
-      await expect(page.locator("[data-signal-cursor]")).not.toHaveAttribute("data-visible", "");
-      await expect(page.locator("html")).not.toHaveAttribute("data-signal-cursor-active", "");
-      await expect(page.locator("[data-cursor-label]")).toHaveText("");
+
+      // Scrolling used to hand the pointer back to the OS mid-gesture, which
+      // is exactly when the platform cursor flashed over the page.
+      for (let index = 0; index < 12; index += 1) {
+        await page.evaluate(() => window.scrollBy({ top: 90, behavior: "instant" }));
+        await page.evaluate(
+          () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve())),
+        );
+        await expect(page.locator("[data-signal-cursor]")).toHaveAttribute("data-visible", "");
+        await expect(page.locator("html")).toHaveAttribute("data-signal-cursor-active", "");
+      }
+      expect(await page.evaluate(() => getComputedStyle(document.body).cursor)).toBe("none");
 
       await page.evaluate(() => {
         window.dispatchEvent(

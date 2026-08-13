@@ -3,7 +3,14 @@
 import { useEffect, useRef, useState } from "react";
 import { observeMediaQuery } from "@/lib/media-query";
 
-type CursorMode = "default" | "interactive" | "view" | "play" | "open" | "native";
+type CursorMode =
+  | "default"
+  | "interactive"
+  | "text"
+  | "view"
+  | "play"
+  | "open"
+  | "native";
 
 type PointerSample = {
   x: number;
@@ -14,15 +21,25 @@ type PointerSample = {
 const cursorLabels: Readonly<Record<CursorMode, string>> = {
   default: "",
   interactive: "",
+  text: "",
   view: "VIEW",
   play: "PLAY",
-  open: "OPEN \u2197",
+  open: "OPEN ↗",
   native: "",
 };
 
+/**
+ * The only regions that keep a platform cursor: they either paint their own
+ * controls (video scrubber, form fields) or live in the top layer, above this
+ * overlay, where a custom cursor simply cannot be drawn.
+ */
 const nativeCursorSelector = [
   "dialog",
   "video",
+  "audio",
+  "iframe",
+  "embed",
+  "object",
   "input",
   "textarea",
   "select",
@@ -31,7 +48,8 @@ const nativeCursorSelector = [
   "[data-cursor-native]",
 ].join(",");
 
-const selectableTextSelector = "p,h1,h2,h3,h4,li,blockquote,code,pre";
+const selectableTextSelector =
+  "p,h1,h2,h3,h4,h5,h6,li,blockquote,code,pre,figcaption,dd,dt,td,th";
 const interactiveSelector = "a,button,[role='button'],summary";
 const contextSelector = [
   nativeCursorSelector,
@@ -40,6 +58,12 @@ const contextSelector = [
   selectableTextSelector,
 ].join(",");
 const validModes = new Set<CursorMode>(["view", "play", "open"]);
+
+/**
+ * Revalidation waits for the scroll to stop rather than sampling through it:
+ * one geometry read per gesture, and nothing at all on the per-frame path.
+ */
+const scrollSettleDelay = 140;
 
 function translateTo(x: number, y: number) {
   return `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
@@ -60,7 +84,7 @@ function resolveCursorMode(target: EventTarget | null) {
     return { mode: "interactive" as CursorMode, tone: "signal" };
   }
   if (target.closest(selectableTextSelector)) {
-    return { mode: "native" as CursorMode, tone: "signal" };
+    return { mode: "text" as CursorMode, tone: "signal" };
   }
   return { mode: "default" as CursorMode, tone: "signal" };
 }
@@ -128,6 +152,7 @@ export function SignalCursor() {
     let lastRawTarget: EventTarget | null = null;
     let suppressMouseUntil = 0;
     let inactive = true;
+    let scrollSettleTimer: number | null = null;
 
     const setNativeCursorActive = (active: boolean) => {
       if (documentRoot.hasAttribute("data-signal-cursor-active") === active) return;
@@ -143,6 +168,12 @@ export function SignalCursor() {
       pulseAnimation?.cancel();
       pulseAnimation = null;
       pulse.removeAttribute("data-cursor-pulse-active");
+    };
+
+    const cancelScrollSettle = () => {
+      if (scrollSettleTimer === null) return;
+      window.clearTimeout(scrollSettleTimer);
+      scrollSettleTimer = null;
     };
 
     const updateMode = (target: EventTarget | null, force = false) => {
@@ -165,11 +196,13 @@ export function SignalCursor() {
       }
     };
 
+    /** Full stop: the pointer left the page, or stopped being a mouse. */
     const deactivate = () => {
       if (inactive && frameId === null && !latestSample && !pulseAnimation) return;
       inactive = true;
       initialized = false;
       latestSample = null;
+      cancelScrollSettle();
       setVisible(false);
       setNativeCursorActive(false);
       updateMode(null, true);
@@ -181,34 +214,73 @@ export function SignalCursor() {
       }
     };
 
-    const consumePointerSample = (now: number) => {
+    /** Temporary stop: a native control owns the pointer until it moves away. */
+    const handOffToNative = () => {
+      previousX = targetX;
+      previousY = targetY;
+      const alreadyHandedOff =
+        inactive &&
+        !root.hasAttribute("data-visible") &&
+        !documentRoot.hasAttribute("data-signal-cursor-active") &&
+        pulseAnimation === null;
+      if (alreadyHandedOff) return;
+      inactive = true;
+      initialized = false;
+      trailStrength = 0;
+      setVisible(false);
+      setNativeCursorActive(false);
+      trail.style.opacity = "0";
+      cancelPulse();
+    };
+
+    const coversPointer = (element: Element) => {
+      const rect = element.getBoundingClientRect();
+      return (
+        targetX >= rect.left &&
+        targetX <= rect.right &&
+        targetY >= rect.top &&
+        targetY <= rect.bottom
+      );
+    };
+
+    /**
+     * Scrolling slides content beneath a still pointer, so the hovered context
+     * can go stale. Rather than hit test — `elementFromPoint` inside the tilted
+     * preserve-3d cards resolves to their flattening wrapper, which would drop
+     * a valid capsule mid-scroll — walk up from the element the pointer
+     * genuinely landed on and keep the first ancestor that still covers it.
+     * That promotes PLAY back to the card's VIEW instead of losing both.
+     */
+    const revalidateContext = () => {
+      scrollSettleTimer = null;
+      if (inactive) return;
+      let element: Element | null = lastContextElement;
+      while (element) {
+        if (element.isConnected && coversPointer(element)) {
+          if (element === lastContextElement) return;
+          updateMode(element);
+          if (lastMode === "native") handOffToNative();
+          return;
+        }
+        element = element.parentElement?.closest(contextSelector) ?? null;
+      }
+      updateMode(null);
+    };
+
+    const consumePointerSample = () => {
       const sample = latestSample;
       latestSample = null;
       if (!sample) return;
 
+      const now = performance.now();
+      targetX = sample.x;
+      targetY = sample.y;
       updateMode(sample.target);
       if (lastMode === "native") {
-        previousX = sample.x;
-        previousY = sample.y;
-        const needsNativeHandoff =
-          !inactive ||
-          root.hasAttribute("data-visible") ||
-          documentRoot.hasAttribute("data-signal-cursor-active") ||
-          pulseAnimation !== null;
-        if (needsNativeHandoff) {
-          inactive = true;
-          initialized = false;
-          trailStrength = 0;
-          setVisible(false);
-          setNativeCursorActive(false);
-          trail.style.opacity = "0";
-          cancelPulse();
-        }
+        handOffToNative();
         return;
       }
 
-      targetX = sample.x;
-      targetY = sample.y;
       inactive = false;
       dot.style.transform = translateTo(targetX, targetY);
       setNativeCursorActive(true);
@@ -241,7 +313,7 @@ export function SignalCursor() {
     const drawFrame = (now: number) => {
       const elapsed = Math.min(48, Math.max(1, now - lastFrameTime));
       lastFrameTime = now;
-      consumePointerSample(now);
+      consumePointerSample();
       if (inactive) {
         frameId = null;
         return;
@@ -328,6 +400,16 @@ export function SignalCursor() {
       if (trigger) deactivate();
     };
 
+    /**
+     * Scrolling must never restore the platform cursor — that was the flicker.
+     * The overlay stays owned; only the hovered context is re-read.
+     */
+    const handleScroll = () => {
+      if (inactive) return;
+      cancelScrollSettle();
+      scrollSettleTimer = window.setTimeout(revalidateContext, scrollSettleDelay);
+    };
+
     const hideOutsideViewport = (event: MouseEvent) => {
       if (!event.relatedTarget) deactivate();
     };
@@ -342,8 +424,7 @@ export function SignalCursor() {
     window.addEventListener("click", handleClick, { passive: true });
     window.addEventListener("mouseout", hideOutsideViewport, { passive: true });
     window.addEventListener("blur", deactivate, { passive: true });
-    window.addEventListener("wheel", deactivate, { passive: true });
-    window.addEventListener("scroll", deactivate, { passive: true });
+    window.addEventListener("scroll", handleScroll, { passive: true });
     document.addEventListener("visibilitychange", handleVisibility);
 
     return () => {
@@ -354,9 +435,9 @@ export function SignalCursor() {
       window.removeEventListener("click", handleClick);
       window.removeEventListener("mouseout", hideOutsideViewport);
       window.removeEventListener("blur", deactivate);
-      window.removeEventListener("wheel", deactivate);
-      window.removeEventListener("scroll", deactivate);
+      window.removeEventListener("scroll", handleScroll);
       document.removeEventListener("visibilitychange", handleVisibility);
+      cancelScrollSettle();
       cancelPulse();
     };
   }, [enabled]);

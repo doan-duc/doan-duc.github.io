@@ -1368,7 +1368,26 @@ html.lenis, html.lenis body { height: auto; }
   border-radius: 999px;
   background: var(--signal-cursor-color);
   box-shadow: 0 0 12px color-mix(in srgb, var(--signal-cursor-color) 80%, transparent);
-  transition: width 180ms var(--ease-out-expo), height 180ms var(--ease-out-expo), background 180ms ease;
+  transition:
+    width 180ms var(--ease-out-expo),
+    height 180ms var(--ease-out-expo),
+    border-radius 180ms var(--ease-out-expo),
+    background 180ms ease;
+}
+
+/* Text keeps a caret of our own rather than handing back the platform I-beam,
+   so the pointer never changes owner mid-page. Selection stays untouched. */
+.signal-cursor[data-cursor-mode="text"] .signal-cursor-dot {
+  width: 2px;
+  height: 22px;
+  border-radius: 2px;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--signal-cursor-color) 55%, transparent);
+}
+
+.signal-cursor[data-cursor-mode="text"] .signal-cursor-ring {
+  width: 17px;
+  height: 17px;
+  opacity: 0.3;
 }
 
 .signal-cursor-ring {
@@ -1387,6 +1406,7 @@ html.lenis, html.lenis body { height: auto; }
   transition:
     width 240ms var(--ease-out-expo),
     height 240ms var(--ease-out-expo),
+    opacity 200ms ease,
     border-color 180ms ease,
     background-color 180ms ease;
 }
@@ -1477,37 +1497,42 @@ html.lenis, html.lenis body { height: auto; }
 }
 
 @media (any-hover: hover) and (any-pointer: fine) and (prefers-reduced-motion: no-preference) and (forced-colors: none) {
-  html[data-signal-cursor-active] body,
-  html[data-signal-cursor-active] a,
-  html[data-signal-cursor-active] button,
-  html[data-signal-cursor-active] [role="button"],
-  html[data-signal-cursor-active] summary,
-  html[data-signal-cursor-active] [data-cursor],
-  html[data-signal-cursor-active] [data-cursor] * {
-    cursor: none;
+  /* While the signal cursor owns the pointer it owns it everywhere. An
+     element-by-element allowlist always leaks somewhere — a UA default, a
+     `help` cursor, an unlisted tag — and the platform arrow flashes back mid
+     interaction. One authoritative rule removes that class of bug. */
+  html[data-signal-cursor-active],
+  html[data-signal-cursor-active] * {
+    cursor: none !important;
   }
 
-  html[data-signal-cursor-active] :is(p, h1, h2, h3, h4, li, blockquote, code, pre) {
-    cursor: text;
-  }
-
-  html[data-signal-cursor-active] :is(a, button, [role="button"], [data-cursor]),
-  html[data-signal-cursor-active] :is(a, button, [role="button"], [data-cursor]) * {
-    cursor: none;
-  }
-
+  /* Exception, and the only one: controls that paint their own affordances
+     (video scrubber, form fields) or render in the top layer, above this
+     overlay, where no custom cursor can be drawn. */
   html[data-signal-cursor-active] :is(
     dialog,
-    dialog *,
     video,
+    audio,
+    iframe,
+    embed,
+    object,
     input,
     textarea,
     select,
     option,
     [contenteditable="true"],
-    [data-cursor-native],
-    [data-cursor-native] *
-  ) {
+    [data-cursor-native]
+  ),
+  html[data-signal-cursor-active] :is(
+    dialog,
+    video,
+    audio,
+    iframe,
+    embed,
+    object,
+    [contenteditable="true"],
+    [data-cursor-native]
+  ) * {
     cursor: auto !important;
   }
 }
