@@ -455,7 +455,10 @@ export function SignalCursor() {
     >
       <span ref={trailRef} data-cursor-trail="" className="signal-cursor-trail">
         <svg viewBox="0 0 54 14" preserveAspectRatio="none">
+          {/* ECG-shaped trail kept for later reuse:
           <path d="M1 7h12l3-4 4 8 4-8 4 4h25" />
+          */}
+          <path d="M1 7h52" />
         </svg>
       </span>
       <span ref={ringRef} data-cursor-ring="" className="signal-cursor-ring">

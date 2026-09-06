@@ -9,9 +9,9 @@ const html = await readFile(
 );
 
 const aboutStart = html.indexOf('id="about"');
-const aboutEnd = html.indexOf('id="featured"', aboutStart);
+const aboutEnd = html.indexOf('id="projects"', aboutStart);
 assert.notEqual(aboutStart, -1, "the exported page must contain the About section");
-assert.notEqual(aboutEnd, -1, "the About section must end before Featured research");
+assert.notEqual(aboutEnd, -1, "the About section must end before Projects");
 const aboutHtml = html.slice(aboutStart, aboutEnd);
 const aboutText = aboutHtml
   .replace(/<!--.*?-->/gs, " ")
@@ -24,7 +24,7 @@ const aboutText = aboutHtml
 const expectedParagraphs = [
   "I build AI systems that work beyond the notebook — where signals are noisy, hardware is constrained, and technology has to work for people.",
   "I'm an Embedded Systems & IoT undergraduate at Hanoi University of Science and Technology, focusing on signal processing, efficient AI, and deployable intelligent systems.",
-  "The common thread across my work is turning ideas into systems: from wearable biosignals to meaningful health insights, from large vision models to efficient edge deployments, and from research experiments to prototypes that work in the real world.",
+  "The common thread across my work is turning ideas into systems: from large vision models to efficient edge deployments, and from research experiments to prototypes that work in the real world.",
 ];
 
 test("About section renders the approved portfolio copy", () => {

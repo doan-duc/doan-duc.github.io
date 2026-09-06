@@ -1271,7 +1271,12 @@ html.lenis, html.lenis body { height: auto; }
   animation-play-state: paused;
 }
 
+/* ECG-aware selector retained for later reuse:
 [data-ambient-paused] :is(.ecg-animate, .marquee-track, .about-signal-layer, .about-signal-trace-flow) {
+  animation-play-state: paused;
+}
+*/
+[data-ambient-paused] :is(.marquee-track, .about-signal-layer, .about-signal-trace-flow) {
   animation-play-state: paused;
 }
 @media (hover: none), (pointer: coarse) {
@@ -1400,7 +1405,7 @@ html.lenis, html.lenis body { height: auto; }
   }
 }
 
-/* ECG / PPG waveform SVG decoration */
+/* ECG / PPG waveform SVG decoration retained for later reuse.
 .ecg-line {
   stroke: var(--color-accent);
   stroke-width: 1.5;
@@ -1418,6 +1423,7 @@ html.lenis, html.lenis body { height: auto; }
 @keyframes ecgDraw {
   to { transform: translate3d(-50%, 0, 0); }
 }
+*/
 
 /* 3D project card in card-stack */
 .project-card-3d {
@@ -1494,13 +1500,15 @@ html.lenis, html.lenis body { height: auto; }
   box-shadow: 0 0 12px rgba(34, 211, 238, 0.25);
 }
 
-/* ===========================================================================
+/* Featured ECG/SNN layout retained for later reuse.
+===========================================================================
    FEATURED PIN LAYOUT
    The pinned research layout is decided HERE, under the exact media query the
    component's JS gate uses (tests/featured-gate.test.mjs keeps them in sync).
    Baking it into CSS means the server HTML lays out correctly before
    hydration on every machine — no flow→pinned re-layout jump on slow devices.
    =========================================================================== */
+/* Original featured layout rules:
 @media (min-width: 1024px) and (min-height: 600px) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
   #featured {
     min-height: 100dvh;
@@ -1511,8 +1519,8 @@ html.lenis, html.lenis body { height: auto; }
     padding-block: 0;
   }
 
-  /* min(58vh, 520px) with a floor keeps the stage inside 600px-tall
-     viewports, where the old 58vh + 17rem numerals clipped. */
+  min(58vh, 520px) with a floor keeps the stage inside 600px-tall
+  viewports, where the old 58vh + 17rem numerals clipped.
   #featured [data-featured-stage] {
     height: min(58vh, 520px);
     min-height: 360px;
@@ -1524,6 +1532,7 @@ html.lenis, html.lenis body { height: auto; }
     margin-top: 0;
   }
 }
+*/
 
 /* ===========================================================================
    NAV GLASS
@@ -1929,10 +1938,12 @@ header[data-scrolled] .nav-glass::after {
   .skill-panel-3d {
     transform-style: flat !important;
   }
+  /* ECG reduced-motion rule retained for later reuse.
   .ecg-animate {
     animation: none !important;
     transform: none !important;
   }
+  */
 
   .marquee-track {
     animation: none !important;

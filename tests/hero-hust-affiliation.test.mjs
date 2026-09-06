@@ -130,9 +130,9 @@ test("hero places EDABK beside HUST in one affiliation group", async () => {
 
 test("About does not present EDABK as About content", () => {
   const aboutStart = html.indexOf('id="about"');
-  const aboutEnd = html.indexOf('id="featured"', aboutStart);
+  const aboutEnd = html.indexOf('id="projects"', aboutStart);
   assert.notEqual(aboutStart, -1, "the exported page must contain About");
-  assert.notEqual(aboutEnd, -1, "About must end before Featured research");
+  assert.notEqual(aboutEnd, -1, "About must end before Projects");
 
   const about = html.slice(aboutStart, aboutEnd);
   assert.doesNotMatch(

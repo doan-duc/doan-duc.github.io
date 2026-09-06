@@ -28,7 +28,7 @@ test.describe("responsive motion policies", () => {
               animationName(".aurora-2"),
               animationName(".aurora-3"),
               animationName(".hero-glow"),
-              animationName(".ecg-animate"),
+              // animationName(".ecg-animate"), // ECG decoration is publicly hidden.
               animationName(".about-signal-trace-flow"),
               animationName(".marquee-track"),
             ],
@@ -74,14 +74,14 @@ test.describe("responsive motion policies", () => {
       const sampleHero = () =>
         page.evaluate(() => ({
           aurora: getComputedStyle(document.querySelector<HTMLElement>(".aurora-1")!).transform,
-          ecg: getComputedStyle(document.querySelector<HTMLElement>(".ecg-animate")!).transform,
+          // ecg: getComputedStyle(document.querySelector<HTMLElement>(".ecg-animate")!).transform,
         }));
       const before = await sampleHero();
       await page.waitForTimeout(350);
       const after = await sampleHero();
 
       expect(after.aurora, "aurora transform progresses").not.toBe(before.aurora);
-      expect(after.ecg, "ECG transform progresses").not.toBe(before.ecg);
+      // expect(after.ecg, "ECG transform progresses").not.toBe(before.ecg);
 
       // Off-screen ambient loops sleep (AmbientGate); the marquee only runs
       // once its section is near the viewport.
@@ -158,11 +158,11 @@ test.describe("responsive motion policies", () => {
 
         const motion = await page.evaluate(() => ({
           reduced: matchMedia("(prefers-reduced-motion: reduce)").matches,
-          ecg: getComputedStyle(document.querySelector<HTMLElement>(".ecg-animate")!).animationName,
+          // ecg: getComputedStyle(document.querySelector<HTMLElement>(".ecg-animate")!).animationName,
           marquee: getComputedStyle(document.querySelector<HTMLElement>(".marquee-track")!).animationName,
         }));
         expect(motion.reduced, `${viewport.name}: test precondition`).toBe(false);
-        expect(motion.ecg, `${viewport.name}: ECG keeps moving after touch scroll`).toBe("ecgDraw");
+        // expect(motion.ecg, `${viewport.name}: ECG keeps moving after touch scroll`).toBe("ecgDraw");
         expect(motion.marquee, `${viewport.name}: marquee keeps moving after touch scroll`).toBe("marquee");
       } finally {
         await context.close();
@@ -475,6 +475,20 @@ test.describe("responsive motion policies", () => {
     browserName,
   }) => {
     test.skip(browserName !== "chromium", "Pin policy is exercised once in Chromium");
+    const { context, page } = await openResponsivePage(browser, {
+      name: "hidden-research",
+      width: 768,
+      height: 480,
+      touch: true,
+    });
+    try {
+      await expect(page.locator("#featured")).toHaveCount(0);
+      await expect(page.locator(".pin-spacer")).toHaveCount(0);
+      return;
+    } finally {
+      await context.close();
+    }
+    /* Previous responsive pin checks are retained below for later reuse.
     const constrained = [
       { name: "tablet-short", width: 768, height: 480, touch: true },
       { name: "phone-landscape", width: 844, height: 390, mobile: true, touch: true, dpr: 3 },
@@ -495,6 +509,7 @@ test.describe("responsive motion policies", () => {
         await context.close();
       }
     }
+    */
   });
 
   test("keeps the cinematic research sequence pinned and escapable on desktop", async ({
@@ -509,6 +524,10 @@ test.describe("responsive motion policies", () => {
     });
 
     try {
+      await expect(page.locator("#featured")).toHaveCount(0);
+      await expect(page.locator(".pin-spacer")).toHaveCount(0);
+      return;
+      /* Previous pinned research sequence retained for later reuse.
       const featured = page.locator("#featured");
       await expect(featured).toHaveAttribute("data-featured-motion", "pinned");
       await featured.scrollIntoViewIfNeeded();
@@ -541,6 +560,7 @@ test.describe("responsive motion policies", () => {
           }),
         )
         .toBe(true);
+      */
     } finally {
       await context.close();
     }
@@ -567,7 +587,7 @@ test.describe("responsive motion policies", () => {
       expect(styles.scrollBehavior).toBe("auto");
       expect(styles.marqueeAnimation).toBe("none");
       expect(styles.marqueeTransform).toBe("none");
-      expect(styles.ecgAnimation).toBe("none");
+      expect(styles.ecgAnimation).toBeNull();
 
       const aboutInstrument = page.locator("[data-about-signal-stack]");
       const systemLayer = page.locator('[data-about-layer="system"]');

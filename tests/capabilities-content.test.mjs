@@ -40,24 +40,11 @@ const expectedCapabilities = [
     description:
       "Designing smaller models for constrained compute without giving up useful performance.",
     tags: [
-      "Spiking Neural Networks",
       "Neural Architecture Search",
       "Quantization",
       "Knowledge Distillation",
       "Pruning",
       "Model Compression",
-    ],
-  },
-  {
-    title: "Biosignals & Time-Series",
-    description:
-      "Learning robust representations from noisy physiological and time-series signals.",
-    tags: [
-      "ECG / PPG",
-      "Signal Processing",
-      "Signal Denoising",
-      "Time-Series Learning",
-      "Autoencoders",
     ],
   },
   {
@@ -87,10 +74,10 @@ const expectedCapabilities = [
   },
 ];
 
-test("What I Work With renders the approved heading and four panels", () => {
+test("What I Work With renders the three public capability panels", () => {
   assert.ok(skillsText.includes("What I work with"));
   assert.ok(skillsText.includes("The tools and methods behind the work."));
-  assert.equal(panelText.length, 4, "the section must contain four panels");
+  assert.equal(panelText.length, 3, "the section must contain three panels");
   assert.doesNotMatch(
     skillsText,
     /Efficient AI & models|Biosignals & perception|Edge deployment|Applied systems/,

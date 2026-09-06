@@ -144,10 +144,8 @@ test.describe("responsive geometry", () => {
             page,
             `${device.name} orientation ${viewport.width}x${viewport.height}`,
           );
-          await expect(page.locator("#featured")).toHaveAttribute(
-            "data-featured-motion",
-            "flow",
-          );
+          // Featured ECG/SNN research is retained in source but not rendered.
+          await expect(page.locator("#featured")).toHaveCount(0);
           await expect(page.locator(".pin-spacer")).toHaveCount(0);
         }
       } finally {
@@ -173,7 +171,7 @@ test.describe("responsive geometry", () => {
       try {
         for (const sectionId of [
           "about",
-          "featured",
+          // "featured", // ECG/SNN research is publicly hidden.
           "projects",
           "skills",
           "achievements",
@@ -199,6 +197,18 @@ test.describe("responsive geometry", () => {
     browserName,
   }) => {
     test.skip(browserName !== "chromium", "Pinned-stage geometry runs once in Chromium");
+    const hidden = await openResponsivePage(browser, {
+      name: "hidden-featured",
+      width: 1366,
+      height: 641,
+    });
+    try {
+      await expect(hidden.page.locator("#featured")).toHaveCount(0);
+      return;
+    } finally {
+      await hidden.context.close();
+    }
+    /* Previous pinned-stage geometry checks retained for later reuse.
     // The layout audit only detects horizontal issues; the pinned stage is the
     // one place where vertical clipping bit real 600–768px-tall machines.
     for (const viewport of [
@@ -242,6 +252,7 @@ test.describe("responsive geometry", () => {
         await context.close();
       }
     }
+    */
   });
 
   test("remains readable when the display font is unavailable", async ({ browser }) => {

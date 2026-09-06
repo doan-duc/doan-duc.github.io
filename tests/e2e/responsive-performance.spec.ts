@@ -570,7 +570,7 @@ test.describe("motion smoothness budgets", () => {
             [".aurora-2", null],
             [".aurora-3", null],
             [".hero-glow", null],
-            [".ecg-animate", null],
+            // [".ecg-animate", null], // ECG decoration is publicly hidden.
             [".about-signal-trace-flow", null],
             [".marquee-track", null],
           ] as const;
@@ -602,7 +602,7 @@ test.describe("motion smoothness budgets", () => {
           ".aurora-2: aurora-2",
           ".aurora-3: aurora-3",
           ".hero-glow: hero-pulse",
-          ".ecg-animate: ecgDraw",
+          // ".ecg-animate: ecgDraw",
           ".about-signal-trace-flow: about-trace-flow",
           ".marquee-track: marquee",
         ]);

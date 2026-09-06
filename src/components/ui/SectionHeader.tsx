@@ -102,11 +102,14 @@ export function SectionHeader({
         preserveAspectRatio="none"
         fill="none"
       >
+        {/* ECG-shaped path kept for later reuse:
+        <path data-header-rule-path pathLength={1} vectorEffect="non-scaling-stroke" d="M0 14 H822 l7 -8 9 12 7 -10 8 6 H1200" />
+        */}
         <path
           data-header-rule-path
           pathLength={1}
           vectorEffect="non-scaling-stroke"
-          d="M0 14 H822 l7 -8 9 12 7 -10 8 6 H1200"
+          d="M0 14 H1200"
         />
       </svg>
     </div>

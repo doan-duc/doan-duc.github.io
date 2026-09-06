@@ -6,10 +6,12 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useIsoLayoutEffect } from "@/lib/use-iso-layout-effect";
 import { about, researchFocus } from "@/lib/content";
 import { Container } from "@/components/ui/Container";
-import { EcgWaveform } from "@/components/ui/EcgWaveform";
+// ECG-themed decoration is intentionally hidden from the public portfolio.
+// import { EcgWaveform } from "@/components/ui/EcgWaveform";
 import { AboutSignalInstrument } from "@/components/sections/AboutSignalInstrument";
 import { ScrollRevealText } from "@/components/motion/ScrollRevealText";
-import { DEPTH, DUR, EASE, SCRUB, START } from "@/lib/motion-tokens";
+// import { DEPTH, DUR, EASE, SCRUB, START } from "@/lib/motion-tokens"; // ECG parallax version.
+import { DEPTH, DUR, EASE, START } from "@/lib/motion-tokens";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -17,7 +19,7 @@ if (typeof window !== "undefined") {
 
 /**
  * About section: no pin. Individual scroll-triggered 3D reveals
- * for lead text, body, and research focus. Continuous ECG parallax.
+ * for lead text, body, and research focus.
  */
 export function About3D() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -88,7 +90,9 @@ export function About3D() {
           },
         });
 
-        // ECG waveform continuous parallax
+        // Research-focus block wraps ScrollRevealText — transform-only, the
+        // word wipe owns opacity.
+        /* ECG waveform parallax kept for later reuse.
         gsap.fromTo(
           "[data-about-waves]",
           { y: 50 },
@@ -103,9 +107,8 @@ export function About3D() {
             },
           },
         );
+        */
 
-        // Research-focus block wraps ScrollRevealText — transform-only, the
-        // word wipe owns opacity.
         gsap.from("[data-about-focus]", {
           z: DEPTH.shallow,
           y: 40,
@@ -176,7 +179,8 @@ export function About3D() {
           },
         });
 
-        // Keep the signal layer responsive to native touch scrolling.
+        // Wraps ScrollRevealText — transform-only.
+        /* Touch-scroll ECG waveform parallax kept for later reuse.
         gsap.fromTo(
           "[data-about-waves]",
           { y: 36 },
@@ -192,8 +196,8 @@ export function About3D() {
             },
           },
         );
+        */
 
-        // Wraps ScrollRevealText — transform-only.
         gsap.from("[data-about-focus]", {
           z: DEPTH.shallow,
           rotateX: 4,
@@ -222,22 +226,12 @@ export function About3D() {
       ref={sectionRef}
       className="relative py-24 md:py-32"
     >
-      {/* ECG waveform ambient layer */}
-      <div
-        data-about-waves
-        data-ambient=""
-        className="pointer-events-none absolute inset-0 z-0 preserve-3d"
-        aria-hidden="true"
-      >
-        <EcgWaveform
-          className="absolute left-0 top-[25%] h-10 w-full opacity-50"
-          delay={1}
-        />
-        <EcgWaveform
-          className="absolute right-0 top-[65%] h-8 w-[60%] opacity-30"
-          delay={3}
-        />
+      {/* ECG waveform ambient layer intentionally hidden.
+      <div data-about-waves data-ambient="" className="pointer-events-none absolute inset-0 z-0 preserve-3d" aria-hidden="true">
+        <EcgWaveform className="absolute left-0 top-[25%] h-10 w-full opacity-50" delay={1} />
+        <EcgWaveform className="absolute right-0 top-[65%] h-8 w-[60%] opacity-30" delay={3} />
       </div>
+      */}
 
       <div className="perspective-scene relative z-10 w-full">
         <Container className="preserve-3d">

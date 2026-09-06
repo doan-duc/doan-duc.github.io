@@ -10,7 +10,9 @@ export const about = {
     "— where signals are noisy, hardware is constrained, and technology has to work for people.",
   body: [
     "I'm an Embedded Systems & IoT undergraduate at Hanoi University of Science and Technology, focusing on signal processing, efficient AI, and deployable intelligent systems.",
-    "The common thread across my work is turning ideas into systems: from wearable biosignals to meaningful health insights, from large vision models to efficient edge deployments, and from research experiments to prototypes that work in the real world.",
+    // ECG/SNN-specific story intentionally hidden from public copy.
+    // "The common thread across my work is turning ideas into systems: from wearable biosignals to meaningful health insights, from large vision models to efficient edge deployments, and from research experiments to prototypes that work in the real world.",
+    "The common thread across my work is turning ideas into systems: from large vision models to efficient edge deployments, and from research experiments to prototypes that work in the real world.",
   ],
 };
 
@@ -99,6 +101,7 @@ export const projects: Project[] = [
 ];
 
 /* -------- FEATURED / PINNED DEEP-DIVE ----------------------------------- */
+/* ECG/SNN featured research data retained for later reuse.
 export const highlight = {
   eyebrow: "Featured research",
   title: "Ear-to-chest ECG reconstruction",
@@ -136,6 +139,18 @@ export const highlight = {
     },
   ],
 };
+*/
+
+// Safe placeholder keeps the dormant component type-checkable while the
+// original ECG/SNN data above stays commented out.
+export const highlight = {
+  eyebrow: "",
+  title: "",
+  subtitle: "",
+  chips: [] as string[],
+  link: { label: "", href: "#" },
+  phases: [] as Array<{ key: string; label: string; body: string }>,
+};
 
 /* -------- CAPABILITIES --------------------------------------------------- */
 export const capabilities = [
@@ -144,7 +159,7 @@ export const capabilities = [
     blurb:
       "Designing smaller models for constrained compute without giving up useful performance.",
     skills: [
-      "Spiking Neural Networks",
+      // "Spiking Neural Networks", // ECG/SNN work intentionally hidden.
       "Neural Architecture Search",
       "Quantization",
       "Knowledge Distillation",
@@ -152,18 +167,13 @@ export const capabilities = [
       "Model Compression",
     ],
   },
+  /* ECG/SNN-related capability intentionally hidden.
   {
     title: "Biosignals & Time-Series",
-    blurb:
-      "Learning robust representations from noisy physiological and time-series signals.",
-    skills: [
-      "ECG / PPG",
-      "Signal Processing",
-      "Signal Denoising",
-      "Time-Series Learning",
-      "Autoencoders",
-    ],
+    blurb: "Learning robust representations from noisy physiological and time-series signals.",
+    skills: ["ECG / PPG", "Signal Processing", "Signal Denoising", "Time-Series Learning", "Autoencoders"],
   },
+  */
   {
     title: "Edge AI & Deployment",
     blurb:
@@ -200,11 +210,12 @@ export type ResearchFocus = {
 };
 
 export const researchFocus: ResearchFocus[] = [
+  /* ECG/SNN research focus intentionally hidden.
   {
     title: "Efficient AI for Biosignals",
-    body:
-      "Developing compact Spiking Neural Networks and neural architecture search (MLP-NAS) methods for ECG and PPG modeling, with an emphasis on efficient, deployable biosignal systems. KAN remains a smaller, exploratory direction within this work.",
+    body: "Developing compact Spiking Neural Networks and neural architecture search (MLP-NAS) methods for ECG and PPG modeling, with an emphasis on efficient, deployable biosignal systems. KAN remains a smaller, exploratory direction within this work.",
   },
+  */
   {
     title: "Efficient Edge AI",
     body:
@@ -227,7 +238,9 @@ export const experience: Engagement[] = [
     role: "Lab Member",
     org: "EDABK Laboratory, HUST",
     place: "Hanoi",
-    body: "Researching SNN and MLP-NAS for ECG/PPG, with smaller exploratory work on KAN, alongside efficient computer-vision systems aimed at deployable AI.",
+    // ECG/SNN-specific work intentionally hidden from public copy.
+    // body: "Researching SNN and MLP-NAS for ECG/PPG, with smaller exploratory work on KAN, alongside efficient computer-vision systems aimed at deployable AI.",
+    body: "Researching efficient AI systems, including deployable computer-vision methods for constrained hardware.",
   },
   {
     period: "Now",
@@ -248,7 +261,8 @@ export const experience: Engagement[] = [
     role: "What I want to build",
     org: "Research to products",
     place: "Future",
-    body: "AI systems that connect biomedical signals, embedded deployment, and interfaces real users actually trust.",
+    // body: "AI systems that connect biomedical signals, embedded deployment, and interfaces real users actually trust.",
+    body: "AI systems that connect efficient models, embedded deployment, and interfaces real users actually trust.",
   },
 ];
 

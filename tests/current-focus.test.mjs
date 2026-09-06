@@ -21,21 +21,14 @@ const focusText = focusHtml
   .replace(/\s+/g, " ")
   .trim();
 
-test("Current focus presents the two approved research directions", () => {
+test("Current focus presents only the public research direction", () => {
   assert.equal(
     focusHtml.match(/data-research-focus/g)?.length,
-    2,
-    "the block must contain exactly two research directions",
-  );
-  assert.ok(focusText.includes("Efficient AI for Biosignals"));
-  assert.ok(focusText.includes("Spiking Neural Networks"));
-  assert.ok(focusText.includes("neural architecture search (MLP-NAS)"));
-  assert.ok(focusText.includes("ECG and PPG"));
-  assert.ok(
-    focusText.includes("KAN remains a smaller, exploratory direction"),
-    "KAN must be framed as exploratory rather than a primary focus",
+    1,
+    "the block must contain exactly one public research direction",
   );
   assert.ok(focusText.includes("Efficient Edge AI"));
   assert.ok(focusText.includes("real-time multi-camera computer vision"));
   assert.ok(focusText.includes("accuracy, latency, and compute efficiency"));
+  assert.doesNotMatch(focusText, /ECG|SNN|Spiking|biosignal/i);
 });

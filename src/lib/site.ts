@@ -6,9 +6,12 @@ export const site = {
   name: "Duc Doan Sinh",
   initials: "DDS",
   role: "AI / Embedded Systems",
-  tagline: "Efficient intelligence from biosignals to the edge.",
+  // ECG/SNN-specific positioning is intentionally hidden from public copy.
+  // tagline: "Efficient intelligence from biosignals to the edge.",
+  tagline: "Efficient intelligence for real-world systems.",
+  // summary: "AI / Embedded Systems student building efficient, deployable intelligence from wearable biosignals to multi-stream edge vision.",
   summary:
-    "AI / Embedded Systems student building efficient, deployable intelligence from wearable biosignals to multi-stream edge vision.",
+    "AI / Embedded Systems student building efficient, deployable intelligence for multi-stream edge vision and real-world applications.",
   location: "Hanoi, Vietnam",
   education: "B.S. Smart Embedded Systems & IoT, HUST, expected 2027",
   available: "AI / Embedded Systems student",
@@ -25,7 +28,8 @@ export const site = {
   phone: "+84 928 161 469",
   github: "https://github.com/doan-duc",
   linkedin: "https://www.linkedin.com/in/doanduc2312",
-  focusAreas: ["Neuromorphic AI", "Biomedical signals", "Edge vision", "RAG systems"],
+  // focusAreas: ["Neuromorphic AI", "Biomedical signals", "Edge vision", "RAG systems"],
+  focusAreas: ["Efficient AI", "Edge vision", "RAG systems"],
   affiliations: [
     {
       id: "hust",
@@ -62,7 +66,7 @@ export const site = {
 
 export const navLinks = [
   { id: "about", label: "About" },
-  { id: "featured", label: "Research" },
+  // { id: "featured", label: "Research" }, // ECG/SNN research is not public.
   { id: "projects", label: "Projects" },
   { id: "skills", label: "Skills" },
   { id: "achievements", label: "Achievements" },

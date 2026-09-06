@@ -8,7 +8,8 @@ import { Container } from "@/components/ui/Container";
 import { ArrowDown } from "@/components/ui/icons";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { useSmoothScroll } from "@/components/providers/SmoothScroll";
-import { EcgWaveform } from "@/components/ui/EcgWaveform";
+// ECG-themed decoration is intentionally hidden from the public portfolio.
+// import { EcgWaveform } from "@/components/ui/EcgWaveform";
 import { HeroAffiliations } from "@/components/sections/HeroAffiliations";
 import { DUR, EASE } from "@/lib/motion-tokens";
 
@@ -74,22 +75,13 @@ export function Hero3D() {
       {/* Background grid */}
       <div className="hero-grid-bg" aria-hidden="true" />
 
-      {/* Subtle ECG waveform layer */}
-      <div
-        data-ambient=""
-        className="pointer-events-none absolute inset-0 z-0"
-        aria-hidden="true"
-      >
+      {/* ECG waveform layer intentionally hidden.
+      <div data-ambient="" className="pointer-events-none absolute inset-0 z-0" aria-hidden="true">
         <EcgWaveform className="absolute left-0 top-[30%] h-12 w-full" />
-        <EcgWaveform
-          className="absolute left-[20%] top-[55%] h-10 w-[70%]"
-          delay={2}
-        />
-        <EcgWaveform
-          className="absolute left-[10%] top-[78%] h-8 w-[50%]"
-          delay={4}
-        />
+        <EcgWaveform className="absolute left-[20%] top-[55%] h-10 w-[70%]" delay={2} />
+        <EcgWaveform className="absolute left-[10%] top-[78%] h-8 w-[50%]" delay={4} />
       </div>
+      */}
 
       {/* Hero glow — anchored to the content column, not the viewport, so it
           stays behind the name on ultrawide screens instead of drifting into

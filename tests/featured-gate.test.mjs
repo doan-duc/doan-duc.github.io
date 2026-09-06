@@ -11,7 +11,7 @@ import { fileURLToPath } from "node:url";
  */
 const GATE = "(min-width: 1024px) and (min-height: 600px) and (pointer: fine)";
 
-test("the featured pin gate is identical in TSX and CSS", async () => {
+test("the dormant featured component keeps its gate while public CSS omits the layout", async () => {
   const tsx = await readFile(
     fileURLToPath(new URL("../src/components/sections/FeaturedResearch3D.tsx", import.meta.url)),
     "utf8",
@@ -22,8 +22,6 @@ test("the featured pin gate is identical in TSX and CSS", async () => {
   );
 
   assert.ok(tsx.includes(`"${GATE}"`), `FeaturedResearch3D.tsx must gate on ${GATE}`);
-  assert.ok(
-    css.includes(`@media ${GATE} and (prefers-reduced-motion: no-preference)`),
-    "globals.css pinned layout must use the identical query (+ no-preference)",
-  );
+  const publicCss = css.replace(/\/\*.*?\*\//gs, " ");
+  assert.ok(!publicCss.includes("#featured"), "public CSS must omit the hidden featured layout");
 });
